@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>testthecontr Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* ── Palette: ink ledger + brass ── */
+      --bg-0: #090c14;
+      --bg-1: #0d111c;
+      --surface: #121826;
+      --surface-2: #161d2e;
+      --surface-hover: #1b2338;
+      --border: #232c42;
+      --border-hover: #33405c;
+      --text: #eef1f8;
+      --text-dim: #8b93ab;
+      --text-faint: #565f7a;
+
+      --brass: #e0b054;
+      --brass-dim: #b8903f;
+      --brass-glow: rgba(224, 176, 84, 0.18);
+      --teal: #4fc9a8;
+      --teal-glow: rgba(79, 201, 168, 0.16);
+      --coral: #ec6f61;
+      --coral-glow: rgba(236, 111, 97, 0.16);
+      --amber: #e2a53f;
+      --amber-glow: rgba(226, 165, 63, 0.16);
+      --violet: #a48af0;
+      --violet-glow: rgba(164, 138, 240, 0.16);
+      --blue: #5b9dee;
+
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+
+      --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -8px rgba(0,0,0,0.5);
+      --shadow-lift: 0 2px 4px rgba(0,0,0,0.35), 0 16px 40px -12px rgba(0,0,0,0.6);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body {
+      font-family: var(--font-body);
+      background:
+        radial-gradient(ellipse 900px 500px at 15% -10%, rgba(224,176,84,0.07), transparent 60%),
+        radial-gradient(ellipse 800px 600px at 100% 0%, rgba(79,201,168,0.05), transparent 55%),
+        var(--bg-0);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 14px 70px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--brass-glow); color: var(--text); }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 740px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .logo-mark {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: conic-gradient(from 220deg, var(--brass), var(--teal), var(--violet), var(--brass));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; box-shadow: 0 0 0 1px var(--border), 0 4px 14px -4px var(--brass-glow);
+      animation: logo-spin 14s linear infinite;
+    }
+    @keyframes logo-spin { to { filter: hue-rotate(360deg); } }
+    .header-left h1 {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 600;
+      color: var(--text); letter-spacing: -0.01em;
+    }
+    .header-left .sub {
+      font-size: 0.68rem; color: var(--text-dim); background: var(--surface);
+      padding: 3px 11px; border-radius: 20px; border: 1px solid var(--border);
+      font-weight: 500;
+    }
+    .header-left .contract-badge {
+      font-size: 0.68rem; color: var(--violet); background: var(--violet-glow);
+      padding: 3px 11px; border-radius: 20px; border: 1px solid rgba(164,138,240,0.3);
+      font-family: var(--font-mono); font-weight: 500;
+    }
+
+    .network-toggle {
+      display: flex; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 9px; overflow: hidden; padding: 2px;
+    }
+    .net-btn {
+      padding: 5px 13px; font-size: 0.71rem; font-weight: 600; cursor: pointer;
+      border: none; background: transparent; color: var(--text-dim); border-radius: 7px;
+      transition: all 0.2s var(--ease);
+    }
+    .net-btn.active { background: var(--brass); color: #1a1408; box-shadow: 0 2px 8px -2px var(--brass-glow); }
+    .net-btn:not(.active):not(:disabled):hover { background: var(--surface-hover); color: var(--text); }
+    .net-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* ── Toasts ── */
+    #status {
+      position: fixed; top: 18px; right: 18px; z-index: 999;
+      display: flex; flex-direction: column; gap: 8px; max-width: min(360px, calc(100vw - 36px));
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      position: relative; overflow: hidden;
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 11px;
+      padding: 11px 34px 11px 14px; font-size: 0.82rem; line-height: 1.45;
+      box-shadow: var(--shadow-lift); cursor: pointer; word-break: break-word;
+      animation: toast-in 0.32s var(--ease);
+    }
+    .toast.leaving { animation: toast-out 0.22s var(--ease) forwards; }
+    @keyframes toast-in { from { opacity: 0; transform: translateX(24px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+    @keyframes toast-out { to { opacity: 0; transform: translateX(24px) scale(0.97); } }
+    .toast::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+    .toast.success { color: var(--teal); } .toast.success::before { background: var(--teal); }
+    .toast.error   { color: var(--coral); } .toast.error::before { background: var(--coral); }
+    .toast.info    { color: var(--blue); } .toast.info::before { background: var(--blue); }
+    .toast.warning { color: var(--amber); } .toast.warning::before { background: var(--amber); }
+    .toast .toast-close { position: absolute; top: 9px; right: 10px; color: var(--text-faint); font-size: 0.9rem; line-height: 1; }
+    .toast .toast-bar { position: absolute; left: 0; bottom: 0; height: 2px; background: currentColor; opacity: 0.5; animation: toast-bar 6s linear forwards; }
+    @keyframes toast-bar { from { width: 100%; } to { width: 0%; } }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      width: 100%;
+      max-width: 740px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-card);
+      animation: card-in 0.4s var(--ease);
+    }
+    @keyframes card-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .card h2 {
+      font-family: var(--font-display); font-size: 0.78rem; font-weight: 600;
+      color: var(--brass); text-transform: uppercase; letter-spacing: 0.09em;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .card h3 { font-size: 0.86rem; font-weight: 600; color: var(--text); margin-bottom: 9px; }
+    .card.admin-card { border-color: rgba(164,138,240,0.35); background: linear-gradient(180deg, rgba(164,138,240,0.05), transparent 40%), var(--surface); }
+    .card.admin-card h2 { color: var(--violet); }
+
+    /* ── Auth ── */
+    #auth-section { text-align: center; }
+    #auth-section > p { color: var(--text-dim); margin-bottom: 18px; font-size: 0.86rem; line-height: 1.65; }
+
+    .anchor-btn {
+      display: inline-flex; flex-direction: column; align-items: center; gap: 7px;
+      padding: 20px 36px; background: var(--surface-2);
+      border: 1px solid var(--border); border-radius: 14px; cursor: pointer;
+      color: var(--text); width: 100%;
+      transition: border-color 0.25s var(--ease), transform 0.15s var(--ease), box-shadow 0.25s var(--ease);
+    }
+    .anchor-btn:hover { border-color: var(--brass); transform: translateY(-1px); box-shadow: 0 8px 24px -8px var(--brass-glow); }
+    .anchor-btn:active { transform: translateY(0) scale(0.99); }
+    .anchor-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .anchor-btn .w-icon { font-size: 1.7rem; }
+    .anchor-btn .w-name { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; }
+    .anchor-btn .w-hint { font-size: 0.7rem; color: var(--text-dim); }
+    .download-hint { margin-top: 12px; font-size: 0.74rem; color: var(--text-faint); }
+    .download-hint a { color: var(--brass); text-decoration: none; }
+    .download-hint a:hover { text-decoration: underline; }
+
+    /* ── Account bar ── */
+    #account-bar {
+      display: none;
+      background: linear-gradient(135deg, rgba(224,176,84,0.06), transparent 55%), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      width: 100%;
+      max-width: 740px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-card);
+      animation: card-in 0.4s var(--ease);
+    }
+    .acct-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+    .acct-name { font-family: var(--font-mono); font-size: 1.02rem; font-weight: 600; letter-spacing: -0.01em; }
+    .acct-net  { font-size: 0.68rem; color: var(--amber); background: var(--amber-glow); border: 1px solid rgba(226,165,63,0.3); padding: 3px 11px; border-radius: 20px; font-weight: 500; }
+    .acct-role { font-size: 0.68rem; color: var(--violet); background: var(--violet-glow); border: 1px solid rgba(164,138,240,0.3); padding: 3px 11px; border-radius: 20px; font-weight: 500; }
+    .acct-balance-row { display: flex; align-items: baseline; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+    .acct-balance {
+      font-family: var(--font-display); font-size: 1.9rem; font-weight: 600;
+      letter-spacing: -0.02em; color: var(--brass); transition: opacity 0.15s;
+    }
+    .acct-balance span { font-family: var(--font-body); font-size: 0.85rem; color: var(--text-dim); margin-left: 5px; font-weight: 500; }
+    .acct-balance-row select { width: auto; padding: 5px 10px; font-size: 0.72rem; }
+    .acct-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .btn-sm {
+      padding: 7px 15px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text); font-size: 0.76rem; font-weight: 600;
+      cursor: pointer; transition: all 0.18s var(--ease);
+    }
+    .btn-sm:hover { border-color: var(--brass); color: var(--brass); transform: translateY(-1px); }
+    .btn-sm.danger:hover { border-color: var(--coral); color: var(--coral); }
+    .btn-sm.admin:hover { border-color: var(--violet); color: var(--violet); }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex; position: relative; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; width: 100%; max-width: 740px; margin-bottom: 14px;
+      flex-wrap: wrap; padding: 3px; box-shadow: var(--shadow-card);
+    }
+    .tab-indicator {
+      position: absolute; top: 3px; bottom: 3px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--brass), #c99a45);
+      box-shadow: 0 4px 14px -4px var(--brass-glow);
+      transition: left 0.32s var(--ease), width 0.32s var(--ease);
+      z-index: 0;
+    }
+    .tab-btn {
+      position: relative; z-index: 1;
+      flex: 1; min-width: 62px; padding: 9px 8px; font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; border: none; background: transparent; color: var(--text-dim);
+      border-radius: 9px; transition: color 0.25s var(--ease);
+    }
+    .tab-btn.active { color: #1a1408; }
+    .tab-btn:not(.active):hover { color: var(--text); }
+    .tab-btn.admin-tab { color: rgba(164,138,240,0.35); }
+    .tab-btn.admin-tab.visible { color: var(--violet); }
+    .tab-btn.admin-tab.active { color: #1a1408; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: panel-in 0.3s var(--ease); }
+    @keyframes panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Forms ── */
+    .form-group { margin-bottom: 13px; }
+    label { display: block; font-size: 0.77rem; color: var(--text-dim); margin-bottom: 5px; font-weight: 500; }
+    input, select, textarea {
+      width: 100%; background: var(--bg-1); border: 1px solid var(--border); border-radius: 9px;
+      padding: 9px 13px; color: var(--text); font-size: 0.9rem; outline: none;
+      transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease); font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--brass); box-shadow: 0 0 0 3px var(--brass-glow); }
+    input::placeholder, textarea::placeholder { color: var(--text-faint); }
+    input[readonly] { color: var(--text-dim); background: var(--bg-0); }
+    textarea { resize: vertical; min-height: 50px; }
+    .field-hint { font-size: 0.71rem; color: var(--text-faint); margin-top: 4px; line-height: 1.5; }
+
+    .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .input-row .form-group { flex: 1; min-width: 130px; }
+    .input-row .form-group.half { flex: 0.5; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 9px 19px; border-radius: 9px; border: none; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; transition: all 0.18s var(--ease);
+      position: relative;
+    }
+    .btn:hover:not(:disabled)  { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-primary  { background: linear-gradient(135deg, var(--teal), #3fae90); color: #06231b; box-shadow: 0 4px 14px -6px var(--teal-glow); }
+    .btn-blue     { background: linear-gradient(135deg, var(--blue), #4785d1); color: #0a1a2e; box-shadow: 0 4px 14px -6px rgba(91,157,238,0.3); }
+    .btn-orange   { background: linear-gradient(135deg, var(--amber), #c98f2e); color: #241a05; box-shadow: 0 4px 14px -6px var(--amber-glow); }
+    .btn-purple   { background: linear-gradient(135deg, var(--violet), #8b6fe0); color: #170f2e; box-shadow: 0 4px 14px -6px var(--violet-glow); }
+    .btn-red      { background: linear-gradient(135deg, var(--coral), #d1503f); color: #2b0a05; box-shadow: 0 4px 14px -6px var(--coral-glow); }
+    .btn-full     { width: 100%; }
+    .btn-xs       { padding: 6px 12px; font-size: 0.73rem; border-radius: 7px; }
+
+    /* ── Rows / lists ── */
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+    .row:last-child { border-bottom: none; }
+    .row .label { color: var(--text-dim); font-size: 0.8rem; }
+    .row .value { font-family: var(--font-mono); font-weight: 500; font-size: 0.85rem; text-align: right; }
+    .row .value.green { color: var(--teal); }
+    .row .value.red   { color: var(--coral); }
+    .row .value.orange { color: var(--amber); }
+    .row .value.purple { color: var(--violet); }
+
+    .empty-msg { color: var(--text-faint); font-size: 0.83rem; text-align: center; padding: 22px 0; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+    .tag { display: inline-block; padding: 2px 11px; border-radius: 20px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.02em; }
+    .tag.green { background: var(--teal-glow); color: var(--teal); }
+    .tag.blue  { background: rgba(91,157,238,0.16); color: var(--blue); }
+    .tag.yellow{ background: var(--amber-glow); color: var(--amber); }
+    .tag.red   { background: var(--coral-glow); color: var(--coral); }
+    .tag.gray  { background: rgba(139,147,171,0.14); color: var(--text-dim); }
+    .tag.purple{ background: var(--violet-glow); color: var(--violet); }
+
+    .spinner {
+      display: inline-block; width: 12px; height: 12px; border: 2px solid transparent;
+      border-top-color: currentColor; border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Contract interaction cards ── */
+    .item-card {
+      background: var(--bg-1); border-radius: 12px; padding: 14px 16px;
+      margin-bottom: 11px; border: 1px solid var(--border);
+      transition: border-color 0.25s var(--ease), transform 0.2s var(--ease);
+      animation: item-in 0.35s var(--ease) backwards;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .item-card:hover { border-color: var(--border-hover); }
+    @keyframes item-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .item-card .ic-body { flex: 1; min-width: 0; }
+    .item-card .ic-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 4px; }
+    .item-card .ic-id { font-family: var(--font-display); font-weight: 600; font-size: 1rem; }
+    .item-card .ic-detail { color: var(--text-dim); font-size: 0.8rem; }
+    .item-card .ic-meta { font-size: 0.75rem; color: var(--text-faint); margin-top: 4px; }
+    .item-card .ic-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 11px; }
+    .item-card .ic-inline-form { display: flex; gap: 7px; margin-top: 11px; align-items: center; flex-wrap: wrap; }
+    .item-card .ic-inline-form input { width: 120px; flex: none; }
+
+    /* Signature element: rotation-cycle ring, shows group progress at a glance */
+    .cycle-ring {
+      position: relative; width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cycle-ring::before {
+      content: ""; position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(var(--brass) calc(var(--pct, 0) * 1%), var(--border) 0);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+    }
+    .cycle-ring span { font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600; color: var(--text-dim); z-index: 1; }
+
+    .admin-badge {
+      display: inline-block; background: var(--violet-glow); color: var(--violet); padding: 2px 11px;
+      border-radius: 20px; font-size: 0.65rem; font-weight: 600; border: 1px solid rgba(164,138,240,0.3);
+    }
+
+    .config-box { background: var(--bg-1); border-radius: 12px; padding: 13px 15px; border: 1px solid var(--border); margin-bottom: 16px; }
+    .config-box .row .value { font-size: 0.8rem; }
+
+    /* ── Stat grid (dashboard) ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 4px; }
+    .stat-tile {
+      background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px 16px; transition: border-color 0.2s var(--ease);
+    }
+    .stat-tile:hover { border-color: var(--border-hover); }
+    .stat-tile .stat-label { font-size: 0.68rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .stat-tile .stat-value { font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+    .stat-tile.accent .stat-value { color: var(--brass); }
+    @media (max-width: 460px) { .stat-grid { grid-template-columns: 1fr 1fr; } }
+
+    /* ── Accordions (Advanced / Admin) ── */
+    details.acc {
+      background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px;
+      margin-bottom: 10px; overflow: hidden;
+    }
+    details.acc + details.acc { margin-top: -1px; }
+    details.acc summary {
+      list-style: none; cursor: pointer; padding: 13px 16px; font-size: 0.86rem; font-weight: 600;
+      color: var(--text); display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.15s var(--ease);
+    }
+    details.acc summary::-webkit-details-marker { display: none; }
+    details.acc summary:hover { background: var(--surface-hover); }
+    details.acc summary::after {
+      content: "＋"; color: var(--text-faint); font-size: 0.9rem; font-weight: 400;
+      transition: transform 0.25s var(--ease);
+    }
+    details.acc[open] summary::after { transform: rotate(45deg); }
+    details.acc[open] summary { border-bottom: 1px solid var(--border); }
+    details.acc .acc-body { padding: 15px 16px 16px; }
+    details.acc .acc-body > *:last-child { margin-bottom: 0 !important; }
+
+    .memo-note {
+      font-size: 0.73rem; color: var(--text-dim); background: var(--bg-1); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.55;
+    }
+    .memo-note code { color: var(--brass); font-family: var(--font-mono); }
+    .card .memo-note code, code { font-family: var(--font-mono); }
+
+    /* ── Responsive ── */
+    @media (max-width: 500px) {
+      header { flex-wrap: wrap; gap: 8px; }
+      .header-left h1 { font-size: 1.15rem; }
+      .tabs .tab-btn { font-size: 0.65rem; padding: 7px 4px; }
+      .card { padding: 16px 17px; }
+      .input-row { flex-direction: column; }
+      .input-row .form-group { min-width: auto; }
+      #status { left: 14px; right: 14px; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <div class="logo-mark">🔄</div>
+      <h1>testthecontr</h1>
+      <span class="sub">ROSCA &amp; Savings console</span>
+      <span class="contract-badge" id="contract-badge">testthecontr</span>
+    </div>
+    <div class="network-toggle">
+      <button class="net-btn active" id="btn-jungle4" data-network="jungle4">Jungle4 (Testnet)</button>
+      <button class="net-btn" data-network="vaulta" id="btn-vaulta" disabled title="testthecontr isn't deployed on Vaulta mainnet yet">Vaulta (Mainnet)</button>
+    </div>
+  </header>
+
+  <div id="status"></div>
+
+  <!-- Auth -->
+  <div class="card" id="auth-section">
+    <h2>Connect Wallet</h2>
+    <p>Connect using Anchor to interact with <strong>testthecontr</strong> on Jungle4. Enable testnets in Anchor's settings and pick Jungle 4 if you haven't already.</p>
+    <button class="anchor-btn" id="login-btn">
+      <span class="w-icon">⚓</span>
+      <span class="w-name">Connect with Anchor</span>
+      <span class="w-hint">Desktop &amp; Mobile</span>
+    </button>
+    <p class="download-hint">Don't have Anchor? <a href="https://www.greymass.com/anchor" target="_blank">Download →</a></p>
+  </div>
+
+  <!-- Account bar -->
+  <div id="account-bar">
+    <div class="acct-top">
+      <div>
+        <div class="acct-name" id="display-actor">—</div>
+        <div style="font-size:0.74rem;color:var(--text-dim);" id="display-permission">—</div>
+      </div>
+      <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+        <span class="acct-net" id="display-network">Jungle4</span>
+        <span class="acct-role" id="display-role" style="display:none;">👑 Contract Admin</span>
+      </div>
+    </div>
+    <div class="acct-balance-row">
+      <span class="acct-balance"><span id="display-balance">—</span></span>
+      <select id="balance-token-select"></select>
+    </div>
+    <div class="acct-actions">
+      <button class="btn-sm" id="refresh-btn">↻ Refresh</button>
+      <button class="btn-sm danger" id="logout-btn">Disconnect</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="app-tabs" style="display:none;">
+    <div class="tab-indicator" id="tab-indicator"></div>
+    <button class="tab-btn active" data-tab="dashboard">📊 Dashboard</button>
+    <button class="tab-btn"        data-tab="groups">👥 Groups</button>
+    <button class="tab-btn"        data-tab="savings">💰 Savings</button>
+    <button class="tab-btn"        data-tab="reputation">⭐ Reputation</button>
+    <button class="tab-btn"        data-tab="actions">⚡ Advanced</button>
+    <button class="tab-btn admin-tab" data-tab="admin" style="display:none;">🔧 Admin</button>
+  </div>
+
+  <!-- Panels -->
+  <div id="app-section" style="width:100%;max-width:740px;">
+
+    <!-- DASHBOARD -->
+    <div class="card tab-panel active" id="tab-dashboard">
+      <h2>Dashboard</h2>
+      <div id="dashboard-content">
+        <div class="stat-grid">
+          <div class="stat-tile accent"><div class="stat-label">Your Groups</div><div class="stat-value" id="dash-groups">—</div></div>
+          <div class="stat-tile accent"><div class="stat-label">Savings Plans</div><div class="stat-value" id="dash-savings">—</div></div>
+          <div class="stat-tile"><div class="stat-label">Reputation Score</div><div class="stat-value" id="dash-rep">—</div></div>
+          <div class="stat-tile"><div class="stat-label">Volume Tracked</div><div class="stat-value" id="dash-volume">—</div></div>
+        </div>
+        <hr class="divider" />
+        <div style="font-size:0.8rem;color:var(--text-dim);text-align:center;">
+          Contract: <span style="color:var(--violet);">testthecontr</span> on <span id="dash-network-label" style="color:var(--blue);">Jungle4</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROUPS -->
+    <div class="card tab-panel" id="tab-groups">
+      <h2>Your Groups</h2>
+      <div class="memo-note">
+        Staking and contributing both work by sending a token <code>transfer</code> to <code>testthecontr</code> with a memo
+        (<code>stake:&lt;id&gt;</code> / <code>contribute:&lt;id&gt;</code>) — this contract has no separate "stake" or "contribute" action.
+        The buttons below build that transfer for you with the exact amount the contract expects.
+      </div>
+      <div id="group-list"><div class="empty-msg">Connect a wallet to load your groups.</div></div>
+      <hr class="divider" />
+      <button class="btn btn-blue btn-full" id="show-create-group">➕ Create New Group</button>
+
+      <div id="create-group-form" style="display:none; margin-top:14px;">
+        <h3>Create Group</h3>
+        <div class="form-group">
+          <label>Token</label>
+          <select id="cg-token"></select>
+          <div class="field-hint">Only tokens the admin has registered via <code>addtoken</code> appear here.</div>
+        </div>
+        <div class="input-row">
+          <div class="form-group">
+            <label>Members (comma-separated)</label>
+            <input id="cg-members" placeholder="alice,bob,charlie" />
+          </div>
+          <div class="form-group">
+            <label>Contribution amount</label>
+            <input id="cg-amount" type="number" step="0.0001" placeholder="10" />
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="form-group">
+            <label>Cycle Duration (days)</label>
+            <input id="cg-duration" type="number" value="30" />
+          </div>
+          <div class="form-group">
+            <label>Payout Order</label>
+            <select id="cg-order">
+              <option value="0">Fixed</option>
+              <option value="1" selected>Random</option>
+              <option value="2">Random Commit (strongest fairness — every member commits/reveals a secret)</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="form-group">
+            <label>Min Goal Rate (min reputation to join, 0 = none)</label>
+            <input id="cg-goalrate" type="number" value="0" placeholder="0-100" />
+          </div>
+          <div class="form-group">
+            <label>Custom Fee % (organizer's cut, capped by admin)</label>
+            <input id="cg-fee" type="number" step="1" value="0" max="5" />
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" id="create-group-btn">🚀 Create Group</button>
+        <button class="btn btn-sm" id="cancel-create-group" style="margin-top:6px;">Cancel</button>
+        <div class="field-hint" style="margin-top:8px;">
+          This only creates the group — every member (including you) still needs to send the <code>stake:&lt;id&gt;</code> transfer
+          shown on the group card once it appears below before the group activates.
+        </div>
+      </div>
+    </div>
+
+    <!-- SAVINGS -->
+    <div class="card tab-panel" id="tab-savings">
+      <h2>Savings Plans</h2>
+      <div class="memo-note">
+        Deposits and withdrawals also go through token transfers — <code>savings:&lt;plan id&gt;</code> to deposit.
+        <code>claimsavings</code> is a real action (no memo needed) since it pays funds back out to you.
+      </div>
+      <div id="savings-list"><div class="empty-msg">Connect a wallet to load your savings plans.</div></div>
+      <hr class="divider" />
+      <div class="form-group">
+        <label>Token</label>
+        <select id="save-token"></select>
+      </div>
+      <div class="input-row">
+        <div class="form-group">
+          <label>Goal Amount</label>
+          <input id="save-goal" type="number" step="0.0001" placeholder="100" />
+        </div>
+        <div class="form-group">
+          <label>Duration (days)</label>
+          <input id="save-duration" type="number" value="30" />
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="create-savings-btn">💾 Create Savings Plan</button>
+    </div>
+
+    <!-- REPUTATION -->
+    <div class="card tab-panel" id="tab-reputation">
+      <h2>Reputation Hub</h2>
+      <div id="rep-content">
+        <div class="row"><span class="label">Overall Score</span><span class="value" id="rep-score">—</span></div>
+        <div class="row"><span class="label">Savings Score</span><span class="value" id="rep-savings">—</span></div>
+        <div class="row"><span class="label">Reliability Score</span><span class="value" id="rep-reliability">—</span></div>
+        <div class="row"><span class="label">Groups Completed</span><span class="value" id="rep-groups">—</span></div>
+        <div class="row"><span class="label">Cycles Paid</span><span class="value" id="rep-cycles">—</span></div>
+        <div class="row"><span class="label">Defaults Caused</span><span class="value" id="rep-defaults">—</span></div>
+        <hr class="divider" />
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-sm btn-purple" id="check-early-rep">✨ Check Early Rep</button>
+          <button class="btn btn-sm btn-purple" id="claim-early-rep-btn" style="display:none;">🎯 Claim Free Early Reputation</button>
+          <button class="btn btn-sm btn-blue" id="refresh-rep-btn">↻ Refresh</button>
+        </div>
+        <div id="early-rep-result" style="margin-top:8px;font-size:0.85rem;color:var(--text-dim);"></div>
+      </div>
+
+      <hr class="divider" />
+      <h3>Bond Reputation Stake</h3>
+      <p style="font-size:0.78rem;color:var(--text-dim);margin-bottom:10px;">
+        Locks a stake for 30 days to establish (or upgrade from early to full) reputation. Sent as a
+        <code>reputation</code> memo transfer — no group/plan id needed.
+      </p>
+      <div class="form-group">
+        <label>Token</label>
+        <select id="rep-token"></select>
+      </div>
+      <div class="form-group">
+        <label>Amount</label>
+        <input id="rep-amount" type="number" step="0.0001" />
+        <div class="field-hint" id="rep-min-hint"></div>
+      </div>
+      <button class="btn btn-purple btn-full" id="bond-rep-btn">🔒 Bond Reputation Stake</button>
+
+      <hr class="divider" />
+      <h3>Locked Stakes</h3>
+      <div id="locked-stake-list"><div class="empty-msg">—</div></div>
+      <button class="btn btn-sm btn-blue" id="act-release-stake" style="margin-top:10px;">🔓 Release Matured Stake(s)</button>
+    </div>
+
+    <!-- MANUAL / ADVANCED -->
+    <div class="card tab-panel" id="tab-actions">
+      <h2>Advanced</h2>
+      <p style="font-size:0.78rem;color:var(--text-dim);margin-bottom:14px;">
+        Act on a group or plan directly by ID — useful before it's shown up in the lists on the other tabs yet.
+      </p>
+
+      <details class="acc">
+        <summary>📥 Stake into a Group</summary>
+        <div class="acc-body">
+          <div class="input-row">
+            <div class="form-group"><label>Group ID</label><input id="man-stake-group" type="number" placeholder="0" /></div>
+            <div class="form-group"><label>Token</label><select id="man-stake-token"></select></div>
+          </div>
+          <div class="field-hint" style="margin-bottom:8px;">Amount is read from the group's <code>contribution_amount</code> automatically — it must match exactly.</div>
+          <button class="btn btn-primary btn-full" id="man-stake-btn">📥 Stake (fetch amount &amp; send)</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>📤 Contribute to a Group</summary>
+        <div class="acc-body">
+          <div class="input-row">
+            <div class="form-group"><label>Group ID</label><input id="man-contrib-group" type="number" placeholder="0" /></div>
+          </div>
+          <button class="btn btn-primary btn-full" id="man-contrib-btn">📤 Contribute (fetch amount &amp; send)</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>💰 Claim Payout</summary>
+        <div class="acc-body">
+          <div class="input-row"><div class="form-group"><label>Group ID</label><input id="man-payout-group" type="number" placeholder="0" /></div></div>
+          <button class="btn btn-blue btn-full" id="man-payout-btn">💰 Claim Payout</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>📌 Claim Group Stake Back</summary>
+        <div class="acc-body">
+          <div class="input-row"><div class="form-group"><label>Group ID</label><input id="man-claimstake-group" type="number" placeholder="0" /></div></div>
+          <button class="btn btn-orange btn-full" id="man-claimstake-btn">📌 Claim Stake</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>🏆 Claim Organizer Fees</summary>
+        <div class="acc-body">
+          <div class="input-row"><div class="form-group"><label>Group ID</label><input id="man-orgfees-group" type="number" placeholder="0" /></div></div>
+          <button class="btn btn-purple btn-full" id="man-orgfees-btn">🏆 Claim Organizer Fees</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>💾 Deposit into a Savings Plan</summary>
+        <div class="acc-body">
+          <div class="input-row">
+            <div class="form-group"><label>Plan ID</label><input id="man-save-plan" type="number" placeholder="0" /></div>
+            <div class="form-group"><label>Amount</label><input id="man-save-amount" type="number" step="0.0001" placeholder="10" /></div>
+          </div>
+          <button class="btn btn-primary btn-full" id="man-save-btn">📥 Deposit</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>💸 Claim / Withdraw Savings</summary>
+        <div class="acc-body">
+          <div class="input-row">
+            <div class="form-group"><label>Plan ID</label><input id="man-claimsave-plan" type="number" placeholder="0" /></div>
+            <div class="form-group">
+              <label>Withdrawal type</label>
+              <select id="man-claimsave-panic">
+                <option value="false">Normal (must be matured)</option>
+                <option value="true">Panic (early, with penalty)</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-orange btn-full" id="man-claimsave-btn">💸 Claim Savings</button>
+        </div>
+      </details>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="card tab-panel admin-card" id="tab-admin">
+      <h2>🔧 Admin Controls</h2>
+      <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:14px;">
+        These actions require the logged-in account to be <code>get_self()</code> for testthecontr — this contract has no way to
+        transfer admin rights, so that's permanently the deployer account: <strong style="color:var(--violet);">testthecontr</strong>.
+      </p>
+
+      <div class="config-box" id="admin-config-box">
+        <div class="row"><span class="label">Initialized</span><span class="value" id="cfg-initialized">—</span></div>
+        <div class="row"><span class="label">Paused / Frozen</span><span class="value" id="cfg-paused">—</span></div>
+        <div class="row"><span class="label">Groups / Savings Paused</span><span class="value" id="cfg-subpaused">—</span></div>
+        <div class="row"><span class="label">Fee Wallet</span><span class="value" id="cfg-feewallet">—</span></div>
+        <div class="row"><span class="label">Organizer Fee %</span><span class="value" id="cfg-orgfee">—</span></div>
+        <div class="row"><span class="label">Early Reputation</span><span class="value" id="cfg-earlyrep">—</span></div>
+        <button class="btn btn-sm btn-blue" id="admin-refresh-config" style="margin-top:8px;">↻ Refresh Config</button>
+      </div>
+
+      <details class="acc">
+        <summary>🚀 Initialize Contract</summary>
+        <div class="acc-body">
+          <div class="input-row">
+            <div class="form-group"><label>Fee Wallet</label><input id="admin-fee-wallet" placeholder="feeaccount" /></div>
+          </div>
+          <button class="btn btn-purple btn-full" id="admin-init-btn">🚀 Initialize Contract</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>🪙 Tokens</summary>
+        <div class="acc-body">
+          <h3>Add Token</h3>
+          <div class="input-row">
+            <div class="form-group half"><label>Precision</label><input id="admin-token-precision" type="number" value="4" /></div>
+            <div class="form-group"><label>Symbol Code (e.g. EOS)</label><input id="admin-token-symbol" placeholder="EOS" /></div>
+          </div>
+          <div class="input-row">
+            <div class="form-group"><label>Token Contract</label><input id="admin-token-contract" placeholder="eosio.token" /></div>
+            <div class="form-group"><label>Min Goal Amount</label><input id="admin-token-min" type="number" step="0.0001" placeholder="100" /></div>
+          </div>
+          <div class="form-group">
+            <label>Verified</label>
+            <select id="admin-token-verified"><option value="true">Yes</option><option value="false">No</option></select>
+          </div>
+          <div class="field-hint" style="margin-bottom:8px;">
+            The token contract must already be on the whitelist below before it can be added here.
+          </div>
+          <button class="btn btn-blue btn-full" id="admin-add-token-btn">➕ Add Token</button>
+
+          <hr class="divider" />
+
+          <h3>Remove (Deactivate) Token</h3>
+          <div class="input-row">
+            <div class="form-group half"><label>Precision</label><input id="admin-remove-precision" type="number" value="4" /></div>
+            <div class="form-group"><label>Symbol Code</label><input id="admin-remove-token" placeholder="EOS" /></div>
+          </div>
+          <button class="btn btn-red btn-full" id="admin-remove-token-btn">❌ Remove Token</button>
+
+          <hr class="divider" />
+
+          <h3>Whitelist Token Contract</h3>
+          <div class="input-row"><div class="form-group"><label>Contract</label><input id="admin-whitelist-contract" placeholder="eosio.token" /></div></div>
+          <button class="btn btn-blue btn-full" id="admin-whitelist-btn">✅ Add to Whitelist</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>⛔ Access Control</summary>
+        <div class="acc-body">
+          <h3>Blacklist Account</h3>
+          <div class="input-row">
+            <div class="form-group"><label>Account</label><input id="admin-blacklist-account" placeholder="badactor" /></div>
+            <div class="form-group"><label>Reason</label><input id="admin-blacklist-reason" placeholder="Suspicious activity" /></div>
+          </div>
+          <button class="btn btn-red btn-full" id="admin-blacklist-btn">⛔ Add to Blacklist</button>
+
+          <hr class="divider" />
+
+          <h3>Remove from Blacklist</h3>
+          <div class="input-row"><div class="form-group"><label>Account</label><input id="admin-unblacklist-account" placeholder="badactor" /></div></div>
+          <button class="btn btn-blue btn-full" id="admin-unblacklist-btn">✅ Remove from Blacklist</button>
+
+          <hr class="divider" />
+
+          <h3>Current Whitelist / Blacklist</h3>
+          <div id="admin-list-whitelist" style="margin-bottom:8px;"><div class="empty-msg">—</div></div>
+          <div id="admin-list-blacklist"></div>
+          <button class="btn btn-sm btn-blue" id="admin-refresh-lists" style="margin-top:6px;">↻ Refresh Lists</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>⚡ Emergency Controls</summary>
+        <div class="acc-body">
+          <div class="input-row">
+            <div class="form-group">
+              <label>Action</label>
+              <select id="admin-emerg-action">
+                <option value="freeze">Emergency Freeze</option>
+                <option value="unfreeze">Unfreeze</option>
+                <option value="pause">Pause Contract</option>
+                <option value="unpause">Unpause</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-red btn-full" id="admin-emerg-btn">⚡ Execute Emergency Action</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>📊 Fees &amp; Incentives</summary>
+        <div class="acc-body">
+          <h3>Organizer Fee</h3>
+          <div class="input-row"><div class="form-group"><label>Fee Percent (max 50)</label><input id="admin-org-fee" type="number" value="20" min="0" max="50" /></div></div>
+          <button class="btn btn-purple btn-full" id="admin-org-fee-btn">📊 Set Organizer Fee</button>
+
+          <hr class="divider" />
+
+          <h3>Max Custom Fee</h3>
+          <div class="input-row"><div class="form-group"><label>Max Fee Percent (max 5)</label><input id="admin-max-fee" type="number" value="5" min="0" max="5" /></div></div>
+          <button class="btn btn-purple btn-full" id="admin-max-fee-btn">📊 Set Max Custom Fee</button>
+
+          <hr class="divider" />
+
+          <h3>Organizer Incentives</h3>
+          <p class="field-hint" style="margin-bottom:8px;">
+            When disabled, <code>creategroup</code> rejects every new group (existing groups are unaffected) — this is the master
+            switch <code>creategroup</code> checks before anything else.
+          </p>
+          <div class="input-row">
+            <div class="form-group">
+              <label>Enable/Disable</label>
+              <select id="admin-incentives-enable"><option value="true">Enable</option><option value="false">Disable</option></select>
+            </div>
+          </div>
+          <button class="btn btn-purple btn-full" id="admin-incentives-btn">🎛️ Toggle Organizer Incentives</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>✨ Early Reputation</summary>
+        <div class="acc-body">
+          <div class="input-row">
+            <div class="form-group">
+              <label>Enable/Disable</label>
+              <select id="admin-early-enable"><option value="true">Enable</option><option value="false">Disable</option></select>
+            </div>
+          </div>
+          <button class="btn btn-purple btn-full" id="admin-early-toggle-btn">✨ Toggle Early Reputation</button>
+
+          <hr class="divider" />
+
+          <h3>Set Parameters</h3>
+          <div class="input-row">
+            <div class="form-group"><label>Days Valid</label><input id="admin-erep-days" type="number" value="30" min="1" max="365" /></div>
+            <div class="form-group"><label>Initial Score</label><input id="admin-erep-score" type="number" value="70" min="0" max="100" /></div>
+          </div>
+          <div class="input-row">
+            <div class="form-group"><label>Free to claim?</label><select id="admin-erep-free"><option value="true">Yes</option><option value="false">No</option></select></div>
+            <div class="form-group"><label>Program ends in (days from now)</label><input id="admin-erep-deadline" type="number" value="90" min="1" /></div>
+          </div>
+          <div class="field-hint" style="margin-bottom:8px;">"Stake amount" from the original action isn't used when free — leave defaults unless you're setting up a paid program.</div>
+          <button class="btn btn-purple btn-full" id="admin-erep-params-btn">⚙️ Set Early Reputation Parameters</button>
+
+          <hr class="divider" />
+
+          <h3>Grant / Revoke</h3>
+          <div class="input-row">
+            <div class="form-group"><label>User</label><input id="admin-grant-user" placeholder="username" /></div>
+            <div class="form-group"><label>Score (0 = use default)</label><input id="admin-grant-score" type="number" placeholder="70" min="0" max="100" /></div>
+          </div>
+          <button class="btn btn-purple btn-full" id="admin-grant-early-btn">🎯 Grant Early Reputation</button>
+          <div class="input-row" style="margin-top:12px;"><div class="form-group"><label>User</label><input id="admin-revoke-user" placeholder="username" /></div></div>
+          <button class="btn btn-red btn-full" id="admin-revoke-early-btn">⛔ Revoke Early Reputation</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>🔒 Withdrawal Limits</summary>
+        <div class="acc-body">
+          <p class="field-hint" style="margin-bottom:8px;">
+            Note: as deployed, this limit isn't actually enforced anywhere in the contract's withdrawal paths yet — these calls will
+            succeed and store the setting, but it has no effect on <code>claimsavings</code> until that enforcement is added.
+          </p>
+          <div class="input-row">
+            <div class="form-group">
+              <label>Enable/Disable</label>
+              <select id="admin-wd-enable"><option value="true">Enable</option><option value="false">Disable</option></select>
+            </div>
+          </div>
+          <button class="btn btn-purple btn-full" id="admin-wd-toggle-btn">🔒 Toggle Withdrawal Limits</button>
+
+          <hr class="divider" />
+
+          <h3>Set Parameters</h3>
+          <div class="input-row">
+            <div class="form-group"><label>Period (days)</label><input id="admin-wd-period" type="number" value="1" min="1" max="30" /></div>
+            <div class="form-group"><label>Limit Amount (raw units)</label><input id="admin-wd-limit" type="number" placeholder="10000" /></div>
+          </div>
+          <div class="input-row">
+            <div class="form-group"><label>Cooldown (hours)</label><input id="admin-wd-cooldown" type="number" value="0" min="0" max="168" /></div>
+          </div>
+          <button class="btn btn-purple btn-full" id="admin-wd-params-btn">⚙️ Set Withdrawal Parameters</button>
+
+          <hr class="divider" />
+
+          <h3>Clear User Limit</h3>
+          <div class="input-row"><div class="form-group"><label>User</label><input id="admin-clear-limit-user" placeholder="username" /></div></div>
+          <button class="btn btn-blue btn-full" id="admin-clear-limit-btn">🧹 Clear User Limit</button>
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary>💔 Group Moderation</summary>
+        <div class="acc-body">
+          <h3>Dissolve Group</h3>
+          <div class="input-row">
+            <div class="form-group"><label>Group ID</label><input id="admin-dissolve-group" type="number" placeholder="0" /></div>
+            <div class="form-group"><label>Reason</label><input id="admin-dissolve-reason" placeholder="Reason for dissolving" /></div>
+          </div>
+          <button class="btn btn-red btn-full" id="admin-dissolve-btn">💔 Dissolve Group</button>
+
+          <hr class="divider" />
+
+          <h3>Mark Default</h3>
+          <div class="input-row">
+            <div class="form-group"><label>Group ID</label><input id="admin-default-group" type="number" placeholder="0" /></div>
+            <div class="form-group"><label>Member</label><input id="admin-default-member" placeholder="account" /></div>
+          </div>
+          <button class="btn btn-orange btn-full" id="admin-default-btn">⚠️ Mark Default</button>
+        </div>
+      </details>
+
+      <div style="background:var(--bg-1);border-radius:8px;padding:12px;border:1px solid var(--border);margin-top:6px;">
+        <div class="row"><span class="label">Contract Account</span><span class="value purple" id="admin-contract-account">testthecontr</span></div>
+        <div class="row"><span class="label">Your Account</span><span class="value" id="admin-your-account">—</span></div>
+        <div class="row"><span class="label">Your Role</span><span class="value" id="admin-your-role">—</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@wharfkit/session":              "https://esm.sh/@wharfkit/session@1",
+        "@wharfkit/web-renderer":         "https://esm.sh/@wharfkit/web-renderer@1",
+        "@wharfkit/wallet-plugin-anchor": "https://esm.sh/@wharfkit/wallet-plugin-anchor@1"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { SessionKit }         from "@wharfkit/session"
+    import { WebRenderer }        from "@wharfkit/web-renderer"
+    import { WalletPluginAnchor } from "@wharfkit/wallet-plugin-anchor"
+
+    // ── CONFIG ───────────────────────────────────────────────────────────────
+    const CONTRACT_NAME = "testthecontr"
+
+    const CHAINS = {
+      jungle4: {
+        id: "73e4385a2708e6d7048834fbc1079f2fabb17b3c125b146af438971e90716c4d",
+        label: "Jungle4 (Vaulta Testnet)",
+        // Hostname endpoints first — these have valid TLS certs in a browser.
+        // The plain-http endpoint and the two raw-IP endpoints from the brief
+        // are kept as last-resort fallbacks only: a browser will reject an
+        // https cert issued for a hostname when it's requested by IP, and the
+        // http:// one will get blocked as mixed content on a page served over
+        // https. They're still tried, just last.
+        endpoints: [
+          "https://jungle4.cryptolions.io",
+          "https://jungle4.eosphere.io",
+          "https://jungle4.api.eosnation.io",
+          "https://jungle.eosusa.io",
+          "https://jungle.eu.eosamsterdam.net",
+          "https://jungle4.genereos.io",
+          "http://jungle4.cryptolions.io",
+          "https://15.204.22.80",
+          "https://104.37.219.148",
+        ],
+        explorer: "https://jungle4.eosq.eosnation.io/tx/",
+        enabled: true,
+      },
+      vaulta: {
+        // Vaulta mainnet is the former EOS mainnet (same chain, rebranded) —
+        // chain id kept here for when testthecontr is deployed there, but
+        // this network is left disabled in the UI until then. Verify this id
+        // against your own `get_info` call before flipping `enabled` to true.
+        id: "aca376f206b8fc25a6ed44dbdc66547c",
+        label: "Vaulta Mainnet",
+        endpoints: ["https://eos.greymass.com"],
+        explorer: "https://bloks.io/transaction/",
+        enabled: false,
+      },
+    }
+
+    let currentNetwork = "jungle4"
+    let session = undefined
+    let isContractAdmin = false
+    let lastConfig = undefined
+    let tokensCache = []
+    let myGroupsCache = []
+    let myMembershipsCache = []
+    let mySavingsCache = []
+
+    const webRenderer = new WebRenderer()
+
+    function buildSessionKit(network) {
+      const chain = CHAINS[network]
+      return new SessionKit({
+        appName: "testthecontr console",
+        chains: [{ id: chain.id, url: chain.endpoints[0] }],
+        ui: webRenderer,
+        walletPlugins: [new WalletPluginAnchor()],
+      })
+    }
+
+    let sessionKit = buildSessionKit(currentNetwork)
+
+    // ── LOW-LEVEL RPC (with failover across every endpoint given) ─────────────
+    async function rpcPost(path, body) {
+      const chain = CHAINS[currentNetwork]
+      const failures = []
+      for (const base of chain.endpoints) {
+        try {
+          const res = await fetch(`${base}${path}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            signal: AbortSignal.timeout(8000),
+          })
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+          return await res.json()
+        } catch (err) {
+          const reason = err?.message || String(err)
+          failures.push(`${base} → ${reason}`)
+          console.warn(`[testthecontr] RPC endpoint failed: ${base}${path} — ${reason}`)
+        }
+      }
+      console.error(`[testthecontr] All ${chain.endpoints.length} RPC endpoints failed for ${path}:\n` + failures.join("\n"))
+      throw new Error(`All ${chain.endpoints.length} RPC endpoints failed — open the browser console for per-endpoint reasons (often CORS or the node itself being down, not your app)`)
+    }
+
+    async function getTableRows(params) {
+      const data = await rpcPost("/v1/chain/get_table_rows", {
+        json: true, code: CONTRACT_NAME, scope: CONTRACT_NAME, limit: 100, ...params,
+      })
+      return data.rows || []
+    }
+
+    // ── AMOUNT / SYMBOL HELPERS (string-based, avoids float rounding) ─────────
+    function parseSymbol(symbolStr) {
+      const [p, code] = String(symbolStr).split(",")
+      return { precision: Number(p), code }
+    }
+    function toRawAmount(displayStr, precision) {
+      let s = String(displayStr ?? "0").trim()
+      if (!s) s = "0"
+      let neg = s.startsWith("-")
+      if (neg) s = s.slice(1)
+      let [intPart, fracPart = ""] = s.split(".")
+      intPart = intPart || "0"
+      fracPart = (fracPart + "0".repeat(precision)).slice(0, precision)
+      const raw = BigInt(intPart || "0") * (10n ** BigInt(precision)) + BigInt(fracPart || "0")
+      return neg ? -raw : raw
+    }
+    function fromRawAmount(raw, precision) {
+      let big = typeof raw === "bigint" ? raw : BigInt(Math.trunc(Number(raw)))
+      const neg = big < 0n
+      let s = (neg ? -big : big).toString().padStart(precision + 1, "0")
+      const intPart = s.slice(0, s.length - precision) || "0"
+      const fracPart = precision > 0 ? "." + s.slice(s.length - precision) : ""
+      return (neg ? "-" : "") + intPart + fracPart
+    }
+    function formatAsset(rawAmount, symbolStr) {
+      const { precision, code } = parseSymbol(symbolStr)
+      return `${fromRawAmount(rawAmount, precision)} ${code}`
+    }
+
+    // ── TOKENS ──────────────────────────────────────────────────────────────
+    async function loadTokens() {
+      tokensCache = await getTableRows({ table: "tokens", limit: 100 })
+      populateTokenSelects()
+      return tokensCache
+    }
+    function findToken(symbolStr) {
+      return tokensCache.find(t => t.token_symbol === symbolStr)
+    }
+    function populateTokenSelects() {
+      const active = tokensCache.filter(t => t.active)
+      const opts = active.length
+        ? active.map(t => `<option value="${t.token_symbol}">${parseSymbol(t.token_symbol).code} (${t.token_symbol})${t.is_verified ? " ✓" : ""}</option>`).join("")
+        : `<option value="">No tokens registered yet</option>`
+      ;["cg-token", "save-token", "rep-token", "man-stake-token", "balance-token-select"].forEach(id => {
+        const el = document.getElementById(id)
+        if (el) el.innerHTML = opts
+      })
+    }
+
+    // ── HELPERS ──────────────────────────────────────────────────────────────
+    function showStatus(msg, type = "info") {
+      const el = document.getElementById("status")
+      el.textContent = msg
+      el.className = type
+      el.style.display = "block"
+      if (type !== "error") setTimeout(() => { el.style.display = "none" }, 6000)
+    }
+    function getExplorer() { return CHAINS[currentNetwork].explorer }
+    function formatTxError(err) {
+      if (!err) return "Unknown error"
+      const nested = err?.details?.[0]?.message || err?.response?.json?.error?.details?.[0]?.message
+      return nested || err.message || String(err)
+    }
+
+    // ── UI visibility ──────────────────────────────────────────────────────
+    function updateUI() {
+      const on = !!session
+      document.getElementById("auth-section").style.display = on ? "none" : "block"
+      document.getElementById("account-bar").style.display = on ? "block" : "none"
+      document.getElementById("app-tabs").style.display = on ? "flex" : "none"
+      document.getElementById("app-section").style.display = on ? "block" : "none"
+
+      if (on) {
+        const actor = String(session.actor)
+        document.getElementById("display-actor").textContent = actor
+        document.getElementById("display-permission").textContent = String(session.permission)
+        document.getElementById("display-network").textContent = CHAINS[currentNetwork].label
+        document.getElementById("dash-network-label").textContent = CHAINS[currentNetwork].label
+        document.getElementById("admin-your-account").textContent = actor
+      }
+    }
+
+    async function refreshAdminStatus() {
+      const roleBadge = document.getElementById("display-role")
+      const adminTab = document.querySelector('[data-tab="admin"]')
+      try {
+        const rows = await getTableRows({ table: "config", limit: 1 })
+        lastConfig = rows[0]
+      } catch { lastConfig = undefined }
+
+      const actor = String(session.actor)
+      isContractAdmin = lastConfig ? (actor === lastConfig.admin_account) : (actor === CONTRACT_NAME)
+
+      adminTab.style.display = isContractAdmin ? "block" : "none"
+      adminTab.classList.toggle("visible", isContractAdmin)
+      roleBadge.style.display = isContractAdmin ? "inline-block" : "none"
+      document.getElementById("admin-your-role").textContent = isContractAdmin ? "👑 Contract Admin" : "User"
+      document.getElementById("admin-your-role").style.color = isContractAdmin ? "var(--violet)" : "var(--text-dim)"
+
+      renderConfigBox()
+    }
+
+    function renderConfigBox() {
+      const c = lastConfig
+      document.getElementById("cfg-initialized").textContent = c ? "Yes" : "No — call Initialize below"
+      if (!c) {
+        document.getElementById("cfg-paused").textContent = "—"
+        document.getElementById("cfg-subpaused").textContent = "—"
+        document.getElementById("cfg-feewallet").textContent = "—"
+        document.getElementById("cfg-orgfee").textContent = "—"
+        document.getElementById("cfg-earlyrep").textContent = "—"
+        return
+      }
+      document.getElementById("cfg-paused").textContent =
+        `paused: ${c.paused} · frozen: ${c.emergency_freeze}`
+      document.getElementById("cfg-subpaused").textContent =
+        `groups: ${c.groups_paused} · savings: ${c.savings_paused}`
+      document.getElementById("cfg-feewallet").textContent = c.fee_wallet
+      document.getElementById("cfg-orgfee").textContent = `${c.organizer_fee_percent}% (max custom: ${c.max_custom_fee_percent}%)`
+      document.getElementById("cfg-earlyrep").textContent =
+        `${c.early_reputation_enabled ? "enabled" : "disabled"} · free: ${c.early_reputation_free} · score: ${c.early_reputation_score}`
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === name))
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === "tab-" + name))
+      if (name === "dashboard") loadDashboard()
+      if (name === "groups") loadGroups()
+      if (name === "savings") loadSavings()
+      if (name === "reputation") loadReputation()
+      if (name === "admin") { refreshAdminStatus(); loadAdminLists() }
+    }
+
+    // ── BALANCE ──────────────────────────────────────────────────────────────
+    async function fetchBalance() {
+      const el = document.getElementById("display-balance")
+      el.textContent = "…"
+      try {
+        const sel = document.getElementById("balance-token-select")
+        const symbolStr = sel.value
+        const token = findToken(symbolStr)
+        if (!token) { el.textContent = "—"; return }
+        const { code } = parseSymbol(symbolStr)
+        const rows = await rpcPost("/v1/chain/get_currency_balance", {
+          code: token.token_contract, account: String(session.actor), symbol: code,
+        })
+        el.innerHTML = rows[0] ? `${rows[0].split(" ")[0]}<span>${code}</span>` : `0<span>${code}</span>`
+      } catch (err) {
+        el.textContent = "—"
+        console.warn("Balance fetch failed:", err.message)
+      }
+    }
+
+    // ── TRANSACT HELPERS ─────────────────────────────────────────────────────
+    async function transact(action) {
+      const result = await session.transact({ action })
+      return result?.response?.transaction_id ?? "confirmed"
+    }
+
+    // The core deposit pattern for this contract: a plain token transfer to
+    // testthecontr with a memo, instead of a dedicated action.
+    async function sendDeposit({ symbolStr, rawAmount, memo }) {
+      const token = findToken(symbolStr)
+      if (!token) throw new Error(`Token ${symbolStr} is not registered on this contract`)
+      const quantity = formatAsset(rawAmount, symbolStr)
+      return transact({
+        account: token.token_contract,
+        name: "transfer",
+        authorization: [session.permissionLevel],
+        data: { from: session.actor, to: CONTRACT_NAME, quantity, memo },
+      })
+    }
+
+    // ── DASHBOARD ─────────────────────────────────────────────────────────────
+    async function loadDashboard() {
+      try {
+        const actor = String(session.actor)
+        const repRows = await getTableRows({ table: "reputations", lower_bound: actor, upper_bound: actor, limit: 1 })
+        const rep = repRows[0]
+        document.getElementById("dash-rep").textContent = rep ? rep.overall_score : "0"
+        document.getElementById("dash-volume").textContent = rep ? String(rep.total_volume) : "0"
+
+        const memberships = await getTableRows({
+          table: "members", index_position: "3", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100,
+        })
+        document.getElementById("dash-groups").textContent = memberships.length
+
+        const savings = await getTableRows({
+          table: "savings", index_position: "2", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100,
+        })
+        document.getElementById("dash-savings").textContent = savings.length
+      } catch (err) {
+        console.warn("Dashboard load failed:", err.message)
+      }
+    }
+
+    // ── GROUPS ───────────────────────────────────────────────────────────────
+    const STATUS_MAP = { 0: "Forming", 1: "Active", 2: "Completed", 3: "Dissolved" }
+    const STATUS_COLOR = { 0: "yellow", 1: "green", 2: "blue", 3: "gray" }
+    const ORDER_TYPE_MAP = { 0: "Fixed", 1: "Random", 2: "Random Commit (every member commits/reveals)" }
+
+    // Renders the group's real payout_order (the shuffled array, distinct
+    // from member_list which is always kept exactly as entered) with the
+    // current payee highlighted. Before a group leaves "Forming", no payee
+    // is assigned yet, so nothing is highlighted as current. For
+    // Random-Commit groups, payout_order is just an unshuffled placeholder
+    // until order_revealed — show reveal progress instead of the list, so
+    // it's never mistaken for the real (not-yet-determined) order.
+    function renderPayoutOrder(g, actor) {
+      if (!Array.isArray(g.payout_order) || !g.payout_order.length) return ""
+
+      if (g.payout_order_type === 2 && !g.order_revealed) {
+        const nowSec = Math.floor(Date.now() / 1000)
+        const deadlinePassed = g.reveal_deadline > 0 && nowSec >= g.reveal_deadline
+        return `
+          <div class="ic-detail ic-meta">
+            Payout order — ${ORDER_TYPE_MAP[2]}:
+            <div style="margin-top:4px;">
+              <span class="tag ${deadlinePassed ? 'red' : 'yellow'}">${g.reveals_received || 0}/${g.member_count} revealed</span>
+              ${g.reveal_deadline > 0 ? `<span style="margin-left:6px;">${deadlinePassed ? 'Reveal deadline passed — force-finalize available below' : 'Reveal deadline: ' + new Date(g.reveal_deadline * 1000).toLocaleString()}</span>` : '<span style="margin-left:6px;">Deadline starts once the group is fully staked</span>'}
+            </div>
+          </div>`
+      }
+
+      // current_payee is only meaningfully set once the group leaves
+      // "Forming" (see handle_stake/creategroup) — status is the
+      // authoritative signal for that, not the field's raw value.
+      const payeeAssigned = g.status !== 0
+      const items = g.payout_order.map((name, idx) => {
+        const isCurrent = payeeAssigned && name === g.current_payee
+        const isYou = name === actor
+        return `<span class="tag ${isCurrent ? 'green' : 'gray'}" style="margin:2px 4px 2px 0;">${idx + 1}. ${name}${isYou ? ' (you)' : ''}${isCurrent ? ' ← current payee' : ''}</span>`
+      }).join("")
+      return `
+        <div class="ic-detail ic-meta">
+          Payout order — ${ORDER_TYPE_MAP[g.payout_order_type] ?? g.payout_order_type}:
+          <div style="margin-top:4px;line-height:1.8;">${items}</div>
+        </div>`
+    }
+
+    // ── COMMIT-REVEAL HELPERS ───────────────────────────────────────────────
+    function randomSecretHex() {
+      const bytes = crypto.getRandomValues(new Uint8Array(32))
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("")
+    }
+    async function sha256Hex(str) {
+      const bytes = new TextEncoder().encode(str)
+      const digest = await crypto.subtle.digest("SHA-256", bytes)
+      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("")
+    }
+    // Downloads the secret as a small text file AND shows it inline with a
+    // copy button — belt and suspenders, since losing this secret means
+    // this member can't reveal their own commitment later (the group can
+    // still eventually finalize via finalizeord() after the deadline, but
+    // this member won't get personal credit for revealing).
+    function downloadSecret(groupId, secret) {
+      const blob = new Blob([
+        `testthecontr — Random-Commit reveal secret\n`,
+        `Group ID: ${groupId}\n`,
+        `Secret:   ${secret}\n\n`,
+        `Keep this safe. You need to paste this exact secret back into the\n`,
+        `"Reveal My Order Secret" box on the Groups tab once everyone has\n`,
+        `staked, or you won't be able to reveal your own commitment.\n`,
+      ], { type: "text/plain" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `testthecontr-group-${groupId}-secret.txt`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    }
+
+    async function loadGroups() {
+      const list = document.getElementById("group-list")
+      list.innerHTML = `<div class="empty-msg">Loading groups…</div>`
+      try {
+        const actor = String(session.actor)
+        await loadTokens()
+
+        // Fetched separately (not Promise.all) so a failure names which
+        // query it was. "groups" is an unbounded full-table scan and each
+        // row can carry a member_list of up to 100 names plus payout-order
+        // data — a much heavier payload than every other tab's small
+        // point-lookups, so it's the one most likely to hit a public node's
+        // response-size/timeout limit. If your group count grows past
+        // what a single scan comfortably returns, page this with
+        // lower_bound/upper_bound on group_id instead of raising the limit.
+        let allGroups, memberships
+        try {
+          allGroups = await getTableRows({ table: "groups", limit: 100 })
+        } catch (err) {
+          throw new Error(`Couldn't load the groups table (${formatTxError(err)})`)
+        }
+        try {
+          memberships = await getTableRows({ table: "members", index_position: "3", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100 })
+        } catch (err) {
+          throw new Error(`Couldn't load your memberships (${formatTxError(err)})`)
+        }
+        myMembershipsCache = memberships
+        const membershipByGroup = new Map(memberships.map(m => [Number(m.group_id), m]))
+        const myGroups = allGroups.filter(g => Array.isArray(g.member_list) && g.member_list.includes(actor))
+        myGroupsCache = myGroups
+
+        if (!myGroups.length) {
+          list.innerHTML = `<div class="empty-msg">You are not in any groups yet.</div>`
+          return
+        }
+
+        list.innerHTML = myGroups.map(g => {
+          const m = membershipByGroup.get(Number(g.group_id))
+          const buttons = []
+          const isCommitType = g.payout_order_type === 2
+          const nowSec = Math.floor(Date.now() / 1000)
+
+          if (g.status === 0 && m && !m.has_staked) {
+            if (isCommitType && !m.order_committed) {
+              buttons.push(`<button class="btn btn-xs btn-purple" data-action="commitorder" data-group-id="${g.group_id}">🔐 Commit to Random Order</button>`)
+            } else {
+              buttons.push(`<button class="btn btn-xs btn-primary" data-action="stake" data-group-id="${g.group_id}">📥 Stake ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
+            }
+          }
+          if (g.status === 1 && m && m.has_staked && !m.has_contributed) {
+            buttons.push(`<button class="btn btn-xs btn-primary" data-action="contribute" data-group-id="${g.group_id}">📤 Contribute ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
+          }
+          if (m && m.payout_claimable && !m.payout_received) {
+            buttons.push(`<button class="btn btn-xs btn-blue" data-action="claimpayout" data-group-id="${g.group_id}">💰 Claim Payout (${formatAsset(m.payout_amount, g.token_symbol)})</button>`)
+          }
+          if ((g.status === 2 || g.status === 3) && m && Number(m.active_stake) > 0 && !m.stake_released) {
+            buttons.push(`<button class="btn btn-xs btn-orange" data-action="claimstake" data-group-id="${g.group_id}">📌 Claim Stake (${formatAsset(m.active_stake, g.token_symbol)})</button>`)
+          }
+          const orgFeesTotal = Number(g.organizer_fee_earned || 0) + Number(g.organizer_custom_fee_earned || 0)
+          if (g.organizer === actor && g.status === 2 && !g.organizer_fee_claimed && orgFeesTotal > 0) {
+            buttons.push(`<button class="btn btn-xs btn-purple" data-action="claimorgfees" data-group-id="${g.group_id}">🏆 Claim Organizer Fees (${formatAsset(orgFeesTotal, g.token_symbol)})</button>`)
+          }
+          // finalizeord is a rescue action for the organizer/admin only,
+          // and only usable once the reveal deadline has actually passed.
+          if (isCommitType && !g.order_revealed && g.reveal_deadline > 0 && nowSec >= g.reveal_deadline &&
+              (g.organizer === actor || isContractAdmin)) {
+            buttons.push(`<button class="btn btn-xs btn-red" data-action="finalizeord" data-group-id="${g.group_id}">⏰ Force-Finalize Order</button>`)
+          }
+
+          // Reveal is its own inline form (needs a text input for the
+          // secret), not a plain button — shown once staked, committed,
+          // and not yet revealed by this member or the group.
+          const revealForm = (isCommitType && m && m.has_staked && m.order_committed && !m.order_revealed && !g.order_revealed) ? `
+            <div class="ic-inline-form">
+              <input type="text" placeholder="Paste your saved secret" id="reveal-secret-${g.group_id}" style="width:220px;" />
+              <button class="btn btn-xs btn-purple" data-action="revealorder" data-group-id="${g.group_id}">🔓 Reveal My Order Secret</button>
+            </div>` : ""
+
+          const totalCycles = Number(g.total_cycles) || 0
+          const curCycle = Number(g.current_cycle) || 0
+          const pct = totalCycles > 0 ? Math.min(100, Math.round((curCycle / totalCycles) * 100)) : 0
+
+          return `
+            <div class="item-card">
+              <div class="cycle-ring" style="--pct:${pct};" title="Cycle ${curCycle}/${totalCycles}">
+                <span>${curCycle}/${totalCycles || '—'}</span>
+              </div>
+              <div class="ic-body">
+                <div class="ic-top">
+                  <span class="ic-id">Group #${g.group_id}</span>
+                  <span class="tag ${STATUS_COLOR[g.status] || 'gray'}">${STATUS_MAP[g.status] || g.status}</span>
+                </div>
+                <div class="ic-detail">
+                  ${g.member_count} members · ${formatAsset(g.contribution_amount, g.token_symbol)}/cycle
+                </div>
+                <div class="ic-detail ic-meta">
+                  Organizer: ${g.organizer} · Vault: ${formatAsset(g.vault_balance, g.token_symbol)}
+                  ${g.organizer === actor ? ' · <span class="admin-badge">You organize this</span>' : ''}
+                </div>
+                ${renderPayoutOrder(g, actor)}
+                ${revealForm}
+                ${m ? `<div class="ic-detail ic-meta">Your status: staked=${m.has_staked}, contributed=${m.has_contributed}, cycles missed=${m.cycles_missed}</div>` : ''}
+                ${buttons.length ? `<div class="ic-actions">${buttons.join("")}</div>` : ''}
+              </div>
+            </div>`
+        }).join("")
+      } catch (err) {
+        list.innerHTML = `<div class="empty-msg">Error loading groups: ${formatTxError(err)}</div>`
+      }
+    }
+
+    document.getElementById("group-list").addEventListener("click", async (ev) => {
+      const btn = ev.target.closest("button[data-action]")
+      if (!btn) return
+      const action = btn.dataset.action
+      const groupId = Number(btn.dataset.groupId)
+      btn.disabled = true
+      const original = btn.textContent
+      btn.innerHTML = '<span class="spinner"></span>'
+      try {
+        if (action === "stake" || action === "contribute") {
+          const groups = await getTableRows({ table: "groups", lower_bound: groupId, upper_bound: groupId, limit: 1 })
+          const g = groups[0]
+          if (!g) throw new Error("Group not found")
+          const txId = await sendDeposit({
+            symbolStr: g.token_symbol,
+            rawAmount: BigInt(g.contribution_amount),
+            memo: `${action}:${groupId}`,
+          })
+          showStatus(`${action === "stake" ? "Staked" : "Contributed"}! Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "claimpayout") {
+          const txId = await transact({ account: CONTRACT_NAME, name: "claimpayout", authorization: [session.permissionLevel], data: { member: session.actor, group_id: groupId } })
+          showStatus(`Payout claimed! Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "claimstake") {
+          const txId = await transact({ account: CONTRACT_NAME, name: "claimstake", authorization: [session.permissionLevel], data: { member: session.actor, group_id: groupId } })
+          showStatus(`Stake claimed! Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "claimorgfees") {
+          const txId = await transact({ account: CONTRACT_NAME, name: "claimorgfees", authorization: [session.permissionLevel], data: { organizer: session.actor, group_id: groupId } })
+          showStatus(`Organizer fees claimed! Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "commitorder") {
+          const secret = randomSecretHex()
+          const commitment = await sha256Hex(secret)
+          const txId = await transact({ account: CONTRACT_NAME, name: "commitorder", authorization: [session.permissionLevel], data: { member: session.actor, group_id: groupId, commitment } })
+          downloadSecret(groupId, secret)
+          showStatus(`Committed! A secret file just downloaded — you'll need it to reveal later. Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "revealorder") {
+          const input = document.getElementById(`reveal-secret-${groupId}`)
+          const secret = input?.value.trim()
+          if (!secret) throw new Error("Paste the secret you saved when you committed")
+          const txId = await transact({ account: CONTRACT_NAME, name: "revealorder", authorization: [session.permissionLevel], data: { caller: session.actor, group_id: groupId, secret } })
+          showStatus(`Revealed! Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "finalizeord") {
+          const txId = await transact({ account: CONTRACT_NAME, name: "finalizeord", authorization: [session.permissionLevel], data: { caller: session.actor, group_id: groupId } })
+          showStatus(`Order force-finalized. Tx: ${txId.slice(0,12)}...`, "success")
+        }
+        loadGroups(); fetchBalance()
+      } catch (err) {
+        showStatus(`Action failed: ${formatTxError(err)}`, "error")
+        btn.disabled = false
+        btn.textContent = original
+      }
+    })
+
+    // ── SAVINGS ──────────────────────────────────────────────────────────────
+    const SAVE_STATUS_MAP = { 0: "Active", 1: "Matured", 2: "Withdrawn", 3: "Panic Withdrawn" }
+    const SAVE_STATUS_COLOR = { 0: "green", 1: "blue", 2: "gray", 3: "red" }
+
+    async function loadSavings() {
+      const list = document.getElementById("savings-list")
+      list.innerHTML = `<div class="empty-msg">Loading savings plans…</div>`
+      try {
+        const actor = String(session.actor)
+        await loadTokens()
+        const plans = await getTableRows({
+          table: "savings", index_position: "2", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100,
+        })
+        mySavingsCache = plans
+
+        if (!plans.length) {
+          list.innerHTML = `<div class="empty-msg">No savings plans yet.</div>`
+          return
+        }
+
+        const nowSec = Math.floor(Date.now() / 1000)
+        list.innerHTML = plans.map(p => {
+          const matured = p.goal_reached || nowSec >= p.maturity_time
+          const accrued = Number(p.accrued_balance || 0)
+          let claimBtn = ""
+          if (accrued > 0) {
+            claimBtn = matured
+              ? `<button class="btn btn-xs btn-blue" data-action="claim" data-plan-id="${p.plan_id}">💸 Claim ${formatAsset(p.accrued_balance, p.token_symbol)}</button>`
+              : `<button class="btn btn-xs btn-red" data-action="panic" data-plan-id="${p.plan_id}">⚠️ Panic Withdraw (penalty applies)</button>`
+          }
+          const depositForm = p.status === 0 ? `
+            <div class="ic-inline-form">
+              <input type="number" step="0.0001" placeholder="Amount" id="dep-amt-${p.plan_id}" />
+              <button class="btn btn-xs btn-primary" data-action="deposit" data-plan-id="${p.plan_id}">📥 Deposit</button>
+            </div>` : ""
+
+          return `
+            <div class="item-card">
+              <div class="ic-top">
+                <span class="ic-id">Plan #${p.plan_id}</span>
+                <span class="tag ${SAVE_STATUS_COLOR[p.status] || 'gray'}">${SAVE_STATUS_MAP[p.status] || p.status}</span>
+              </div>
+              <div class="ic-detail">Goal: ${formatAsset(p.goal_amount, p.token_symbol)} · Deposited: ${formatAsset(p.total_deposited, p.token_symbol)}</div>
+              <div class="ic-detail ic-meta">
+                ${p.goal_reached ? "🎯 Goal reached!" : `${p.goal_amount > 0 ? ((p.total_deposited / p.goal_amount) * 100).toFixed(0) : 0}% of goal`}
+                · Matures: ${new Date(p.maturity_time * 1000).toLocaleDateString()}
+              </div>
+              ${claimBtn ? `<div class="ic-actions">${claimBtn}</div>` : ''}
+              ${depositForm}
+            </div>`
+        }).join("")
+      } catch (err) {
+        list.innerHTML = `<div class="empty-msg">Error loading savings: ${formatTxError(err)}</div>`
+      }
+    }
+
+    document.getElementById("savings-list").addEventListener("click", async (ev) => {
+      const btn = ev.target.closest("button[data-action]")
+      if (!btn) return
+      const action = btn.dataset.action
+      const planId = Number(btn.dataset.planId)
+      btn.disabled = true
+      const original = btn.textContent
+      btn.innerHTML = '<span class="spinner"></span>'
+      try {
+        if (action === "deposit") {
+          const input = document.getElementById(`dep-amt-${planId}`)
+          const amountStr = input?.value
+          if (!amountStr || Number(amountStr) <= 0) throw new Error("Enter a deposit amount")
+          const plans = await getTableRows({ table: "savings", lower_bound: planId, upper_bound: planId, limit: 1 })
+          const p = plans[0]
+          if (!p) throw new Error("Plan not found")
+          const { precision } = parseSymbol(p.token_symbol)
+          const txId = await sendDeposit({ symbolStr: p.token_symbol, rawAmount: toRawAmount(amountStr, precision), memo: `savings:${planId}` })
+          showStatus(`Deposited! Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "claim") {
+          const txId = await transact({ account: CONTRACT_NAME, name: "claimsavings", authorization: [session.permissionLevel], data: { saver: session.actor, plan_id: planId, panic_withdraw: false } })
+          showStatus(`Savings claimed! Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "panic") {
+          if (!confirm("Panic withdrawing before maturity applies a penalty (see contract config for the current percentage). Continue?")) { btn.disabled = false; btn.textContent = original; return }
+          const txId = await transact({ account: CONTRACT_NAME, name: "claimsavings", authorization: [session.permissionLevel], data: { saver: session.actor, plan_id: planId, panic_withdraw: true } })
+          showStatus(`Panic withdrawal complete. Tx: ${txId.slice(0,12)}...`, "success")
+        }
+        loadSavings(); fetchBalance()
+      } catch (err) {
+        showStatus(`Action failed: ${formatTxError(err)}`, "error")
+        btn.disabled = false
+        btn.textContent = original
+      }
+    })
+
+    // ── REPUTATION ────────────────────────────────────────────────────────────
+    async function loadReputation() {
+      try {
+        const actor = String(session.actor)
+        await loadTokens()
+
+        const repRows = await getTableRows({ table: "reputations", lower_bound: actor, upper_bound: actor, limit: 1 })
+        const rep = repRows[0]
+        document.getElementById("rep-score").textContent = rep ? rep.overall_score : "No reputation yet"
+        document.getElementById("rep-savings").textContent = rep ? rep.savings_score : "—"
+        document.getElementById("rep-reliability").textContent = rep ? rep.reliability_score : "—"
+        document.getElementById("rep-groups").textContent = rep ? rep.groups_completed : "—"
+        document.getElementById("rep-cycles").textContent = rep ? rep.cycles_paid : "—"
+        document.getElementById("rep-defaults").textContent = rep ? rep.defaults_caused : "—"
+
+        const cfgRows = await getTableRows({ table: "config", limit: 1 })
+        const cfg = cfgRows[0]
+        if (cfg) {
+          const tok = tokensCache[0]
+          const precision = tok ? parseSymbol(tok.token_symbol).precision : 4
+          document.getElementById("rep-min-hint").textContent =
+            `Minimum bond: ${fromRawAmount(BigInt(cfg.initial_reputation_stake), precision)} (raw units: ${cfg.initial_reputation_stake})`
+          const amtInput = document.getElementById("rep-amount")
+          if (!amtInput.value) amtInput.value = fromRawAmount(BigInt(cfg.initial_reputation_stake), precision)
+        }
+
+        const locked = await getTableRows({
+          table: "lockedstake", index_position: "2", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100,
+        })
+        const lockedList = document.getElementById("locked-stake-list")
+        if (!locked.length) {
+          lockedList.innerHTML = `<div class="empty-msg">No locked reputation stakes.</div>`
+        } else {
+          const nowSec = Math.floor(Date.now() / 1000)
+          lockedList.innerHTML = locked.map(l => `
+            <div class="row">
+              <span class="label">${formatAsset(l.amount, l.token_symbol)}</span>
+              <span class="value ${nowSec >= l.release_time ? 'green' : 'orange'}">
+                ${nowSec >= l.release_time ? "Matured — ready to release" : "Locked until " + new Date(l.release_time * 1000).toLocaleDateString()}
+              </span>
+            </div>`).join("")
+        }
+      } catch (err) {
+        console.warn("Reputation load failed:", err.message)
+      }
+    }
+
+    document.getElementById("bond-rep-btn").addEventListener("click", async () => {
+      const symbolStr = document.getElementById("rep-token").value
+      const amountStr = document.getElementById("rep-amount").value
+      if (!symbolStr) return showStatus("No token selected — ask the admin to register one first.", "error")
+      if (!amountStr || Number(amountStr) <= 0) return showStatus("Enter a valid amount.", "error")
+      const btn = document.getElementById("bond-rep-btn")
+      btn.disabled = true
+      btn.innerHTML = '<span class="spinner"></span> Bonding...'
+      try {
+        const { precision } = parseSymbol(symbolStr)
+        const txId = await sendDeposit({ symbolStr, rawAmount: toRawAmount(amountStr, precision), memo: "reputation" })
+        showStatus(`Reputation stake bonded! Tx: ${txId.slice(0,12)}...`, "success")
+        loadReputation()
+      } catch (err) {
+        showStatus(`Bond failed: ${formatTxError(err)}`, "error")
+      } finally {
+        btn.disabled = false
+        btn.innerHTML = "🔒 Bond Reputation Stake"
+      }
+    })
+
+    document.getElementById("act-release-stake").addEventListener("click", async () => {
+      const btn = document.getElementById("act-release-stake")
+      btn.disabled = true
+      btn.innerHTML = '<span class="spinner"></span> Releasing...'
+      try {
+        const txId = await transact({ account: CONTRACT_NAME, name: "releasestake", authorization: [session.permissionLevel], data: { user: session.actor } })
+        showStatus(`Stake released! Tx: ${txId.slice(0,12)}...`, "success")
+        loadReputation(); fetchBalance()
+      } catch (err) {
+        showStatus(`Release failed: ${formatTxError(err)}`, "error")
+      } finally {
+        btn.disabled = false
+        btn.innerHTML = "🔓 Release Matured Stake(s)"
+      }
+    })
+
+    document.getElementById("check-early-rep").addEventListener("click", async () => {
+      const el = document.getElementById("early-rep-result")
+      const claimBtn = document.getElementById("claim-early-rep-btn")
+      el.textContent = "Checking..."
+      claimBtn.style.display = "none"
+      try {
+        const actor = String(session.actor)
+        const rows = await getTableRows({ table: "earlyrepuser", lower_bound: actor, upper_bound: actor, limit: 1 })
+        const entry = rows[0]
+        const cfgRows = await getTableRows({ table: "config", limit: 1 })
+        const cfg = cfgRows[0]
+
+        if (entry && entry.is_active) {
+          el.textContent = `✨ Early reputation active! Score: ${entry.assigned_score} (expires: ${new Date(entry.expires_at * 1000).toLocaleDateString()})`
+          el.style.color = "var(--teal)"
+        } else if (cfg && cfg.early_reputation_enabled && cfg.early_reputation_free) {
+          el.textContent = "No active early reputation — you're eligible to claim it for free."
+          el.style.color = "var(--amber)"
+          claimBtn.style.display = "inline-flex"
+        } else {
+          el.textContent = "No active early reputation, and the program isn't currently free/open."
+          el.style.color = "var(--text-dim)"
+        }
+      } catch (err) {
+        el.textContent = "Error checking: " + formatTxError(err)
+        el.style.color = "var(--coral)"
+      }
+    })
+
+    document.getElementById("claim-early-rep-btn").addEventListener("click", async () => {
+      const btn = document.getElementById("claim-early-rep-btn")
+      btn.disabled = true
+      btn.innerHTML = '<span class="spinner"></span> Claiming...'
+      try {
+        const txId = await transact({ account: CONTRACT_NAME, name: "erepclaim", authorization: [session.permissionLevel], data: { user: session.actor } })
+        showStatus(`Early reputation claimed! Tx: ${txId.slice(0,12)}...`, "success")
+        document.getElementById("check-early-rep").click()
+        loadReputation()
+      } catch (err) {
+        showStatus(`Claim failed: ${formatTxError(err)}`, "error")
+      } finally {
+        btn.disabled = false
+        btn.innerHTML = "🎯 Claim Free Early Reputation"
+      }
+    })
+
+    document.getElementById("refresh-rep-btn").addEventListener("click", loadReputation)
+
+    // ── CREATE GROUP ─────────────────────────────────────────────────────────
+    document.getElementById("show-create-group").addEventListener("click", () => {
+      const f = document.getElementById("create-group-form")
+      f.style.display = f.style.display === "none" ? "block" : "none"
+    })
+    document.getElementById("cancel-create-group").addEventListener("click", () => {
+      document.getElementById("create-group-form").style.display = "none"
+    })
+
+    document.getElementById("create-group-btn").addEventListener("click", async () => {
+      const symbolStr = document.getElementById("cg-token").value
+      const membersStr = document.getElementById("cg-members").value.trim()
+      const amount = document.getElementById("cg-amount").value
+      const durationDays = parseInt(document.getElementById("cg-duration").value)
+      const order = parseInt(document.getElementById("cg-order").value)
+      const goalRate = parseInt(document.getElementById("cg-goalrate").value) || 0
+      const fee = parseInt(document.getElementById("cg-fee").value) || 0
+
+      if (!symbolStr) return showStatus("No token selected — ask the admin to register one first.", "error")
+      if (!membersStr) return showStatus("Enter member names separated by commas.", "error")
+      if (!amount || Number(amount) <= 0) return showStatus("Enter a valid contribution amount.", "error")
+      if (isNaN(durationDays) || durationDays < 1) return showStatus("Enter a valid duration.", "error")
+
+      const members = membersStr.split(",").map(m => m.trim()).filter(m => m)
+      if (!members.includes(String(session.actor))) return showStatus("You must include yourself in the member list.", "error")
+
+      const btn = document.getElementById("create-group-btn")
+      btn.disabled = true
+      btn.innerHTML = '<span class="spinner"></span> Creating...'
+      try {
+        const { precision } = parseSymbol(symbolStr)
+        const txId = await transact({
+          account: CONTRACT_NAME,
+          name: "creategroup",
+          authorization: [session.permissionLevel],
+          data: {
+            organizer: session.actor,
+            token_symbol: symbolStr,
+            member_list: members,
+            contribution_amount: toRawAmount(amount, precision).toString(),
+            cycle_duration: durationDays * 86400,
+            payout_order_type: order,
+            min_goal_rate: goalRate,
+            allow_excess_withdrawal: false,
+            withdrawal_frequency: 0,
+            min_withdrawal_amount: 0,
+            custom_fee_percent: fee,
+          },
+        })
+        showStatus(`Group created! Tx: ${txId.slice(0,12)}... Now stake into it from the Groups tab.`, "success")
+        document.getElementById("create-group-form").style.display = "none"
+        document.getElementById("cg-members").value = ""
+        document.getElementById("cg-amount").value = ""
+        loadGroups(); loadDashboard()
+      } catch (err) {
+        showStatus(`Create group failed: ${formatTxError(err)}`, "error")
+      } finally {
+        btn.disabled = false
+        btn.innerHTML = "🚀 Create Group"
+      }
+    })
+
+    // ── CREATE SAVINGS ──────────────────────────────────────────────────────
+    document.getElementById("create-savings-btn").addEventListener("click", async () => {
+      const symbolStr = document.getElementById("save-token").value
+      const goal = document.getElementById("save-goal").value
+      const durationDays = parseInt(document.getElementById("save-duration").value)
+      if (!symbolStr) return showStatus("No token selected — ask the admin to register one first.", "error")
+      if (!goal || Number(goal) <= 0) return showStatus("Enter a valid goal amount.", "error")
+      if (isNaN(durationDays) || durationDays < 1) return showStatus("Enter a valid duration.", "error")
+
+      const btn = document.getElementById("create-savings-btn")
+      btn.disabled = true
+      btn.innerHTML = '<span class="spinner"></span> Creating...'
+      try {
+        const { precision } = parseSymbol(symbolStr)
+        const txId = await transact({
+          account: CONTRACT_NAME,
+          name: "createsave",
+          authorization: [session.permissionLevel],
+          data: {
+            saver: session.actor,
+            token_symbol: symbolStr,
+            goal_amount: toRawAmount(goal, precision).toString(),
+            duration: durationDays * 86400,
+          },
+        })
+        showStatus(`Savings plan created! Tx: ${txId.slice(0,12)}... Now deposit into it below.`, "success")
+        document.getElementById("save-goal").value = ""
+        loadSavings(); loadDashboard()
+      } catch (err) {
+        showStatus(`Create savings failed: ${formatTxError(err)}`, "error")
+      } finally {
+        btn.disabled = false
+        btn.innerHTML = "💾 Create Savings Plan"
+      }
+    })
+
+    // ── MANUAL TAB ───────────────────────────────────────────────────────────
+    async function runManual(btnId, workFn) {
+      const btn = document.getElementById(btnId)
+      const original = btn.innerHTML
+      btn.disabled = true
+      btn.innerHTML = '<span class="spinner"></span> Working...'
+      try {
+        const txId = await workFn()
+        showStatus(`Done! Tx: ${txId.slice(0,12)}...`, "success")
+        fetchBalance()
+      } catch (err) {
+        showStatus(`Failed: ${formatTxError(err)}`, "error")
+      } finally {
+        btn.disabled = false
+        btn.innerHTML = original
+      }
+    }
+
+    document.getElementById("man-stake-btn").addEventListener("click", () => runManual("man-stake-btn", async () => {
+      const groupId = parseInt(document.getElementById("man-stake-group").value)
+      if (isNaN(groupId)) throw new Error("Enter a group ID")
+      const groups = await getTableRows({ table: "groups", lower_bound: groupId, upper_bound: groupId, limit: 1 })
+      const g = groups[0]
+      if (!g) throw new Error("Group not found")
+      return sendDeposit({ symbolStr: g.token_symbol, rawAmount: BigInt(g.contribution_amount), memo: `stake:${groupId}` })
+    }))
+
+    document.getElementById("man-contrib-btn").addEventListener("click", () => runManual("man-contrib-btn", async () => {
+      const groupId = parseInt(document.getElementById("man-contrib-group").value)
+      if (isNaN(groupId)) throw new Error("Enter a group ID")
+      const groups = await getTableRows({ table: "groups", lower_bound: groupId, upper_bound: groupId, limit: 1 })
+      const g = groups[0]
+      if (!g) throw new Error("Group not found")
+      return sendDeposit({ symbolStr: g.token_symbol, rawAmount: BigInt(g.contribution_amount), memo: `contribute:${groupId}` })
+    }))
+
+    document.getElementById("man-payout-btn").addEventListener("click", () => runManual("man-payout-btn", async () => {
+      const groupId = parseInt(document.getElementById("man-payout-group").value)
+      if (isNaN(groupId)) throw new Error("Enter a group ID")
+      return transact({ account: CONTRACT_NAME, name: "claimpayout", authorization: [session.permissionLevel], data: { member: session.actor, group_id: groupId } })
+    }))
+
+    document.getElementById("man-claimstake-btn").addEventListener("click", () => runManual("man-claimstake-btn", async () => {
+      const groupId = parseInt(document.getElementById("man-claimstake-group").value)
+      if (isNaN(groupId)) throw new Error("Enter a group ID")
+      return transact({ account: CONTRACT_NAME, name: "claimstake", authorization: [session.permissionLevel], data: { member: session.actor, group_id: groupId } })
+    }))
+
+    document.getElementById("man-orgfees-btn").addEventListener("click", () => runManual("man-orgfees-btn", async () => {
+      const groupId = parseInt(document.getElementById("man-orgfees-group").value)
+      if (isNaN(groupId)) throw new Error("Enter a group ID")
+      return transact({ account: CONTRACT_NAME, name: "claimorgfees", authorization: [session.permissionLevel], data: { organizer: session.actor, group_id: groupId } })
+    }))
+
+    document.getElementById("man-save-btn").addEventListener("click", () => runManual("man-save-btn", async () => {
+      const planId = parseInt(document.getElementById("man-save-plan").value)
+      const amountStr = document.getElementById("man-save-amount").value
+      if (isNaN(planId)) throw new Error("Enter a plan ID")
+      if (!amountStr || Number(amountStr) <= 0) throw new Error("Enter an amount")
+      const plans = await getTableRows({ table: "savings", lower_bound: planId, upper_bound: planId, limit: 1 })
+      const p = plans[0]
+      if (!p) throw new Error("Plan not found")
+      const { precision } = parseSymbol(p.token_symbol)
+      return sendDeposit({ symbolStr: p.token_symbol, rawAmount: toRawAmount(amountStr, precision), memo: `savings:${planId}` })
+    }))
+
+    document.getElementById("man-claimsave-btn").addEventListener("click", () => runManual("man-claimsave-btn", async () => {
+      const planId = parseInt(document.getElementById("man-claimsave-plan").value)
+      const panic = document.getElementById("man-claimsave-panic").value === "true"
+      if (isNaN(planId)) throw new Error("Enter a plan ID")
+      return transact({ account: CONTRACT_NAME, name: "claimsavings", authorization: [session.permissionLevel], data: { saver: session.actor, plan_id: planId, panic_withdraw: panic } })
+    }))
+
+    // ── ADMIN ACTIONS ────────────────────────────────────────────────────────
+    function requireAdmin() {
+      if (!isContractAdmin) { showStatus("❌ Admin actions require logging in as testthecontr's admin account.", "error"); return false }
+      return true
+    }
+    async function runAdmin(btnId, label, workFn) {
+      if (!requireAdmin()) return
+      const btn = document.getElementById(btnId)
+      const original = btn.innerHTML
+      btn.disabled = true
+      btn.innerHTML = '<span class="spinner"></span> Working...'
+      try {
+        const txId = await workFn()
+        showStatus(`${label} — Tx: ${txId.slice(0,12)}...`, "success")
+        refreshAdminStatus()
+      } catch (err) {
+        showStatus(`${label} failed: ${formatTxError(err)}`, "error")
+      } finally {
+        btn.disabled = false
+        btn.innerHTML = original
+      }
+    }
+
+    document.getElementById("admin-refresh-config").addEventListener("click", refreshAdminStatus)
+
+    document.getElementById("admin-init-btn").addEventListener("click", () => runAdmin("admin-init-btn", "Initialized", async () => {
+      const wallet = document.getElementById("admin-fee-wallet").value.trim()
+      if (!wallet) throw new Error("Enter a fee wallet account")
+      return transact({ account: CONTRACT_NAME, name: "initialize", authorization: [session.permissionLevel], data: { fee_wallet: wallet } })
+    }))
+
+    document.getElementById("admin-add-token-btn").addEventListener("click", () => runAdmin("admin-add-token-btn", "Token added", async () => {
+      const precision = parseInt(document.getElementById("admin-token-precision").value)
+      const code = document.getElementById("admin-token-symbol").value.trim().toUpperCase()
+      const contract = document.getElementById("admin-token-contract").value.trim()
+      const minGoal = document.getElementById("admin-token-min").value
+      const verified = document.getElementById("admin-token-verified").value === "true"
+      if (!code || !contract) throw new Error("Enter symbol code and contract")
+      const txId = await transact({
+        account: CONTRACT_NAME, name: "addtoken", authorization: [session.permissionLevel],
+        data: { token_symbol: `${precision},${code}`, token_contract: contract, min_goal_amount: toRawAmount(minGoal || "0", precision).toString(), is_verified: verified },
+      })
+      document.getElementById("admin-token-symbol").value = ""
+      document.getElementById("admin-token-contract").value = ""
+      document.getElementById("admin-token-min").value = ""
+      return txId
+    }))
+
+    document.getElementById("admin-remove-token-btn").addEventListener("click", () => runAdmin("admin-remove-token-btn", "Token removed", async () => {
+      const precision = parseInt(document.getElementById("admin-remove-precision").value)
+      const code = document.getElementById("admin-remove-token").value.trim().toUpperCase()
+      if (!code) throw new Error("Enter a token symbol code")
+      return transact({ account: CONTRACT_NAME, name: "removetoken", authorization: [session.permissionLevel], data: { token_symbol: `${precision},${code}` } })
+    }))
+
+    document.getElementById("admin-whitelist-btn").addEventListener("click", () => runAdmin("admin-whitelist-btn", "Whitelisted", async () => {
+      const contract = document.getElementById("admin-whitelist-contract").value.trim()
+      if (!contract) throw new Error("Enter a contract account")
+      const txId = await transact({ account: CONTRACT_NAME, name: "addwhitelist", authorization: [session.permissionLevel], data: { token_contract: contract } })
+      document.getElementById("admin-whitelist-contract").value = ""
+      return txId
+    }))
+
+    document.getElementById("admin-blacklist-btn").addEventListener("click", () => runAdmin("admin-blacklist-btn", "Blacklisted", async () => {
+      const account = document.getElementById("admin-blacklist-account").value.trim()
+      const reason = document.getElementById("admin-blacklist-reason").value.trim()
+      if (!account) throw new Error("Enter an account")
+      const txId = await transact({ account: CONTRACT_NAME, name: "addblacklist", authorization: [session.permissionLevel], data: { account, reason: reason || "No reason provided" } })
+      document.getElementById("admin-blacklist-account").value = ""
+      document.getElementById("admin-blacklist-reason").value = ""
+      return txId
+    }))
+
+    document.getElementById("admin-unblacklist-btn").addEventListener("click", () => runAdmin("admin-unblacklist-btn", "Removed from blacklist", async () => {
+      const account = document.getElementById("admin-unblacklist-account").value.trim()
+      if (!account) throw new Error("Enter an account")
+      const txId = await transact({ account: CONTRACT_NAME, name: "rmblacklist", authorization: [session.permissionLevel], data: { account } })
+      document.getElementById("admin-unblacklist-account").value = ""
+      return txId
+    }))
+
+    document.getElementById("admin-emerg-btn").addEventListener("click", () => runAdmin("admin-emerg-btn", "Emergency action executed", async () => {
+      const action = document.getElementById("admin-emerg-action").value
+      if (action === "freeze") return transact({ account: CONTRACT_NAME, name: "emergfreeze", authorization: [session.permissionLevel], data: { freeze: true } })
+      if (action === "unfreeze") return transact({ account: CONTRACT_NAME, name: "emergfreeze", authorization: [session.permissionLevel], data: { freeze: false } })
+      if (action === "pause") return transact({ account: CONTRACT_NAME, name: "emergpause", authorization: [session.permissionLevel], data: { paused: true } })
+      return transact({ account: CONTRACT_NAME, name: "emergpause", authorization: [session.permissionLevel], data: { paused: false } })
+    }))
+
+    document.getElementById("admin-org-fee-btn").addEventListener("click", () => runAdmin("admin-org-fee-btn", "Organizer fee set", async () => {
+      const fee = parseInt(document.getElementById("admin-org-fee").value)
+      if (isNaN(fee) || fee < 0 || fee > 50) throw new Error("Enter fee between 0-50")
+      return transact({ account: CONTRACT_NAME, name: "setorgfee", authorization: [session.permissionLevel], data: { fee_percent: fee } })
+    }))
+
+    document.getElementById("admin-max-fee-btn").addEventListener("click", () => runAdmin("admin-max-fee-btn", "Max custom fee set", async () => {
+      const fee = parseInt(document.getElementById("admin-max-fee").value)
+      if (isNaN(fee) || fee < 0 || fee > 5) throw new Error("Enter fee between 0-5")
+      return transact({ account: CONTRACT_NAME, name: "setmaxfee", authorization: [session.permissionLevel], data: { max_fee_percent: fee } })
+    }))
+
+    document.getElementById("admin-incentives-btn").addEventListener("click", () => runAdmin("admin-incentives-btn", "Organizer incentives toggled", async () => {
+      const enabled = document.getElementById("admin-incentives-enable").value === "true"
+      return transact({ account: CONTRACT_NAME, name: "toggleincen", authorization: [session.permissionLevel], data: { enabled } })
+    }))
+
+    async function loadAdminLists() {
+      try {
+        const [whitelist, blacklist] = await Promise.all([
+          getTableRows({ table: "whitelist", limit: 100 }),
+          getTableRows({ table: "blacklist", limit: 100 }),
+        ])
+        const wEl = document.getElementById("admin-list-whitelist")
+        wEl.innerHTML = whitelist.length
+          ? `<div class="field-hint" style="margin-bottom:4px;">Whitelisted token contracts:</div>` +
+            whitelist.map(w => `<div class="row"><span class="label">${w.account}</span><span class="tag ${w.is_active ? 'green' : 'gray'}">${w.is_active ? 'active' : 'inactive'}</span></div>`).join("")
+          : `<div class="empty-msg">No token contracts whitelisted yet.</div>`
+
+        const bEl = document.getElementById("admin-list-blacklist")
+        bEl.innerHTML = blacklist.length
+          ? `<div class="field-hint" style="margin-bottom:4px;">Blacklisted accounts:</div>` +
+            blacklist.map(b => `<div class="row"><span class="label">${b.account}</span><span class="value" style="font-size:0.72rem;color:var(--text-dim);">${b.reason}</span></div>`).join("")
+          : `<div class="empty-msg">No accounts blacklisted.</div>`
+      } catch (err) {
+        console.warn("Admin list load failed:", err.message)
+      }
+    }
+    document.getElementById("admin-refresh-lists").addEventListener("click", loadAdminLists)
+
+    document.getElementById("admin-early-toggle-btn").addEventListener("click", () => runAdmin("admin-early-toggle-btn", "Early reputation toggled", async () => {
+      const enabled = document.getElementById("admin-early-enable").value === "true"
+      return transact({ account: CONTRACT_NAME, name: "erepenable", authorization: [session.permissionLevel], data: { enabled } })
+    }))
+
+    document.getElementById("admin-erep-params-btn").addEventListener("click", () => runAdmin("admin-erep-params-btn", "Early reputation params set", async () => {
+      const days = parseInt(document.getElementById("admin-erep-days").value)
+      const score = parseInt(document.getElementById("admin-erep-score").value)
+      const free = document.getElementById("admin-erep-free").value === "true"
+      const deadlineDays = parseInt(document.getElementById("admin-erep-deadline").value)
+      const nowSec = Math.floor(Date.now() / 1000)
+      return transact({
+        account: CONTRACT_NAME, name: "ereparams", authorization: [session.permissionLevel],
+        data: { days_valid: days, stake_amount: 0, initial_score: score, is_free: free, program_deadline: nowSec + deadlineDays * 86400 },
+      })
+    }))
+
+    document.getElementById("admin-grant-early-btn").addEventListener("click", () => runAdmin("admin-grant-early-btn", "Early reputation granted", async () => {
+      const user = document.getElementById("admin-grant-user").value.trim()
+      const score = parseInt(document.getElementById("admin-grant-score").value) || 0
+      if (!user) throw new Error("Enter a user account")
+      const txId = await transact({ account: CONTRACT_NAME, name: "erepgrant", authorization: [session.permissionLevel], data: { user, custom_score: Math.min(100, Math.max(0, score)) } })
+      document.getElementById("admin-grant-user").value = ""
+      document.getElementById("admin-grant-score").value = ""
+      return txId
+    }))
+
+    document.getElementById("admin-revoke-early-btn").addEventListener("click", () => runAdmin("admin-revoke-early-btn", "Early reputation revoked", async () => {
+      const user = document.getElementById("admin-revoke-user").value.trim()
+      if (!user) throw new Error("Enter a user account")
+      const txId = await transact({ account: CONTRACT_NAME, name: "ereprevoke", authorization: [session.permissionLevel], data: { user } })
+      document.getElementById("admin-revoke-user").value = ""
+      return txId
+    }))
+
+    document.getElementById("admin-wd-toggle-btn").addEventListener("click", () => runAdmin("admin-wd-toggle-btn", "Withdrawal limits toggled", async () => {
+      const enabled = document.getElementById("admin-wd-enable").value === "true"
+      return transact({ account: CONTRACT_NAME, name: "setwdlimit", authorization: [session.permissionLevel], data: { enabled } })
+    }))
+
+    document.getElementById("admin-wd-params-btn").addEventListener("click", () => runAdmin("admin-wd-params-btn", "Withdrawal params set", async () => {
+      const period = parseInt(document.getElementById("admin-wd-period").value)
+      const limit = document.getElementById("admin-wd-limit").value
+      const cooldown = parseInt(document.getElementById("admin-wd-cooldown").value)
+      if (isNaN(period) || period < 1 || period > 30) throw new Error("Period must be 1-30 days")
+      if (!limit || Number(limit) <= 0) throw new Error("Enter a valid raw limit amount")
+      if (isNaN(cooldown) || cooldown < 0 || cooldown > 168) throw new Error("Cooldown must be 0-168 hours")
+      return transact({ account: CONTRACT_NAME, name: "setwdparams", authorization: [session.permissionLevel], data: { period_days: period, limit_amount: Math.round(Number(limit)), cooldown_hours: cooldown } })
+    }))
+
+    document.getElementById("admin-clear-limit-btn").addEventListener("click", () => runAdmin("admin-clear-limit-btn", "User limit cleared", async () => {
+      const user = document.getElementById("admin-clear-limit-user").value.trim()
+      if (!user) throw new Error("Enter a user account")
+      const txId = await transact({ account: CONTRACT_NAME, name: "clearlimit", authorization: [session.permissionLevel], data: { user } })
+      document.getElementById("admin-clear-limit-user").value = ""
+      return txId
+    }))
+
+    document.getElementById("admin-dissolve-btn").addEventListener("click", () => runAdmin("admin-dissolve-btn", "Group dissolved", async () => {
+      const groupId = parseInt(document.getElementById("admin-dissolve-group").value)
+      const reason = document.getElementById("admin-dissolve-reason").value.trim() || "Dissolved by admin"
+      if (isNaN(groupId)) throw new Error("Enter a valid group ID")
+      const txId = await transact({ account: CONTRACT_NAME, name: "dissolvegrp", authorization: [session.permissionLevel], data: { caller: session.actor, group_id: groupId, reason } })
+      document.getElementById("admin-dissolve-group").value = ""
+      document.getElementById("admin-dissolve-reason").value = ""
+      loadGroups()
+      return txId
+    }))
+
+    document.getElementById("admin-default-btn").addEventListener("click", () => runAdmin("admin-default-btn", "Default marked", async () => {
+      const groupId = parseInt(document.getElementById("admin-default-group").value)
+      const member = document.getElementById("admin-default-member").value.trim()
+      if (isNaN(groupId)) throw new Error("Enter a valid group ID")
+      if (!member) throw new Error("Enter a member account")
+      const txId = await transact({ account: CONTRACT_NAME, name: "markdefault", authorization: [session.permissionLevel], data: { caller: session.actor, group_id: groupId, member } })
+      document.getElementById("admin-default-group").value = ""
+      document.getElementById("admin-default-member").value = ""
+      loadGroups()
+      return txId
+    }))
+
+    // ── NETWORK SWITCH ──────────────────────────────────────────────────────
+    function switchNetwork(network) {
+      if (network === currentNetwork) return
+      if (!CHAINS[network].enabled) { showStatus(`${CHAINS[network].label} isn't available yet.`, "warning"); return }
+      if (session) { showStatus("Disconnect before switching networks.", "error"); return }
+      currentNetwork = network
+      sessionKit = buildSessionKit(network)
+      document.getElementById("btn-jungle4")?.classList.toggle("active", network === "jungle4")
+      document.getElementById("btn-vaulta")?.classList.toggle("active", network === "vaulta")
+      showStatus(`Switched to ${CHAINS[network].label}`, "info")
+    }
+
+    // ── LOGIN / LOGOUT ──────────────────────────────────────────────────────
+    async function login() {
+      const btn = document.getElementById("login-btn")
+      btn.disabled = true
+      btn.querySelector(".w-name").textContent = "Connecting…"
+      try {
+        const { session: s } = await sessionKit.login()
+        session = s
+        updateUI()
+        showStatus(`Connected as ${session.actor}`, "success")
+        await loadTokens()
+        await refreshAdminStatus()
+        fetchBalance()
+        switchTab("dashboard")
+      } catch (err) {
+        showStatus("Could not connect to Anchor: " + formatTxError(err), "error")
+      } finally {
+        btn.disabled = false
+        btn.querySelector(".w-name").textContent = "Connect with Anchor"
+      }
+    }
+
+    async function logout() {
+      try {
+        await sessionKit.logout(session)
+        session = undefined
+        isContractAdmin = false
+        updateUI()
+        showStatus("Disconnected.", "info")
+      } catch (err) {
+        showStatus("Logout error: " + formatTxError(err), "error")
+      }
+    }
+
+    // ── EVENT WIRING ─────────────────────────────────────────────────────────
+    document.getElementById("login-btn").addEventListener("click", login)
+    document.getElementById("logout-btn").addEventListener("click", logout)
+    document.getElementById("refresh-btn").addEventListener("click", () => {
+      fetchBalance(); loadDashboard(); loadGroups(); loadSavings(); loadReputation()
+    })
+    document.getElementById("balance-token-select").addEventListener("change", fetchBalance)
+
+    document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)))
+    document.querySelectorAll(".net-btn").forEach(btn => btn.addEventListener("click", () => switchNetwork(btn.dataset.network)))
+
+    // ── INIT ─────────────────────────────────────────────────────────────────
+    async function init() {
+      try {
+        session = await sessionKit.restore()
+        if (session) {
+          showStatus(`Restored session: ${session.actor}`, "success")
+          updateUI()
+          await loadTokens()
+          await refreshAdminStatus()
+          fetchBalance()
+          switchTab("dashboard")
+          return
+        }
+      } catch (_) {}
+      updateUI()
+    }
+
+    init()
+  </script>
+
+</body>
+</html>
