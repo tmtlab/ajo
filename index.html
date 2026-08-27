@@ -4,19 +4,63 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>testthecontr Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      /* ── Palette: ink ledger + brass ── */
+      --bg-0: #090c14;
+      --bg-1: #0d111c;
+      --surface: #121826;
+      --surface-2: #161d2e;
+      --surface-hover: #1b2338;
+      --border: #232c42;
+      --border-hover: #33405c;
+      --text: #eef1f8;
+      --text-dim: #8b93ab;
+      --text-faint: #565f7a;
+
+      --brass: #e0b054;
+      --brass-dim: #b8903f;
+      --brass-glow: rgba(224, 176, 84, 0.18);
+      --teal: #4fc9a8;
+      --teal-glow: rgba(79, 201, 168, 0.16);
+      --coral: #ec6f61;
+      --coral-glow: rgba(236, 111, 97, 0.16);
+      --amber: #e2a53f;
+      --amber-glow: rgba(226, 165, 63, 0.16);
+      --violet: #a48af0;
+      --violet-glow: rgba(164, 138, 240, 0.16);
+      --blue: #5b9dee;
+
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+
+      --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -8px rgba(0,0,0,0.5);
+      --shadow-lift: 0 2px 4px rgba(0,0,0,0.35), 0 16px 40px -12px rgba(0,0,0,0.6);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: #0d1117;
-      color: #e6edf3;
+      font-family: var(--font-body);
+      background:
+        radial-gradient(ellipse 900px 500px at 15% -10%, rgba(224,176,84,0.07), transparent 60%),
+        radial-gradient(ellipse 800px 600px at 100% 0%, rgba(79,201,168,0.05), transparent 55%),
+        var(--bg-0);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px 12px 60px;
+      padding: 28px 14px 70px;
+      -webkit-font-smoothing: antialiased;
     }
+
+    ::selection { background: var(--brass-glow); color: var(--text); }
 
     /* ── Header ── */
     header {
@@ -24,206 +68,235 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      max-width: 720px;
-      margin-bottom: 20px;
+      max-width: 740px;
+      margin-bottom: 22px;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
     }
-    .header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .header-left h1 { font-size: 1.3rem; font-weight: 700; color: #58a6ff; }
-    .header-left .sub { font-size: 0.7rem; color: #8b949e; background: #161b22; padding: 2px 10px; border-radius: 20px; border: 1px solid #30363d; }
-    .header-left .contract-badge { font-size: 0.7rem; color: #b088f0; background: #6f42c122; padding: 2px 10px; border-radius: 20px; border: 1px solid #6f42c155; }
+    .header-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .logo-mark {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: conic-gradient(from 220deg, var(--brass), var(--teal), var(--violet), var(--brass));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; box-shadow: 0 0 0 1px var(--border), 0 4px 14px -4px var(--brass-glow);
+      animation: logo-spin 14s linear infinite;
+    }
+    @keyframes logo-spin { to { filter: hue-rotate(360deg); } }
+    .header-left h1 {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 600;
+      color: var(--text); letter-spacing: -0.01em;
+    }
+    .header-left .sub {
+      font-size: 0.68rem; color: var(--text-dim); background: var(--surface);
+      padding: 3px 11px; border-radius: 20px; border: 1px solid var(--border);
+      font-weight: 500;
+    }
+    .header-left .contract-badge {
+      font-size: 0.68rem; color: var(--violet); background: var(--violet-glow);
+      padding: 3px 11px; border-radius: 20px; border: 1px solid rgba(164,138,240,0.3);
+      font-family: var(--font-mono); font-weight: 500;
+    }
 
     .network-toggle {
-      display: flex;
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      overflow: hidden;
+      display: flex; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 9px; overflow: hidden; padding: 2px;
     }
     .net-btn {
-      padding: 4px 12px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: #8b949e;
-      transition: 0.2s;
+      padding: 5px 13px; font-size: 0.71rem; font-weight: 600; cursor: pointer;
+      border: none; background: transparent; color: var(--text-dim); border-radius: 7px;
+      transition: all 0.2s var(--ease);
     }
-    .net-btn.active { background: #1f6feb; color: #fff; }
-    .net-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .net-btn.active { background: var(--brass); color: #1a1408; box-shadow: 0 2px 8px -2px var(--brass-glow); }
+    .net-btn:not(.active):not(:disabled):hover { background: var(--surface-hover); color: var(--text); }
+    .net-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    /* ── Status ── */
+    /* ── Toasts ── */
     #status {
-      display: none;
-      width: 100%;
-      max-width: 720px;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      margin-bottom: 12px;
-      word-break: break-word;
+      position: fixed; top: 18px; right: 18px; z-index: 999;
+      display: flex; flex-direction: column; gap: 8px; max-width: min(360px, calc(100vw - 36px));
+      pointer-events: none;
     }
-    #status.success { background: #1a3a2a; border: 1px solid #238636; color: #3fb950; }
-    #status.error   { background: #3a1a1a; border: 1px solid #da3633; color: #f85149; }
-    #status.info    { background: #1a2a3a; border: 1px solid #1f6feb; color: #58a6ff; }
-    #status.warning { background: #3a2a1a; border: 1px solid #9e6a03; color: #d29922; }
+    .toast {
+      pointer-events: auto;
+      position: relative; overflow: hidden;
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 11px;
+      padding: 11px 34px 11px 14px; font-size: 0.82rem; line-height: 1.45;
+      box-shadow: var(--shadow-lift); cursor: pointer; word-break: break-word;
+      animation: toast-in 0.32s var(--ease);
+    }
+    .toast.leaving { animation: toast-out 0.22s var(--ease) forwards; }
+    @keyframes toast-in { from { opacity: 0; transform: translateX(24px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+    @keyframes toast-out { to { opacity: 0; transform: translateX(24px) scale(0.97); } }
+    .toast::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+    .toast.success { color: var(--teal); } .toast.success::before { background: var(--teal); }
+    .toast.error   { color: var(--coral); } .toast.error::before { background: var(--coral); }
+    .toast.info    { color: var(--blue); } .toast.info::before { background: var(--blue); }
+    .toast.warning { color: var(--amber); } .toast.warning::before { background: var(--amber); }
+    .toast .toast-close { position: absolute; top: 9px; right: 10px; color: var(--text-faint); font-size: 0.9rem; line-height: 1; }
+    .toast .toast-bar { position: absolute; left: 0; bottom: 0; height: 2px; background: currentColor; opacity: 0.5; animation: toast-bar 6s linear forwards; }
+    @keyframes toast-bar { from { width: 100%; } to { width: 0%; } }
 
     /* ── Cards ── */
     .card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 20px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
       width: 100%;
-      max-width: 720px;
-      margin-bottom: 14px;
+      max-width: 740px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-card);
+      animation: card-in 0.4s var(--ease);
     }
+    @keyframes card-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     .card h2 {
-      font-size: 0.7rem;
-      color: #8b949e;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 12px;
+      font-family: var(--font-display); font-size: 0.78rem; font-weight: 600;
+      color: var(--brass); text-transform: uppercase; letter-spacing: 0.09em;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
     }
-    .card h3 {
-      font-size: 0.85rem;
-      color: #e6edf3;
-      margin-bottom: 8px;
-    }
-    .card.admin-card { border-color: #6f42c1; background: #1a1a2a; }
-    .card.admin-card h2 { color: #b088f0; }
+    .card h3 { font-size: 0.86rem; font-weight: 600; color: var(--text); margin-bottom: 9px; }
+    .card.admin-card { border-color: rgba(164,138,240,0.35); background: linear-gradient(180deg, rgba(164,138,240,0.05), transparent 40%), var(--surface); }
+    .card.admin-card h2 { color: var(--violet); }
 
     /* ── Auth ── */
     #auth-section { text-align: center; }
-    #auth-section > p { color: #8b949e; margin-bottom: 16px; font-size: 0.85rem; line-height: 1.6; }
+    #auth-section > p { color: var(--text-dim); margin-bottom: 18px; font-size: 0.86rem; line-height: 1.65; }
 
     .anchor-btn {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      padding: 16px 36px;
-      background: #0d1117;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      cursor: pointer;
-      color: #e6edf3;
-      width: 100%;
-      transition: border-color 0.2s;
+      display: inline-flex; flex-direction: column; align-items: center; gap: 7px;
+      padding: 20px 36px; background: var(--surface-2);
+      border: 1px solid var(--border); border-radius: 14px; cursor: pointer;
+      color: var(--text); width: 100%;
+      transition: border-color 0.25s var(--ease), transform 0.15s var(--ease), box-shadow 0.25s var(--ease);
     }
-    .anchor-btn:hover { border-color: #58a6ff; }
-    .anchor-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .anchor-btn .w-icon { font-size: 1.6rem; }
-    .anchor-btn .w-name { font-size: 0.9rem; font-weight: 700; }
-    .anchor-btn .w-hint { font-size: 0.7rem; color: #8b949e; }
-    .download-hint { margin-top: 10px; font-size: 0.74rem; color: #484f58; }
-    .download-hint a { color: #58a6ff; text-decoration: none; }
+    .anchor-btn:hover { border-color: var(--brass); transform: translateY(-1px); box-shadow: 0 8px 24px -8px var(--brass-glow); }
+    .anchor-btn:active { transform: translateY(0) scale(0.99); }
+    .anchor-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .anchor-btn .w-icon { font-size: 1.7rem; }
+    .anchor-btn .w-name { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; }
+    .anchor-btn .w-hint { font-size: 0.7rem; color: var(--text-dim); }
+    .download-hint { margin-top: 12px; font-size: 0.74rem; color: var(--text-faint); }
+    .download-hint a { color: var(--brass); text-decoration: none; }
     .download-hint a:hover { text-decoration: underline; }
 
     /* ── Account bar ── */
     #account-bar {
       display: none;
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 14px 18px;
+      background: linear-gradient(135deg, rgba(224,176,84,0.06), transparent 55%), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 20px;
       width: 100%;
-      max-width: 720px;
-      margin-bottom: 12px;
+      max-width: 740px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-card);
+      animation: card-in 0.4s var(--ease);
     }
     .acct-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
-    .acct-name { font-size: 1rem; font-weight: 700; }
-    .acct-net  { font-size: 0.7rem; color: #d29922; background: #9e6a0322; border: 1px solid #9e6a0355; padding: 2px 10px; border-radius: 20px; }
-    .acct-role { font-size: 0.7rem; color: #b088f0; background: #6f42c122; border: 1px solid #6f42c155; padding: 2px 10px; border-radius: 20px; }
-    .acct-balance-row { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
-    .acct-balance { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
-    .acct-balance span { font-size: 0.85rem; color: #8b949e; margin-left: 4px; }
-    .acct-balance-row select { width: auto; padding: 4px 8px; font-size: 0.72rem; }
-    .acct-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-    .btn-sm {
-      padding: 6px 14px; border-radius: 7px; border: 1px solid #30363d;
-      background: #0d1117; color: #e6edf3; font-size: 0.75rem; font-weight: 600;
-      cursor: pointer; transition: 0.2s;
+    .acct-name { font-family: var(--font-mono); font-size: 1.02rem; font-weight: 600; letter-spacing: -0.01em; }
+    .acct-net  { font-size: 0.68rem; color: var(--amber); background: var(--amber-glow); border: 1px solid rgba(226,165,63,0.3); padding: 3px 11px; border-radius: 20px; font-weight: 500; }
+    .acct-role { font-size: 0.68rem; color: var(--violet); background: var(--violet-glow); border: 1px solid rgba(164,138,240,0.3); padding: 3px 11px; border-radius: 20px; font-weight: 500; }
+    .acct-balance-row { display: flex; align-items: baseline; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+    .acct-balance {
+      font-family: var(--font-display); font-size: 1.9rem; font-weight: 600;
+      letter-spacing: -0.02em; color: var(--brass); transition: opacity 0.15s;
     }
-    .btn-sm:hover { border-color: #58a6ff; color: #58a6ff; }
-    .btn-sm.danger:hover { border-color: #da3633; color: #f85149; }
-    .btn-sm.admin:hover { border-color: #6f42c1; color: #b088f0; }
+    .acct-balance span { font-family: var(--font-body); font-size: 0.85rem; color: var(--text-dim); margin-left: 5px; font-weight: 500; }
+    .acct-balance-row select { width: auto; padding: 5px 10px; font-size: 0.72rem; }
+    .acct-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .btn-sm {
+      padding: 7px 15px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text); font-size: 0.76rem; font-weight: 600;
+      cursor: pointer; transition: all 0.18s var(--ease);
+    }
+    .btn-sm:hover { border-color: var(--brass); color: var(--brass); transform: translateY(-1px); }
+    .btn-sm.danger:hover { border-color: var(--coral); color: var(--coral); }
+    .btn-sm.admin:hover { border-color: var(--violet); color: var(--violet); }
 
     /* ── Tabs ── */
     .tabs {
-      display: flex; background: #161b22; border: 1px solid #30363d; border-radius: 10px;
-      overflow: hidden; width: 100%; max-width: 720px; margin-bottom: 12px; flex-wrap: wrap;
+      display: flex; position: relative; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; width: 100%; max-width: 740px; margin-bottom: 14px;
+      flex-wrap: wrap; padding: 3px; box-shadow: var(--shadow-card);
+    }
+    .tab-indicator {
+      position: absolute; top: 3px; bottom: 3px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--brass), #c99a45);
+      box-shadow: 0 4px 14px -4px var(--brass-glow);
+      transition: left 0.32s var(--ease), width 0.32s var(--ease);
+      z-index: 0;
     }
     .tab-btn {
-      flex: 1; min-width: 60px; padding: 8px 8px; font-size: 0.72rem; font-weight: 600;
-      cursor: pointer; border: none; background: transparent; color: #8b949e;
-      transition: 0.2s; border-right: 1px solid #30363d;
+      position: relative; z-index: 1;
+      flex: 1; min-width: 62px; padding: 9px 8px; font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; border: none; background: transparent; color: var(--text-dim);
+      border-radius: 9px; transition: color 0.25s var(--ease);
     }
-    .tab-btn:last-child { border-right: none; }
-    .tab-btn.active { background: #1f6feb22; color: #58a6ff; }
-    .tab-btn.admin-tab { color: #6f42c166; }
-    .tab-btn.admin-tab.active { background: #6f42c122; color: #b088f0; }
-    .tab-btn.admin-tab.visible { color: #6f42c1; }
+    .tab-btn.active { color: #1a1408; }
+    .tab-btn:not(.active):hover { color: var(--text); }
+    .tab-btn.admin-tab { color: rgba(164,138,240,0.35); }
+    .tab-btn.admin-tab.visible { color: var(--violet); }
+    .tab-btn.admin-tab.active { color: #1a1408; }
 
     .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    .tab-panel.active { display: block; animation: panel-in 0.3s var(--ease); }
+    @keyframes panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ── Forms ── */
-    .form-group { margin-bottom: 12px; }
-    label { display: block; font-size: 0.78rem; color: #8b949e; margin-bottom: 4px; }
+    .form-group { margin-bottom: 13px; }
+    label { display: block; font-size: 0.77rem; color: var(--text-dim); margin-bottom: 5px; font-weight: 500; }
     input, select, textarea {
-      width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
-      padding: 8px 12px; color: #e6edf3; font-size: 0.9rem; outline: none;
-      transition: 0.2s; font-family: inherit;
+      width: 100%; background: var(--bg-1); border: 1px solid var(--border); border-radius: 9px;
+      padding: 9px 13px; color: var(--text); font-size: 0.9rem; outline: none;
+      transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease); font-family: inherit;
     }
-    input:focus, select:focus, textarea:focus { border-color: #58a6ff; }
-    input::placeholder, textarea::placeholder { color: #484f58; }
-    input[readonly] { color: #8b949e; background: #0a0d12; }
+    input:focus, select:focus, textarea:focus { border-color: var(--brass); box-shadow: 0 0 0 3px var(--brass-glow); }
+    input::placeholder, textarea::placeholder { color: var(--text-faint); }
+    input[readonly] { color: var(--text-dim); background: var(--bg-0); }
     textarea { resize: vertical; min-height: 50px; }
-    .field-hint { font-size: 0.7rem; color: #484f58; margin-top: 3px; }
+    .field-hint { font-size: 0.71rem; color: var(--text-faint); margin-top: 4px; line-height: 1.5; }
 
     .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .input-row .form-group { flex: 1; min-width: 120px; }
+    .input-row .form-group { flex: 1; min-width: 130px; }
     .input-row .form-group.half { flex: 0.5; }
 
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer;
-      font-size: 0.85rem; font-weight: 600; transition: opacity 0.15s, transform 0.1s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 9px 19px; border-radius: 9px; border: none; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; transition: all 0.18s var(--ease);
+      position: relative;
     }
-    .btn:hover    { opacity: 0.85; }
-    .btn:active   { transform: scale(0.97); }
+    .btn:hover:not(:disabled)  { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
     .btn:disabled { opacity: 0.35; cursor: not-allowed; }
-    .btn-primary  { background: #238636; color: #fff; }
-    .btn-blue     { background: #1f6feb; color: #fff; }
-    .btn-orange   { background: #9e6a03; color: #fff; }
-    .btn-purple   { background: #6f42c1; color: #fff; }
-    .btn-red      { background: #da3633; color: #fff; }
+    .btn-primary  { background: linear-gradient(135deg, var(--teal), #3fae90); color: #06231b; box-shadow: 0 4px 14px -6px var(--teal-glow); }
+    .btn-blue     { background: linear-gradient(135deg, var(--blue), #4785d1); color: #0a1a2e; box-shadow: 0 4px 14px -6px rgba(91,157,238,0.3); }
+    .btn-orange   { background: linear-gradient(135deg, var(--amber), #c98f2e); color: #241a05; box-shadow: 0 4px 14px -6px var(--amber-glow); }
+    .btn-purple   { background: linear-gradient(135deg, var(--violet), #8b6fe0); color: #170f2e; box-shadow: 0 4px 14px -6px var(--violet-glow); }
+    .btn-red      { background: linear-gradient(135deg, var(--coral), #d1503f); color: #2b0a05; box-shadow: 0 4px 14px -6px var(--coral-glow); }
     .btn-full     { width: 100%; }
-    .btn-xs       { padding: 5px 10px; font-size: 0.72rem; }
+    .btn-xs       { padding: 6px 12px; font-size: 0.73rem; border-radius: 7px; }
 
     /* ── Rows / lists ── */
-    .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #21262d; gap: 10px; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); gap: 10px; }
     .row:last-child { border-bottom: none; }
-    .row .label { color: #8b949e; font-size: 0.8rem; }
-    .row .value { font-weight: 600; font-size: 0.88rem; text-align: right; }
-    .row .value.green { color: #3fb950; }
-    .row .value.red   { color: #f85149; }
-    .row .value.orange { color: #d29922; }
-    .row .value.purple { color: #b088f0; }
+    .row .label { color: var(--text-dim); font-size: 0.8rem; }
+    .row .value { font-family: var(--font-mono); font-weight: 500; font-size: 0.85rem; text-align: right; }
+    .row .value.green { color: var(--teal); }
+    .row .value.red   { color: var(--coral); }
+    .row .value.orange { color: var(--amber); }
+    .row .value.purple { color: var(--violet); }
 
-    .empty-msg { color: #8b949e; font-size: 0.82rem; text-align: center; padding: 16px 0; }
-    .divider { border: none; border-top: 1px solid #21262d; margin: 12px 0; }
+    .empty-msg { color: var(--text-faint); font-size: 0.83rem; text-align: center; padding: 22px 0; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
 
-    .tag { display: inline-block; padding: 1px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
-    .tag.green { background: #23863644; color: #3fb950; }
-    .tag.blue  { background: #1f6feb44; color: #58a6ff; }
-    .tag.yellow{ background: #9e6a0344; color: #d29922; }
-    .tag.red   { background: #da363344; color: #f85149; }
-    .tag.gray  { background: #484f5844; color: #8b949e; }
-    .tag.purple{ background: #6f42c144; color: #b088f0; }
+    .tag { display: inline-block; padding: 2px 11px; border-radius: 20px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.02em; }
+    .tag.green { background: var(--teal-glow); color: var(--teal); }
+    .tag.blue  { background: rgba(91,157,238,0.16); color: var(--blue); }
+    .tag.yellow{ background: var(--amber-glow); color: var(--amber); }
+    .tag.red   { background: var(--coral-glow); color: var(--coral); }
+    .tag.gray  { background: rgba(139,147,171,0.14); color: var(--text-dim); }
+    .tag.purple{ background: var(--violet-glow); color: var(--violet); }
 
     .spinner {
       display: inline-block; width: 12px; height: 12px; border: 2px solid transparent;
@@ -234,38 +307,59 @@
 
     /* ── Contract interaction cards ── */
     .item-card {
-      background: #0d1117; border-radius: 8px; padding: 12px 14px;
-      margin-bottom: 10px; border: 1px solid #21262d;
+      background: var(--bg-1); border-radius: 12px; padding: 14px 16px;
+      margin-bottom: 11px; border: 1px solid var(--border);
+      transition: border-color 0.25s var(--ease), transform 0.2s var(--ease);
+      animation: item-in 0.35s var(--ease) backwards;
+      display: flex; gap: 14px; align-items: flex-start;
     }
-    .item-card .ic-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 4px; }
-    .item-card .ic-id { font-weight: 700; font-size: 0.95rem; }
-    .item-card .ic-detail { color: #8b949e; font-size: 0.8rem; }
-    .item-card .ic-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-    .item-card .ic-inline-form { display: flex; gap: 6px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+    .item-card:hover { border-color: var(--border-hover); }
+    @keyframes item-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .item-card .ic-body { flex: 1; min-width: 0; }
+    .item-card .ic-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 4px; }
+    .item-card .ic-id { font-family: var(--font-display); font-weight: 600; font-size: 1rem; }
+    .item-card .ic-detail { color: var(--text-dim); font-size: 0.8rem; }
+    .item-card .ic-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 11px; }
+    .item-card .ic-inline-form { display: flex; gap: 7px; margin-top: 11px; align-items: center; flex-wrap: wrap; }
     .item-card .ic-inline-form input { width: 120px; flex: none; }
 
+    /* Signature element: rotation-cycle ring, shows group progress at a glance */
+    .cycle-ring {
+      position: relative; width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cycle-ring::before {
+      content: ""; position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(var(--brass) calc(var(--pct, 0) * 1%), var(--border) 0);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+    }
+    .cycle-ring span { font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600; color: var(--text-dim); z-index: 1; }
+
     .admin-badge {
-      display: inline-block; background: #6f42c144; color: #b088f0; padding: 2px 10px;
-      border-radius: 20px; font-size: 0.65rem; font-weight: 600; border: 1px solid #6f42c155;
+      display: inline-block; background: var(--violet-glow); color: var(--violet); padding: 2px 11px;
+      border-radius: 20px; font-size: 0.65rem; font-weight: 600; border: 1px solid rgba(164,138,240,0.3);
     }
 
-    .config-box { background: #0d1117; border-radius: 8px; padding: 12px 14px; border: 1px solid #21262d; margin-bottom: 14px; }
+    .config-box { background: var(--bg-1); border-radius: 12px; padding: 13px 15px; border: 1px solid var(--border); margin-bottom: 16px; }
     .config-box .row .value { font-size: 0.8rem; }
 
     .memo-note {
-      font-size: 0.72rem; color: #8b949e; background: #0d1117; border: 1px solid #21262d;
-      border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; line-height: 1.5;
+      font-size: 0.73rem; color: var(--text-dim); background: var(--bg-1); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.55;
     }
-    .memo-note code { color: #d29922; }
+    .memo-note code { color: var(--brass); font-family: var(--font-mono); }
+    .card .memo-note code, code { font-family: var(--font-mono); }
 
     /* ── Responsive ── */
     @media (max-width: 500px) {
       header { flex-wrap: wrap; gap: 8px; }
-      .header-left h1 { font-size: 1.1rem; }
-      .tabs .tab-btn { font-size: 0.65rem; padding: 6px 4px; }
-      .card { padding: 14px 16px; }
+      .header-left h1 { font-size: 1.15rem; }
+      .tabs .tab-btn { font-size: 0.65rem; padding: 7px 4px; }
+      .card { padding: 16px 17px; }
       .input-row { flex-direction: column; }
       .input-row .form-group { min-width: auto; }
+      #status { left: 14px; right: 14px; max-width: none; }
     }
   </style>
 </head>
@@ -274,10 +368,10 @@
   <!-- Header -->
   <header>
     <div class="header-left">
-      <span>🔄</span>
+      <div class="logo-mark">🔄</div>
       <h1>testthecontr</h1>
       <span class="sub">ROSCA &amp; Savings console</span>
-      <span class="contract-badge" id="contract-badge">📜 testthecontr</span>
+      <span class="contract-badge" id="contract-badge">testthecontr</span>
     </div>
     <div class="network-toggle">
       <button class="net-btn active" id="btn-jungle4" data-network="jungle4">Jungle4 (Testnet)</button>
@@ -304,7 +398,7 @@
     <div class="acct-top">
       <div>
         <div class="acct-name" id="display-actor">—</div>
-        <div style="font-size:0.74rem;color:#8b949e;" id="display-permission">—</div>
+        <div style="font-size:0.74rem;color:var(--text-dim);" id="display-permission">—</div>
       </div>
       <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
         <span class="acct-net" id="display-network">Jungle4</span>
@@ -323,6 +417,7 @@
 
   <!-- Tabs -->
   <div class="tabs" id="app-tabs" style="display:none;">
+    <div class="tab-indicator" id="tab-indicator"></div>
     <button class="tab-btn active" data-tab="dashboard">📊 Dashboard</button>
     <button class="tab-btn"        data-tab="groups">👥 Groups</button>
     <button class="tab-btn"        data-tab="savings">💰 Savings</button>
@@ -332,7 +427,7 @@
   </div>
 
   <!-- Panels -->
-  <div id="app-section" style="width:100%;max-width:720px;">
+  <div id="app-section" style="width:100%;max-width:740px;">
 
     <!-- DASHBOARD -->
     <div class="card tab-panel active" id="tab-dashboard">
@@ -388,7 +483,7 @@
             <select id="cg-order">
               <option value="0">Fixed</option>
               <option value="1" selected>Random</option>
-              <option value="2">Random (Commit — reserved, behaves as Random)</option>
+              <option value="2">Random Commit (strongest fairness — every member commits/reveals a secret)</option>
             </select>
           </div>
         </div>
@@ -1107,6 +1202,80 @@
     // ── GROUPS ───────────────────────────────────────────────────────────────
     const STATUS_MAP = { 0: "Forming", 1: "Active", 2: "Completed", 3: "Dissolved" }
     const STATUS_COLOR = { 0: "yellow", 1: "green", 2: "blue", 3: "gray" }
+    const ORDER_TYPE_MAP = { 0: "Fixed", 1: "Random", 2: "Random Commit (every member commits/reveals)" }
+
+    // Renders the group's real payout_order (the shuffled array, distinct
+    // from member_list which is always kept exactly as entered) with the
+    // current payee highlighted. Before a group leaves "Forming", no payee
+    // is assigned yet, so nothing is highlighted as current. For
+    // Random-Commit groups, payout_order is just an unshuffled placeholder
+    // until order_revealed — show reveal progress instead of the list, so
+    // it's never mistaken for the real (not-yet-determined) order.
+    function renderPayoutOrder(g, actor) {
+      if (!Array.isArray(g.payout_order) || !g.payout_order.length) return ""
+
+      if (g.payout_order_type === 2 && !g.order_revealed) {
+        const nowSec = Math.floor(Date.now() / 1000)
+        const deadlinePassed = g.reveal_deadline > 0 && nowSec >= g.reveal_deadline
+        return `
+          <div class="ic-detail" style="font-size:0.75rem;color:#484f58;margin-top:4px;">
+            Payout order — ${ORDER_TYPE_MAP[2]}:
+            <div style="margin-top:4px;">
+              <span class="tag ${deadlinePassed ? 'red' : 'yellow'}">${g.reveals_received || 0}/${g.member_count} revealed</span>
+              ${g.reveal_deadline > 0 ? `<span style="margin-left:6px;">${deadlinePassed ? 'Reveal deadline passed — force-finalize available below' : 'Reveal deadline: ' + new Date(g.reveal_deadline * 1000).toLocaleString()}</span>` : '<span style="margin-left:6px;">Deadline starts once the group is fully staked</span>'}
+            </div>
+          </div>`
+      }
+
+      // current_payee is only meaningfully set once the group leaves
+      // "Forming" (see handle_stake/creategroup) — status is the
+      // authoritative signal for that, not the field's raw value.
+      const payeeAssigned = g.status !== 0
+      const items = g.payout_order.map((name, idx) => {
+        const isCurrent = payeeAssigned && name === g.current_payee
+        const isYou = name === actor
+        return `<span class="tag ${isCurrent ? 'green' : 'gray'}" style="margin:2px 4px 2px 0;">${idx + 1}. ${name}${isYou ? ' (you)' : ''}${isCurrent ? ' ← current payee' : ''}</span>`
+      }).join("")
+      return `
+        <div class="ic-detail" style="font-size:0.75rem;color:#484f58;margin-top:4px;">
+          Payout order — ${ORDER_TYPE_MAP[g.payout_order_type] ?? g.payout_order_type}:
+          <div style="margin-top:4px;line-height:1.8;">${items}</div>
+        </div>`
+    }
+
+    // ── COMMIT-REVEAL HELPERS ───────────────────────────────────────────────
+    function randomSecretHex() {
+      const bytes = crypto.getRandomValues(new Uint8Array(32))
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("")
+    }
+    async function sha256Hex(str) {
+      const bytes = new TextEncoder().encode(str)
+      const digest = await crypto.subtle.digest("SHA-256", bytes)
+      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("")
+    }
+    // Downloads the secret as a small text file AND shows it inline with a
+    // copy button — belt and suspenders, since losing this secret means
+    // this member can't reveal their own commitment later (the group can
+    // still eventually finalize via finalizeord() after the deadline, but
+    // this member won't get personal credit for revealing).
+    function downloadSecret(groupId, secret) {
+      const blob = new Blob([
+        `testthecontr — Random-Commit reveal secret\n`,
+        `Group ID: ${groupId}\n`,
+        `Secret:   ${secret}\n\n`,
+        `Keep this safe. You need to paste this exact secret back into the\n`,
+        `"Reveal My Order Secret" box on the Groups tab once everyone has\n`,
+        `staked, or you won't be able to reveal your own commitment.\n`,
+      ], { type: "text/plain" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `testthecontr-group-${groupId}-secret.txt`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    }
 
     async function loadGroups() {
       const list = document.getElementById("group-list")
@@ -1132,9 +1301,15 @@
         list.innerHTML = myGroups.map(g => {
           const m = membershipByGroup.get(Number(g.group_id))
           const buttons = []
+          const isCommitType = g.payout_order_type === 2
+          const nowSec = Math.floor(Date.now() / 1000)
 
           if (g.status === 0 && m && !m.has_staked) {
-            buttons.push(`<button class="btn btn-xs btn-primary" data-action="stake" data-group-id="${g.group_id}">📥 Stake ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
+            if (isCommitType && !m.order_committed) {
+              buttons.push(`<button class="btn btn-xs btn-purple" data-action="commitorder" data-group-id="${g.group_id}">🔐 Commit to Random Order</button>`)
+            } else {
+              buttons.push(`<button class="btn btn-xs btn-primary" data-action="stake" data-group-id="${g.group_id}">📥 Stake ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
+            }
           }
           if (g.status === 1 && m && m.has_staked && !m.has_contributed) {
             buttons.push(`<button class="btn btn-xs btn-primary" data-action="contribute" data-group-id="${g.group_id}">📤 Contribute ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
@@ -1149,6 +1324,21 @@
           if (g.organizer === actor && g.status === 2 && !g.organizer_fee_claimed && orgFeesTotal > 0) {
             buttons.push(`<button class="btn btn-xs btn-purple" data-action="claimorgfees" data-group-id="${g.group_id}">🏆 Claim Organizer Fees (${formatAsset(orgFeesTotal, g.token_symbol)})</button>`)
           }
+          // finalizeord is a rescue action for the organizer/admin only,
+          // and only usable once the reveal deadline has actually passed.
+          if (isCommitType && !g.order_revealed && g.reveal_deadline > 0 && nowSec >= g.reveal_deadline &&
+              (g.organizer === actor || isContractAdmin)) {
+            buttons.push(`<button class="btn btn-xs btn-red" data-action="finalizeord" data-group-id="${g.group_id}">⏰ Force-Finalize Order</button>`)
+          }
+
+          // Reveal is its own inline form (needs a text input for the
+          // secret), not a plain button — shown once staked, committed,
+          // and not yet revealed by this member or the group.
+          const revealForm = (isCommitType && m && m.has_staked && m.order_committed && !m.order_revealed && !g.order_revealed) ? `
+            <div class="ic-inline-form">
+              <input type="text" placeholder="Paste your saved secret" id="reveal-secret-${g.group_id}" style="width:220px;" />
+              <button class="btn btn-xs btn-purple" data-action="revealorder" data-group-id="${g.group_id}">🔓 Reveal My Order Secret</button>
+            </div>` : ""
 
           return `
             <div class="item-card">
@@ -1163,6 +1353,8 @@
                 Organizer: ${g.organizer} · Vault: ${formatAsset(g.vault_balance, g.token_symbol)}
                 ${g.organizer === actor ? ' · <span class="admin-badge">You organize this</span>' : ''}
               </div>
+              ${renderPayoutOrder(g, actor)}
+              ${revealForm}
               ${m ? `<div class="ic-detail" style="font-size:0.75rem;color:#484f58;">Your status: staked=${m.has_staked}, contributed=${m.has_contributed}, cycles missed=${m.cycles_missed}</div>` : ''}
               ${buttons.length ? `<div class="ic-actions">${buttons.join("")}</div>` : ''}
             </div>`
@@ -1200,6 +1392,21 @@
         } else if (action === "claimorgfees") {
           const txId = await transact({ account: CONTRACT_NAME, name: "claimorgfees", authorization: [session.permissionLevel], data: { organizer: session.actor, group_id: groupId } })
           showStatus(`Organizer fees claimed! Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "commitorder") {
+          const secret = randomSecretHex()
+          const commitment = await sha256Hex(secret)
+          const txId = await transact({ account: CONTRACT_NAME, name: "commitorder", authorization: [session.permissionLevel], data: { member: session.actor, group_id: groupId, commitment } })
+          downloadSecret(groupId, secret)
+          showStatus(`Committed! A secret file just downloaded — you'll need it to reveal later. Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "revealorder") {
+          const input = document.getElementById(`reveal-secret-${groupId}`)
+          const secret = input?.value.trim()
+          if (!secret) throw new Error("Paste the secret you saved when you committed")
+          const txId = await transact({ account: CONTRACT_NAME, name: "revealorder", authorization: [session.permissionLevel], data: { caller: session.actor, group_id: groupId, secret } })
+          showStatus(`Revealed! Tx: ${txId.slice(0,12)}...`, "success")
+        } else if (action === "finalizeord") {
+          const txId = await transact({ account: CONTRACT_NAME, name: "finalizeord", authorization: [session.permissionLevel], data: { caller: session.actor, group_id: groupId } })
+          showStatus(`Order force-finalized. Tx: ${txId.slice(0,12)}...`, "success")
         }
         loadGroups(); fetchBalance()
       } catch (err) {
