@@ -2,12 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <script>
+    // Runs synchronously before first paint so there's no flash of the
+    // wrong theme. Preference persists in localStorage; falls back to the
+    // OS/browser color-scheme setting on first visit.
+    (function () {
+      try {
+        var saved = localStorage.getItem("testingnewco-theme")
+        var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+        document.documentElement.setAttribute("data-theme", theme)
+      } catch (e) {}
+    })()
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
-  <title>Adashe</title>
+  <title>testingnewco</title>
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0a0e16" />
+  <meta name="theme-color" content="#0a0e16" id="meta-theme-color" />
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -21,6 +33,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { overflow-x: hidden; }
+    body { overflow-x: hidden; }
 
     :root {
       /* ── Palette: clean cool wallet (electric blue + cyan on deep navy) ── */
@@ -54,6 +68,8 @@
       /* info / secondary tags — cyan */
       --blue: #22d3ee;
       --blue-glow: rgba(34, 211, 238, 0.16);
+      --violet-border: rgba(157, 140, 255, 0.32);
+      --blue-border: rgba(34, 211, 238, 0.32);
 
       --font-display: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
       --font-body: 'Inter', system-ui, -apple-system, sans-serif;
@@ -62,18 +78,65 @@
       --radius-card: 20px;
       --radius-btn: 14px;
       --radius-input: 12px;
+      --container-max: 740px;
       --shadow-card: 0 1px 2px rgba(0,0,0,0.35), 0 12px 32px -12px rgba(0,0,0,0.55);
       --shadow-lift: 0 4px 10px rgba(0,0,0,0.4), 0 20px 48px -14px rgba(79,127,255,0.25);
       --ease: cubic-bezier(0.22, 1, 0.36, 1);
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --glass: rgba(16, 22, 36, 0.72);
+      --glass-strong: rgba(11, 15, 26, 0.82);
+      --grad-1: rgba(79,127,255,0.10);
+      --grad-2: rgba(34,211,238,0.06);
+      --hero-grad-1: rgba(79,127,255,0.20);
+      --hero-grad-2: rgba(34,211,238,0.10);
+    }
+
+    /* ── Light theme: warm stone/ash, not clinical white ── */
+    :root[data-theme="light"] {
+      --bg-0: #ffffff;
+      --bg-1: #ffffff;
+      --surface: #ffffff;
+      --surface-2: #f2f4f8;
+      --surface-hover: #e7eaf1;
+      --border: #e1e4ec;
+      --border-hover: #c9cedb;
+      --text: #14161e;
+      --text-dim: #5a6070;
+      --text-faint: #9aa1b0;
+
+      --brass: #2f5ce0;
+      --brass-dim: #2447bd;
+      --brass-glow: rgba(47, 92, 224, 0.11);
+      --teal: #0f8f68;
+      --teal-glow: rgba(15, 143, 104, 0.12);
+      --coral: #d33a2c;
+      --coral-glow: rgba(211, 58, 44, 0.11);
+      --amber: #a8650c;
+      --amber-glow: rgba(168, 101, 12, 0.12);
+      --violet: #6844d1;
+      --violet-glow: rgba(104, 68, 209, 0.11);
+      --blue: #0891b2;
+      --blue-glow: rgba(8, 145, 178, 0.11);
+      --violet-border: rgba(104, 68, 209, 0.28);
+      --blue-border: rgba(8, 145, 178, 0.28);
+
+      --shadow-card: 0 1px 2px rgba(20,24,38,0.05), 0 10px 28px -12px rgba(20,24,38,0.12);
+      --shadow-lift: 0 4px 10px rgba(20,24,38,0.08), 0 16px 36px -12px rgba(47,92,224,0.18);
+
+      --glass: rgba(255, 255, 255, 0.80);
+      --glass-strong: rgba(255, 255, 255, 0.90);
+      --grad-1: rgba(47,92,224,0.07);
+      --grad-2: rgba(8,145,178,0.05);
+      --hero-grad-1: rgba(47,92,224,0.10);
+      --hero-grad-2: rgba(8,145,178,0.06);
     }
 
     body {
       font-family: var(--font-body);
       background:
-        radial-gradient(ellipse 900px 480px at 20% -8%, rgba(79,127,255,0.10), transparent 60%),
-        radial-gradient(ellipse 800px 560px at 100% 0%, rgba(34,211,238,0.06), transparent 55%),
+        radial-gradient(ellipse 900px 480px at 20% -8%, var(--grad-1), transparent 60%),
+        radial-gradient(ellipse 800px 560px at 100% 0%, var(--grad-2), transparent 55%),
         var(--bg-0);
       color: var(--text);
       min-height: 100vh;
@@ -90,14 +153,14 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      max-width: 740px;
+      max-width: var(--container-max);
       margin-bottom: 16px;
       flex-wrap: wrap;
       gap: 10px;
       position: sticky;
       top: calc(var(--safe-top) + 6px);
       z-index: 40;
-      background: rgba(16, 22, 36, 0.72);
+      background: var(--glass);
       backdrop-filter: blur(18px) saturate(160%);
       -webkit-backdrop-filter: blur(18px) saturate(160%);
       border: 1px solid var(--border);
@@ -120,7 +183,7 @@
     .header-left .sub { display: none; }
     .header-left .contract-badge {
       font-size: 0.64rem; color: var(--violet); background: var(--violet-glow);
-      padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(157,140,255,0.3);
+      padding: 3px 10px; border-radius: 20px; border: 1px solid var(--violet-border);
       font-family: var(--font-mono); font-weight: 500;
     }
 
@@ -136,6 +199,50 @@
     .net-btn.active { background: var(--brass); color: #05070d; box-shadow: 0 2px 10px -2px var(--brass-glow); }
     .net-btn:not(.active):not(:disabled):hover { background: var(--surface-hover); color: var(--text); }
     .net-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .theme-toggle-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-dim); cursor: pointer; flex-shrink: 0;
+      transition: all 0.2s var(--ease);
+    }
+    .theme-toggle-btn:hover { color: var(--brass); border-color: var(--brass); transform: translateY(-1px); }
+    .theme-toggle-btn:active { transform: scale(0.92); }
+    .theme-toggle-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.9; }
+    .theme-toggle-btn .icon-moon { display: none; }
+    :root[data-theme="light"] .theme-toggle-btn .icon-sun { display: none; }
+    :root[data-theme="light"] .theme-toggle-btn .icon-moon { display: block; }
+
+    /* ── Fee confirmation modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(4, 6, 12, 0.55);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; animation: modal-fade 0.2s var(--ease);
+    }
+    @keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
+    .modal-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-card); box-shadow: var(--shadow-lift);
+      width: 100%; max-width: 400px; padding: 22px 22px 20px;
+      animation: modal-in 0.25s var(--ease);
+    }
+    @keyframes modal-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .modal-card h3 {
+      font-family: var(--font-display); font-size: 1.05rem; font-weight: 700;
+      margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+    }
+    .modal-card .modal-reason { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 16px; }
+    .modal-fee-rows { background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; }
+    .modal-fee-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; font-size: 0.84rem; }
+    .modal-fee-row .mfr-label { color: var(--text-dim); }
+    .modal-fee-row .mfr-value { font-family: var(--font-mono); font-weight: 600; color: var(--text); }
+    .modal-fee-row.highlight { border-top: 1px dashed var(--border); margin-top: 4px; padding-top: 10px; }
+    .modal-fee-row.highlight .mfr-value { color: var(--coral); }
+    .modal-fee-row.net .mfr-value { color: var(--teal); font-size: 0.95rem; }
+    .modal-actions { display: flex; gap: 9px; }
+    .modal-actions .btn { flex: 1; }
 
     /* ── Toasts ── */
     #status {
@@ -155,11 +262,18 @@
     @keyframes toast-in { from { opacity: 0; transform: translateX(24px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
     @keyframes toast-out { to { opacity: 0; transform: translateX(24px) scale(0.97); } }
     .toast::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+    .toast-msg { display: block; }
     .toast.success { color: var(--teal); } .toast.success::before { background: var(--teal); }
     .toast.error   { color: var(--coral); } .toast.error::before { background: var(--coral); }
     .toast.info    { color: var(--blue); } .toast.info::before { background: var(--blue); }
     .toast.warning { color: var(--amber); } .toast.warning::before { background: var(--amber); }
-    .toast .toast-close { position: absolute; top: 9px; right: 10px; color: var(--text-faint); font-size: 0.9rem; line-height: 1; }
+    .toast .toast-close {
+      position: absolute; top: 8px; right: 8px; width: 20px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-faint); font-size: 1rem; line-height: 1; border-radius: 6px;
+      transition: background 0.15s var(--ease), color 0.15s var(--ease);
+    }
+    .toast .toast-close:hover { background: var(--surface-hover); color: var(--text); }
     .toast .toast-bar { position: absolute; left: 0; bottom: 0; height: 2px; background: currentColor; opacity: 0.5; animation: toast-bar 6s linear forwards; }
     @keyframes toast-bar { from { width: 100%; } to { width: 0%; } }
 
@@ -170,7 +284,7 @@
       border-radius: var(--radius-card);
       padding: 20px 20px 22px;
       width: 100%;
-      max-width: 740px;
+      max-width: var(--container-max);
       margin-bottom: 14px;
       box-shadow: var(--shadow-card);
       animation: card-in 0.4s var(--ease);
@@ -182,7 +296,7 @@
       margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
     }
     .card h3 { font-size: 0.86rem; font-weight: 600; color: var(--text); margin-bottom: 9px; }
-    .card.admin-card { border-color: rgba(157,140,255,0.35); background: linear-gradient(180deg, rgba(157,140,255,0.06), transparent 40%), var(--surface); }
+    .card.admin-card { border-color: var(--violet-border); background: linear-gradient(180deg, var(--violet-glow), transparent 40%), var(--surface); }
     .card.admin-card h2 { color: var(--violet); }
 
     /* ── Auth ── */
@@ -199,7 +313,6 @@
     .anchor-btn:hover { border-color: var(--brass); transform: translateY(-1px); box-shadow: 0 8px 24px -8px var(--brass-glow); }
     .anchor-btn:active { transform: translateY(0) scale(0.99); }
     .anchor-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .anchor-btn .w-icon { font-size: 1.7rem; }
     .anchor-btn .w-name { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; }
     .anchor-btn .w-hint { font-size: 0.7rem; color: var(--text-dim); }
     .download-hint { margin-top: 12px; font-size: 0.74rem; color: var(--text-faint); }
@@ -212,22 +325,22 @@
       position: relative;
       overflow: hidden;
       background:
-        radial-gradient(ellipse 420px 200px at 100% -20%, rgba(79,127,255,0.20), transparent 60%),
-        radial-gradient(ellipse 320px 200px at -10% 120%, rgba(34,211,238,0.10), transparent 60%),
+        radial-gradient(ellipse 420px 200px at 100% -20%, var(--hero-grad-1), transparent 60%),
+        radial-gradient(ellipse 320px 200px at -10% 120%, var(--hero-grad-2), transparent 60%),
         var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-card);
       padding: 20px 22px 18px;
       width: 100%;
-      max-width: 740px;
+      max-width: var(--container-max);
       margin-bottom: 14px;
       box-shadow: var(--shadow-card);
       animation: card-in 0.4s var(--ease);
     }
     .acct-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
     .acct-name { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 600; letter-spacing: -0.01em; color: var(--text-dim); }
-    .acct-net  { font-size: 0.66rem; color: var(--blue); background: var(--blue-glow); border: 1px solid rgba(34,211,238,0.3); padding: 3px 11px; border-radius: 20px; font-weight: 600; }
-    .acct-role { font-size: 0.66rem; color: var(--violet); background: var(--violet-glow); border: 1px solid rgba(157,140,255,0.3); padding: 3px 11px; border-radius: 20px; font-weight: 600; }
+    .acct-net  { font-size: 0.66rem; color: var(--blue); background: var(--blue-glow); border: 1px solid var(--blue-border); padding: 3px 11px; border-radius: 20px; font-weight: 600; }
+    .acct-role { font-size: 0.66rem; color: var(--violet); background: var(--violet-glow); border: 1px solid var(--violet-border); padding: 3px 11px; border-radius: 20px; font-weight: 600; }
     .acct-balance-label { font-size: 0.72rem; color: var(--text-faint); font-weight: 500; margin-top: 12px; }
     .acct-balance-row { display: flex; align-items: baseline; gap: 10px; margin-top: 2px; flex-wrap: wrap; }
     .acct-balance {
@@ -237,6 +350,11 @@
       -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
     }
     #display-balance { -webkit-text-fill-color: inherit; }
+    #display-balance .bal-code {
+      font-family: var(--font-body); font-size: 0.42em; font-weight: 600;
+      color: var(--text-dim); -webkit-text-fill-color: var(--text-dim);
+      margin-left: 8px; letter-spacing: 0.02em; vertical-align: middle;
+    }
     .acct-balance-row select { width: auto; padding: 5px 10px; font-size: 0.72rem; }
     .acct-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
     .btn-sm {
@@ -252,7 +370,7 @@
     /* ── Bottom nav ── */
     .tabs {
       display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
-      background: rgba(11, 15, 26, 0.82);
+      background: var(--glass-strong);
       backdrop-filter: blur(22px) saturate(160%);
       -webkit-backdrop-filter: blur(22px) saturate(160%);
       border-top: 1px solid var(--border);
@@ -273,7 +391,7 @@
     .tab-btn:active svg { transform: scale(0.88); }
     .tab-btn:not(.active):hover { color: var(--text-dim); }
     .tab-btn.active { color: var(--brass); background: var(--brass-glow); }
-    .tab-btn.admin-tab { color: rgba(157,140,255,0.35); }
+    .tab-btn.admin-tab { color: var(--violet-border); }
     .tab-btn.admin-tab.visible { color: var(--violet); }
     .tab-btn.admin-tab.active { color: var(--violet); background: var(--violet-glow); }
 
@@ -331,10 +449,10 @@
 
     .tag { display: inline-block; padding: 2px 11px; border-radius: 20px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.02em; }
     .tag.green { background: var(--teal-glow); color: var(--teal); }
-    .tag.blue  { background: rgba(91,157,238,0.16); color: var(--blue); }
+    .tag.blue  { background: var(--blue-glow); color: var(--blue); }
     .tag.yellow{ background: var(--amber-glow); color: var(--amber); }
     .tag.red   { background: var(--coral-glow); color: var(--coral); }
-    .tag.gray  { background: rgba(139,147,171,0.14); color: var(--text-dim); }
+    .tag.gray  { background: var(--surface-2); color: var(--text-dim); }
     .tag.purple{ background: var(--violet-glow); color: var(--violet); }
 
     .spinner {
@@ -346,22 +464,43 @@
 
     /* ── Contract interaction cards ── */
     .item-card {
-      background: var(--bg-1); border-radius: 12px; padding: 14px 16px;
+      background: var(--bg-1); border-radius: 16px; padding: 14px 16px;
       margin-bottom: 11px; border: 1px solid var(--border);
       transition: border-color 0.25s var(--ease), transform 0.2s var(--ease);
       animation: item-in 0.35s var(--ease) backwards;
       display: flex; gap: 14px; align-items: flex-start;
+      max-width: 100%; overflow: hidden;
     }
     .item-card:hover { border-color: var(--border-hover); }
     @keyframes item-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    .item-card .ic-body { flex: 1; min-width: 0; }
+    .item-card .ic-body { flex: 1 1 auto; min-width: 0; }
     .item-card .ic-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 4px; }
     .item-card .ic-id { font-family: var(--font-display); font-weight: 600; font-size: 1rem; }
-    .item-card .ic-detail { color: var(--text-dim); font-size: 0.8rem; }
-    .item-card .ic-meta { font-size: 0.75rem; color: var(--text-faint); margin-top: 4px; }
+    .item-card .ic-detail { color: var(--text-dim); font-size: 0.8rem; overflow-wrap: anywhere; }
+    .item-card .ic-meta { font-size: 0.75rem; color: var(--text-faint); margin-top: 4px; overflow-wrap: anywhere; }
     .item-card .ic-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 11px; }
-    .item-card .ic-inline-form { display: flex; gap: 7px; margin-top: 11px; align-items: center; flex-wrap: wrap; }
-    .item-card .ic-inline-form input { width: 120px; flex: none; }
+    .item-card .ic-actions .btn { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow-wrap: break-word; white-space: normal; text-align: center; }
+    .item-card .ic-inline-form { display: flex; gap: 7px; margin-top: 11px; align-items: stretch; flex-wrap: wrap; }
+    .item-card .ic-inline-form input { flex: 1 1 140px; min-width: 0; width: auto; }
+    .item-card .ic-inline-form .btn { flex: 0 0 auto; }
+    .ic-wide-input { flex-basis: 100% !important; }
+    @media (min-width: 420px) { .ic-wide-input { flex-basis: 200px !important; } }
+
+    /* ── Pagination ── */
+    .pager {
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      padding: 14px 0 2px; grid-column: 1 / -1;
+    }
+    .pager-info { font-size: 0.78rem; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+    .pager .btn-sm:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* On very narrow phones, drop the cycle-ring above the content instead
+       of beside it — reclaims ~60px of horizontal room, which is exactly
+       what inputs/buttons need to stop pushing past the card edge. */
+    @media (max-width: 380px) {
+      .item-card { flex-direction: column; }
+      .cycle-ring { align-self: flex-start; }
+    }
 
     /* Signature element: rotation-cycle ring, shows group progress at a glance */
     .cycle-ring {
@@ -378,7 +517,7 @@
 
     .admin-badge {
       display: inline-block; background: var(--violet-glow); color: var(--violet); padding: 2px 11px;
-      border-radius: 20px; font-size: 0.65rem; font-weight: 600; border: 1px solid rgba(164,138,240,0.3);
+      border-radius: 20px; font-size: 0.65rem; font-weight: 600; border: 1px solid var(--violet-border);
     }
 
     .config-box { background: var(--bg-1); border-radius: 12px; padding: 13px 15px; border: 1px solid var(--border); margin-bottom: 16px; }
@@ -436,6 +575,38 @@
       .input-row .form-group { min-width: auto; }
       #status { left: 14px; right: 14px; max-width: none; }
     }
+
+    /* Desktop / tablet: wider canvas, nav moves from a fixed bottom bar to
+       a normal top bar under the header (bottom-fixed nav is a mobile-app
+       convention that reads as odd once there's real desktop width to
+       work with), and list views use the extra room for two columns. */
+    @media (min-width: 860px) {
+      :root { --container-max: 960px; }
+      body { padding: calc(var(--safe-top) + 20px) 24px 40px; }
+
+      .tabs {
+        position: static;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 5px;
+        margin-bottom: 16px;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: var(--shadow-card);
+        justify-content: flex-start;
+      }
+      .tab-btn { flex-direction: row; max-width: none; padding: 10px 18px; border-radius: 11px; gap: 7px; }
+      .tab-btn span { display: inline; font-size: 0.78rem; }
+      .tab-btn svg { width: 18px; height: 18px; }
+
+      .stat-grid { grid-template-columns: repeat(4, 1fr); }
+
+      #group-list, #savings-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: start; }
+      #group-list .item-card, #savings-list .item-card { margin-bottom: 0; }
+
+      .card { padding: 26px 28px; }
+    }
   </style>
 </head>
 <body>
@@ -444,13 +615,19 @@
   <header>
     <div class="header-left">
       <div class="logo-mark">🔄</div>
-      <h1>ADASHE</h1>
-      <span class="sub">Adashe &amp; Savings console</span>
+      <h1>testingnewco</h1>
+      <span class="sub">ROSCA &amp; Savings console</span>
       <span class="contract-badge" id="contract-badge">testingnewco</span>
     </div>
-    <div class="network-toggle">
-      <button class="net-btn active" id="btn-jungle4" data-network="jungle4">Jungle4 (Testnet)</button>
-      <button class="net-btn" data-network="vaulta" id="btn-vaulta" disabled title="testingnewco isn't deployed on Vaulta mainnet yet">Vaulta (Mainnet)</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button id="theme-toggle-btn" class="theme-toggle-btn" title="Toggle dark / light mode" aria-label="Toggle dark or light mode">
+        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.3"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" stroke-linecap="round"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 6.8 6.8 0 0 0 20 14.5z" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="network-toggle">
+        <button class="net-btn active" id="btn-jungle4" data-network="jungle4">Jungle4 (Testnet)</button>
+        <button class="net-btn" data-network="vaulta" id="btn-vaulta" disabled title="testingnewco isn't deployed on Vaulta mainnet yet">Vaulta (Mainnet)</button>
+      </div>
     </div>
   </header>
 
@@ -459,9 +636,8 @@
   <!-- Auth -->
   <div class="card" id="auth-section">
     <h2>Connect Wallet</h2>
-    <p>Connect using Anchor to interact with <strong>Adashe Protocol</strong> on Jungle4. Enable testnets in Anchor's settings and pick Jungle 4 if you haven't already.</p>
+    <p>Connect using Anchor to interact with <strong>testingnewco</strong> on Jungle4. Enable testnets in Anchor's settings and pick Jungle 4 if you haven't already.</p>
     <button class="anchor-btn" id="login-btn">
-      <span class="w-icon">⚓</span>
       <span class="w-name">Connect with Anchor</span>
       <span class="w-hint">Desktop &amp; Mobile</span>
     </button>
@@ -477,7 +653,7 @@
       </div>
       <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
         <span class="acct-net" id="display-network">Jungle4</span>
-        <span class="acct-role" id="display-role" style="display:none;">👑 Contract Admin</span>
+        <span class="acct-role" id="display-role" style="display:none;">Contract Admin</span>
       </div>
     </div>
     <div class="acct-balance-label">Balance</div>
@@ -520,7 +696,7 @@
   </div>
 
   <!-- Panels -->
-  <div id="app-section" style="width:100%;max-width:740px;">
+  <div id="app-section" style="width:100%;max-width:var(--container-max);">
 
     <!-- DASHBOARD -->
     <div class="card tab-panel active" id="tab-dashboard">
@@ -549,7 +725,7 @@
       </div>
       <div id="group-list"><div class="empty-msg">Connect a wallet to load your groups.</div></div>
       <hr class="divider" />
-      <button class="btn btn-blue btn-full" id="show-create-group">➕ Create New Group</button>
+      <button class="btn btn-blue btn-full" id="show-create-group">Create New Group</button>
 
       <div id="create-group-form" style="display:none; margin-top:14px;">
         <h3>Create Group</h3>
@@ -592,7 +768,7 @@
             <input id="cg-fee" type="number" step="1" value="0" max="5" />
           </div>
         </div>
-        <button class="btn btn-primary btn-full" id="create-group-btn">🚀 Create Group</button>
+        <button class="btn btn-primary btn-full" id="create-group-btn">Create Group</button>
         <button class="btn btn-sm" id="cancel-create-group" style="margin-top:6px;">Cancel</button>
         <div class="field-hint" style="margin-top:8px;">
           This only creates the group — every member (including you) still needs to send the <code>stake:&lt;id&gt;</code> transfer
@@ -624,7 +800,7 @@
           <input id="save-duration" type="number" value="30" />
         </div>
       </div>
-      <button class="btn btn-primary btn-full" id="create-savings-btn">💾 Create Savings Plan</button>
+      <button class="btn btn-primary btn-full" id="create-savings-btn">Create Savings Plan</button>
     </div>
 
     <!-- REPUTATION -->
@@ -639,8 +815,8 @@
         <div class="row"><span class="label">Defaults Caused</span><span class="value" id="rep-defaults">—</span></div>
         <hr class="divider" />
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn btn-sm btn-purple" id="check-early-rep">✨ Check Early Rep</button>
-          <button class="btn btn-sm btn-purple" id="claim-early-rep-btn" style="display:none;">🎯 Claim Free Early Reputation</button>
+          <button class="btn btn-sm btn-purple" id="check-early-rep">Check Early Rep</button>
+          <button class="btn btn-sm btn-purple" id="claim-early-rep-btn" style="display:none;">Claim Free Early Reputation</button>
           <button class="btn btn-sm btn-blue" id="refresh-rep-btn">↻ Refresh</button>
         </div>
         <div id="early-rep-result" style="margin-top:8px;font-size:0.85rem;color:var(--text-dim);"></div>
@@ -661,12 +837,12 @@
         <input id="rep-amount" type="number" step="0.0001" />
         <div class="field-hint" id="rep-min-hint"></div>
       </div>
-      <button class="btn btn-purple btn-full" id="bond-rep-btn">🔒 Bond Reputation Stake</button>
+      <button class="btn btn-purple btn-full" id="bond-rep-btn">Bond Reputation Stake</button>
 
       <hr class="divider" />
       <h3>Locked Stakes</h3>
       <div id="locked-stake-list"><div class="empty-msg">—</div></div>
-      <button class="btn btn-sm btn-blue" id="act-release-stake" style="margin-top:10px;">🔓 Release Matured Stake(s)</button>
+      <button class="btn btn-sm btn-blue" id="act-release-stake" style="margin-top:10px;">Release Matured Stake(s)</button>
     </div>
 
     <!-- MANUAL / ADVANCED -->
@@ -677,64 +853,64 @@
       </p>
 
       <details class="acc">
-        <summary>📥 Stake into a Group</summary>
+        <summary>Stake into a Group</summary>
         <div class="acc-body">
           <div class="input-row">
             <div class="form-group"><label>Group ID</label><input id="man-stake-group" type="number" placeholder="0" /></div>
             <div class="form-group"><label>Token</label><select id="man-stake-token"></select></div>
           </div>
           <div class="field-hint" style="margin-bottom:8px;">Amount is read from the group's <code>contribution_amount</code> automatically — it must match exactly.</div>
-          <button class="btn btn-primary btn-full" id="man-stake-btn">📥 Stake (fetch amount &amp; send)</button>
+          <button class="btn btn-primary btn-full" id="man-stake-btn">Stake (fetch amount &amp; send)</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>📤 Contribute to a Group</summary>
+        <summary>Contribute to a Group</summary>
         <div class="acc-body">
           <div class="input-row">
             <div class="form-group"><label>Group ID</label><input id="man-contrib-group" type="number" placeholder="0" /></div>
           </div>
-          <button class="btn btn-primary btn-full" id="man-contrib-btn">📤 Contribute (fetch amount &amp; send)</button>
+          <button class="btn btn-primary btn-full" id="man-contrib-btn">Contribute (fetch amount &amp; send)</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>💰 Claim Payout</summary>
+        <summary>Claim Payout</summary>
         <div class="acc-body">
           <div class="input-row"><div class="form-group"><label>Group ID</label><input id="man-payout-group" type="number" placeholder="0" /></div></div>
-          <button class="btn btn-blue btn-full" id="man-payout-btn">💰 Claim Payout</button>
+          <button class="btn btn-blue btn-full" id="man-payout-btn">Claim Payout</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>📌 Claim Group Stake Back</summary>
+        <summary>Claim Group Stake Back</summary>
         <div class="acc-body">
           <div class="input-row"><div class="form-group"><label>Group ID</label><input id="man-claimstake-group" type="number" placeholder="0" /></div></div>
-          <button class="btn btn-orange btn-full" id="man-claimstake-btn">📌 Claim Stake</button>
+          <button class="btn btn-orange btn-full" id="man-claimstake-btn">Claim Stake</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>🏆 Claim Organizer Fees</summary>
+        <summary>Claim Organizer Fees</summary>
         <div class="acc-body">
           <div class="input-row"><div class="form-group"><label>Group ID</label><input id="man-orgfees-group" type="number" placeholder="0" /></div></div>
-          <button class="btn btn-purple btn-full" id="man-orgfees-btn">🏆 Claim Organizer Fees</button>
+          <button class="btn btn-purple btn-full" id="man-orgfees-btn">Claim Organizer Fees</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>💾 Deposit into a Savings Plan</summary>
+        <summary>Deposit into a Savings Plan</summary>
         <div class="acc-body">
           <div class="input-row">
             <div class="form-group"><label>Plan ID</label><input id="man-save-plan" type="number" placeholder="0" /></div>
             <div class="form-group"><label>Amount</label><input id="man-save-amount" type="number" step="0.0001" placeholder="10" /></div>
           </div>
-          <button class="btn btn-primary btn-full" id="man-save-btn">📥 Deposit</button>
+          <button class="btn btn-primary btn-full" id="man-save-btn">Deposit</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>💸 Claim / Withdraw Savings</summary>
+        <summary>Claim / Withdraw Savings</summary>
         <div class="acc-body">
           <div class="input-row">
             <div class="form-group"><label>Plan ID</label><input id="man-claimsave-plan" type="number" placeholder="0" /></div>
@@ -746,14 +922,14 @@
               </select>
             </div>
           </div>
-          <button class="btn btn-orange btn-full" id="man-claimsave-btn">💸 Claim Savings</button>
+          <button class="btn btn-orange btn-full" id="man-claimsave-btn">Claim Savings</button>
         </div>
       </details>
     </div>
 
     <!-- ADMIN PANEL -->
     <div class="card tab-panel admin-card" id="tab-admin">
-      <h2>🔧 Admin Controls</h2>
+      <h2>Admin Controls</h2>
       <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:14px;">
         These actions require the logged-in account to be <code>get_self()</code> for testingnewco — this contract has no way to
         transfer admin rights, so that's permanently the deployer account: <strong style="color:var(--violet);">testingnewco</strong>.
@@ -771,17 +947,17 @@
       </div>
 
       <details class="acc">
-        <summary>🚀 Initialize Contract</summary>
+        <summary>Initialize Contract</summary>
         <div class="acc-body">
           <div class="input-row">
             <div class="form-group"><label>Fee Wallet</label><input id="admin-fee-wallet" placeholder="feeaccount" /></div>
           </div>
-          <button class="btn btn-purple btn-full" id="admin-init-btn">🚀 Initialize Contract</button>
+          <button class="btn btn-purple btn-full" id="admin-init-btn">Initialize Contract</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>🪙 Tokens</summary>
+        <summary>Tokens</summary>
         <div class="acc-body">
           <h3>Add Token</h3>
           <div class="input-row">
@@ -799,7 +975,7 @@
           <div class="field-hint" style="margin-bottom:8px;">
             The token contract must already be on the whitelist below before it can be added here.
           </div>
-          <button class="btn btn-blue btn-full" id="admin-add-token-btn">➕ Add Token</button>
+          <button class="btn btn-blue btn-full" id="admin-add-token-btn">Add Token</button>
 
           <hr class="divider" />
 
@@ -808,31 +984,31 @@
             <div class="form-group half"><label>Precision</label><input id="admin-remove-precision" type="number" value="4" /></div>
             <div class="form-group"><label>Symbol Code</label><input id="admin-remove-token" placeholder="EOS" /></div>
           </div>
-          <button class="btn btn-red btn-full" id="admin-remove-token-btn">❌ Remove Token</button>
+          <button class="btn btn-red btn-full" id="admin-remove-token-btn">Remove Token</button>
 
           <hr class="divider" />
 
           <h3>Whitelist Token Contract</h3>
           <div class="input-row"><div class="form-group"><label>Contract</label><input id="admin-whitelist-contract" placeholder="eosio.token" /></div></div>
-          <button class="btn btn-blue btn-full" id="admin-whitelist-btn">✅ Add to Whitelist</button>
+          <button class="btn btn-blue btn-full" id="admin-whitelist-btn">Add to Whitelist</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>⛔ Access Control</summary>
+        <summary>Access Control</summary>
         <div class="acc-body">
           <h3>Blacklist Account</h3>
           <div class="input-row">
             <div class="form-group"><label>Account</label><input id="admin-blacklist-account" placeholder="badactor" /></div>
             <div class="form-group"><label>Reason</label><input id="admin-blacklist-reason" placeholder="Suspicious activity" /></div>
           </div>
-          <button class="btn btn-red btn-full" id="admin-blacklist-btn">⛔ Add to Blacklist</button>
+          <button class="btn btn-red btn-full" id="admin-blacklist-btn">Add to Blacklist</button>
 
           <hr class="divider" />
 
           <h3>Remove from Blacklist</h3>
           <div class="input-row"><div class="form-group"><label>Account</label><input id="admin-unblacklist-account" placeholder="badactor" /></div></div>
-          <button class="btn btn-blue btn-full" id="admin-unblacklist-btn">✅ Remove from Blacklist</button>
+          <button class="btn btn-blue btn-full" id="admin-unblacklist-btn">Remove from Blacklist</button>
 
           <hr class="divider" />
 
@@ -844,7 +1020,7 @@
       </details>
 
       <details class="acc">
-        <summary>⚡ Emergency Controls</summary>
+        <summary>Emergency Controls</summary>
         <div class="acc-body">
           <div class="input-row">
             <div class="form-group">
@@ -857,22 +1033,22 @@
               </select>
             </div>
           </div>
-          <button class="btn btn-red btn-full" id="admin-emerg-btn">⚡ Execute Emergency Action</button>
+          <button class="btn btn-red btn-full" id="admin-emerg-btn">Execute Emergency Action</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>📊 Fees &amp; Incentives</summary>
+        <summary>Fees &amp; Incentives</summary>
         <div class="acc-body">
           <h3>Organizer Fee</h3>
           <div class="input-row"><div class="form-group"><label>Fee Percent (max 50)</label><input id="admin-org-fee" type="number" value="20" min="0" max="50" /></div></div>
-          <button class="btn btn-purple btn-full" id="admin-org-fee-btn">📊 Set Organizer Fee</button>
+          <button class="btn btn-purple btn-full" id="admin-org-fee-btn">Set Organizer Fee</button>
 
           <hr class="divider" />
 
           <h3>Max Custom Fee</h3>
           <div class="input-row"><div class="form-group"><label>Max Fee Percent (max 5)</label><input id="admin-max-fee" type="number" value="5" min="0" max="5" /></div></div>
-          <button class="btn btn-purple btn-full" id="admin-max-fee-btn">📊 Set Max Custom Fee</button>
+          <button class="btn btn-purple btn-full" id="admin-max-fee-btn">Set Max Custom Fee</button>
 
           <hr class="divider" />
 
@@ -882,7 +1058,7 @@
             reputation record yet, so they'll need Early Reputation (below) before they can organize a group at all.
           </p>
           <div class="input-row"><div class="form-group"><label>Min Score (0–100)</label><input id="admin-min-org-score" type="number" value="60" min="0" max="100" /></div></div>
-          <button class="btn btn-purple btn-full" id="admin-min-org-score-btn">📊 Set Minimum Organizer Score</button>
+          <button class="btn btn-purple btn-full" id="admin-min-org-score-btn">Set Minimum Organizer Score</button>
 
           <hr class="divider" />
 
@@ -897,12 +1073,12 @@
               <select id="admin-incentives-enable"><option value="true">Enable</option><option value="false">Disable</option></select>
             </div>
           </div>
-          <button class="btn btn-purple btn-full" id="admin-incentives-btn">🎛️ Toggle Organizer Incentives</button>
+          <button class="btn btn-purple btn-full" id="admin-incentives-btn">Toggle Organizer Incentives</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>✨ Early Reputation</summary>
+        <summary>Early Reputation</summary>
         <div class="acc-body">
           <div class="input-row">
             <div class="form-group">
@@ -910,7 +1086,7 @@
               <select id="admin-early-enable"><option value="true">Enable</option><option value="false">Disable</option></select>
             </div>
           </div>
-          <button class="btn btn-purple btn-full" id="admin-early-toggle-btn">✨ Toggle Early Reputation</button>
+          <button class="btn btn-purple btn-full" id="admin-early-toggle-btn">Toggle Early Reputation</button>
 
           <hr class="divider" />
 
@@ -924,7 +1100,7 @@
             <div class="form-group"><label>Program ends in (days from now)</label><input id="admin-erep-deadline" type="number" value="90" min="1" /></div>
           </div>
           <div class="field-hint" style="margin-bottom:8px;">"Stake amount" from the original action isn't used when free — leave defaults unless you're setting up a paid program.</div>
-          <button class="btn btn-purple btn-full" id="admin-erep-params-btn">⚙️ Set Early Reputation Parameters</button>
+          <button class="btn btn-purple btn-full" id="admin-erep-params-btn">Set Early Reputation Parameters</button>
 
           <hr class="divider" />
 
@@ -933,14 +1109,14 @@
             <div class="form-group"><label>User</label><input id="admin-grant-user" placeholder="username" /></div>
             <div class="form-group"><label>Score (0 = use default)</label><input id="admin-grant-score" type="number" placeholder="70" min="0" max="100" /></div>
           </div>
-          <button class="btn btn-purple btn-full" id="admin-grant-early-btn">🎯 Grant Early Reputation</button>
+          <button class="btn btn-purple btn-full" id="admin-grant-early-btn">Grant Early Reputation</button>
           <div class="input-row" style="margin-top:12px;"><div class="form-group"><label>User</label><input id="admin-revoke-user" placeholder="username" /></div></div>
-          <button class="btn btn-red btn-full" id="admin-revoke-early-btn">⛔ Revoke Early Reputation</button>
+          <button class="btn btn-red btn-full" id="admin-revoke-early-btn">Revoke Early Reputation</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>🔒 Withdrawal Limits</summary>
+        <summary>Withdrawal Limits</summary>
         <div class="acc-body">
           <p class="field-hint" style="margin-bottom:8px;">
             Note: as deployed, this limit isn't actually enforced anywhere in the contract's withdrawal paths yet — these calls will
@@ -952,7 +1128,7 @@
               <select id="admin-wd-enable"><option value="true">Enable</option><option value="false">Disable</option></select>
             </div>
           </div>
-          <button class="btn btn-purple btn-full" id="admin-wd-toggle-btn">🔒 Toggle Withdrawal Limits</button>
+          <button class="btn btn-purple btn-full" id="admin-wd-toggle-btn">Toggle Withdrawal Limits</button>
 
           <hr class="divider" />
 
@@ -964,25 +1140,25 @@
           <div class="input-row">
             <div class="form-group"><label>Cooldown (hours)</label><input id="admin-wd-cooldown" type="number" value="0" min="0" max="168" /></div>
           </div>
-          <button class="btn btn-purple btn-full" id="admin-wd-params-btn">⚙️ Set Withdrawal Parameters</button>
+          <button class="btn btn-purple btn-full" id="admin-wd-params-btn">Set Withdrawal Parameters</button>
 
           <hr class="divider" />
 
           <h3>Clear User Limit</h3>
           <div class="input-row"><div class="form-group"><label>User</label><input id="admin-clear-limit-user" placeholder="username" /></div></div>
-          <button class="btn btn-blue btn-full" id="admin-clear-limit-btn">🧹 Clear User Limit</button>
+          <button class="btn btn-blue btn-full" id="admin-clear-limit-btn">Clear User Limit</button>
         </div>
       </details>
 
       <details class="acc">
-        <summary>💔 Group Moderation</summary>
+        <summary>Group Moderation</summary>
         <div class="acc-body">
           <h3>Dissolve Group</h3>
           <div class="input-row">
             <div class="form-group"><label>Group ID</label><input id="admin-dissolve-group" type="number" placeholder="0" /></div>
             <div class="form-group"><label>Reason</label><input id="admin-dissolve-reason" placeholder="Reason for dissolving" /></div>
           </div>
-          <button class="btn btn-red btn-full" id="admin-dissolve-btn">💔 Dissolve Group</button>
+          <button class="btn btn-red btn-full" id="admin-dissolve-btn">Dissolve Group</button>
 
           <hr class="divider" />
 
@@ -991,7 +1167,7 @@
             <div class="form-group"><label>Group ID</label><input id="admin-default-group" type="number" placeholder="0" /></div>
             <div class="form-group"><label>Member</label><input id="admin-default-member" placeholder="account" /></div>
           </div>
-          <button class="btn btn-orange btn-full" id="admin-default-btn">⚠️ Mark Default</button>
+          <button class="btn btn-orange btn-full" id="admin-default-btn">Mark Default</button>
         </div>
       </details>
 
@@ -1067,6 +1243,9 @@
     let myGroupsCache = []
     let myMembershipsCache = []
     let mySavingsCache = []
+    const PAGE_SIZE = 6
+    const groupsPageState = { page: 1 }
+    const savingsPageState = { page: 1 }
 
     const webRenderer = new WebRenderer()
 
@@ -1137,9 +1316,52 @@
       const fracPart = precision > 0 ? "." + s.slice(s.length - precision) : ""
       return (neg ? "-" : "") + intPart + fracPart
     }
+    // Inserts thousands separators into the integer part of a plain digit
+    // string. Pure string manipulation — never routes through Number/float,
+    // so it can't introduce rounding error even on very large exact amounts.
+    function groupThousands(intDigits) {
+      return intDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    }
     function formatAsset(rawAmount, symbolStr) {
       const { precision, code } = parseSymbol(symbolStr)
-      return `${fromRawAmount(rawAmount, precision)} ${code}`
+      const exact = fromRawAmount(rawAmount, precision)
+      const neg = exact.startsWith("-")
+      const body = neg ? exact.slice(1) : exact
+      const [intPart, fracPart] = body.split(".")
+      const grouped = groupThousands(intPart) + (fracPart ? "." + fracPart : "")
+      return `${neg ? "-" : ""}${grouped} ${code}`
+    }
+    // For plain (non-asset) integer counters — reputation volume, etc.
+    function formatCount(n) {
+      const neg = Number(n) < 0
+      const digits = String(n < 0 ? -n : n).replace(/[^0-9]/g, "") || "0"
+      return (neg ? "-" : "") + groupThousands(digits)
+    }
+
+    // Renders one page of a pre-built array of card HTML strings into
+    // `container`, plus Prev/Next controls when there's more than one page.
+    // `pageState` is a mutable {page: N} object owned by the caller, so
+    // position (and the item array via closure) persists across clicks
+    // without re-fetching anything from the chain.
+    function paginate(container, items, pageState, pageSize = PAGE_SIZE) {
+      const render = () => {
+        const totalPages = Math.max(1, Math.ceil(items.length / pageSize))
+        pageState.page = Math.min(Math.max(1, pageState.page), totalPages)
+        const start = (pageState.page - 1) * pageSize
+        const pageItems = items.slice(start, start + pageSize)
+        const pagerHtml = items.length > pageSize ? `
+          <div class="pager">
+            <button class="btn-sm pager-prev" ${pageState.page <= 1 ? "disabled" : ""}>&larr; Prev</button>
+            <span class="pager-info">Page ${pageState.page} of ${totalPages} · ${items.length} total</span>
+            <button class="btn-sm pager-next" ${pageState.page >= totalPages ? "disabled" : ""}>Next &rarr;</button>
+          </div>` : ""
+        container.innerHTML = pageItems.join("") + pagerHtml
+        if (items.length > pageSize) {
+          container.querySelector(".pager-prev")?.addEventListener("click", () => { pageState.page--; render() })
+          container.querySelector(".pager-next")?.addEventListener("click", () => { pageState.page++; render() })
+        }
+      }
+      render()
     }
 
     // ── TOKENS ──────────────────────────────────────────────────────────────
@@ -1164,17 +1386,107 @@
 
     // ── HELPERS ──────────────────────────────────────────────────────────────
     function showStatus(msg, type = "info") {
-      const el = document.getElementById("status")
-      el.textContent = msg
-      el.className = type
-      el.style.display = "block"
-      if (type !== "error") setTimeout(() => { el.style.display = "none" }, 6000)
+      const container = document.getElementById("status")
+
+      const toast = document.createElement("div")
+      toast.className = `toast ${type}`
+
+      const msgEl = document.createElement("span")
+      msgEl.className = "toast-msg"
+      msgEl.textContent = msg
+      toast.appendChild(msgEl)
+
+      const closeEl = document.createElement("span")
+      closeEl.className = "toast-close"
+      closeEl.textContent = "\u00d7"
+      toast.appendChild(closeEl)
+
+      const dismiss = () => {
+        if (toast.dataset.leaving) return
+        toast.dataset.leaving = "1"
+        toast.classList.add("leaving")
+        toast.addEventListener("animationend", () => toast.remove(), { once: true })
+        // Fallback in case animationend doesn't fire (e.g. tab backgrounded)
+        setTimeout(() => toast.remove(), 400)
+      }
+      toast.addEventListener("click", dismiss)
+
+      // Errors stay until dismissed by the user; everything else auto-clears
+      // after its progress bar runs out, so a burst of quick actions doesn't
+      // leave a wall of stale messages behind.
+      if (type !== "error") {
+        const bar = document.createElement("span")
+        bar.className = "toast-bar"
+        toast.appendChild(bar)
+        setTimeout(dismiss, 6000)
+      }
+
+      container.appendChild(toast)
+
+      // Keep the stack tidy — if messages are firing faster than they can
+      // clear (a multi-step transaction, rapid retries), drop the oldest
+      // instead of letting the list grow indefinitely.
+      const toasts = container.querySelectorAll(".toast")
+      const MAX_TOASTS = 4
+      if (toasts.length > MAX_TOASTS) {
+        for (let i = 0; i < toasts.length - MAX_TOASTS; i++) {
+          const old = toasts[i]
+          old.dataset.leaving = "1"
+          old.classList.add("leaving")
+          old.addEventListener("animationend", () => old.remove(), { once: true })
+          setTimeout(() => old.remove(), 400)
+        }
+      }
     }
     function getExplorer() { return CHAINS[currentNetwork].explorer }
     function formatTxError(err) {
       if (!err) return "Unknown error"
       const nested = err?.details?.[0]?.message || err?.response?.json?.error?.details?.[0]?.message
       return nested || err.message || String(err)
+    }
+
+    // ── Fee confirmation modal ─────────────────────────────────────────────────
+    // Shows exactly what will be deducted — amount, percentage, and why —
+    // before any transaction that charges the current user a fee actually
+    // fires. Returns a Promise<boolean>: true if the user confirmed.
+    function confirmFeeDialog({ title, reason, rows, confirmLabel = "Confirm", danger = false }) {
+      return new Promise((resolve) => {
+        const overlay = document.createElement("div")
+        overlay.className = "modal-overlay"
+        overlay.innerHTML = `
+          <div class="modal-card" role="dialog" aria-modal="true">
+            <h3>${title}</h3>
+            <p class="modal-reason">${reason}</p>
+            <div class="modal-fee-rows">
+              ${rows.map(r => `
+                <div class="modal-fee-row${r.highlight ? " highlight" : ""}${r.net ? " net" : ""}">
+                  <span class="mfr-label">${r.label}</span>
+                  <span class="mfr-value">${r.value}</span>
+                </div>`).join("")}
+            </div>
+            <div class="modal-actions">
+              <button class="btn btn-sm modal-cancel" style="flex:1;">Cancel</button>
+              <button class="btn ${danger ? "btn-red" : "btn-primary"} modal-confirm">${confirmLabel}</button>
+            </div>
+          </div>`
+
+        const cleanup = (result) => { overlay.remove(); resolve(result) }
+        overlay.querySelector(".modal-cancel").addEventListener("click", () => cleanup(false))
+        overlay.querySelector(".modal-confirm").addEventListener("click", () => cleanup(true))
+        overlay.addEventListener("click", (e) => { if (e.target === overlay) cleanup(false) })
+        document.addEventListener("keydown", function esc(e) {
+          if (e.key === "Escape") { document.removeEventListener("keydown", esc); cleanup(false) }
+        })
+
+        document.body.appendChild(overlay)
+      })
+    }
+    // Exact integer-safe fee math matching the contract's compute_fee():
+    // (amount * percent) / 100, floor division, BigInt throughout so large
+    // exact amounts never round through a float.
+    function computeFeeExact(amountRaw, percent) {
+      const amt = typeof amountRaw === "bigint" ? amountRaw : BigInt(Math.trunc(Number(amountRaw)))
+      return (amt * BigInt(percent)) / 100n
     }
 
     // ── UI visibility ──────────────────────────────────────────────────────
@@ -1209,7 +1521,7 @@
       adminTab.style.display = isContractAdmin ? "block" : "none"
       adminTab.classList.toggle("visible", isContractAdmin)
       roleBadge.style.display = isContractAdmin ? "inline-block" : "none"
-      document.getElementById("admin-your-role").textContent = isContractAdmin ? "👑 Contract Admin" : "User"
+      document.getElementById("admin-your-role").textContent = isContractAdmin ? "Contract Admin" : "User"
       document.getElementById("admin-your-role").style.color = isContractAdmin ? "var(--violet)" : "var(--text-dim)"
 
       renderConfigBox()
@@ -1261,7 +1573,10 @@
         const rows = await rpcPost("/v1/chain/get_currency_balance", {
           code: token.token_contract, account: String(session.actor), symbol: code,
         })
-        el.innerHTML = rows[0] ? `${rows[0].split(" ")[0]}<span>${code}</span>` : `0<span>${code}</span>`
+        const amountStr = rows[0] ? rows[0].split(" ")[0] : "0"
+        const [intPart, fracPart] = amountStr.split(".")
+        const grouped = groupThousands(intPart) + (fracPart ? "." + fracPart : "")
+        el.innerHTML = `${grouped}<span class="bal-code">${code}</span>`
       } catch (err) {
         el.textContent = "—"
         console.warn("Balance fetch failed:", err.message)
@@ -1295,7 +1610,7 @@
         const repRows = await getTableRows({ table: "reputations", lower_bound: actor, upper_bound: actor, limit: 1 })
         const rep = repRows[0]
         document.getElementById("dash-rep").textContent = rep ? rep.overall_score : "0"
-        document.getElementById("dash-volume").textContent = rep ? String(rep.total_volume) : "0"
+        document.getElementById("dash-volume").textContent = rep ? formatCount(rep.total_volume) : "0"
 
         const memberships = await getTableRows({
           table: "members", index_position: "3", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100,
@@ -1425,7 +1740,8 @@
           return
         }
 
-        list.innerHTML = myGroups.map(g => {
+        groupsPageState.page = 1
+        const groupCards = myGroups.map(g => {
           const m = membershipByGroup.get(Number(g.group_id))
           const buttons = []
           const isCommitType = g.payout_order_type === 2
@@ -1433,23 +1749,23 @@
 
           if (g.status === 0 && m && !m.has_staked) {
             if (isCommitType && !m.order_committed) {
-              buttons.push(`<button class="btn btn-xs btn-purple" data-action="commitorder" data-group-id="${g.group_id}">🔐 Commit to Random Order</button>`)
+              buttons.push(`<button class="btn btn-xs btn-purple" data-action="commitorder" data-group-id="${g.group_id}">Commit to Random Order</button>`)
             } else {
-              buttons.push(`<button class="btn btn-xs btn-primary" data-action="stake" data-group-id="${g.group_id}">📥 Stake ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
+              buttons.push(`<button class="btn btn-xs btn-primary" data-action="stake" data-group-id="${g.group_id}">Stake ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
             }
           }
           if (g.status === 1 && m && m.has_staked && !m.has_contributed) {
-            buttons.push(`<button class="btn btn-xs btn-primary" data-action="contribute" data-group-id="${g.group_id}">📤 Contribute ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
+            buttons.push(`<button class="btn btn-xs btn-primary" data-action="contribute" data-group-id="${g.group_id}">Contribute ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
           }
           if (m && m.payout_claimable && !m.payout_received) {
-            buttons.push(`<button class="btn btn-xs btn-blue" data-action="claimpayout" data-group-id="${g.group_id}">💰 Claim Payout (${formatAsset(m.payout_amount, g.token_symbol)})</button>`)
+            buttons.push(`<button class="btn btn-xs btn-blue" data-action="claimpayout" data-group-id="${g.group_id}">Claim Payout (${formatAsset(m.payout_amount, g.token_symbol)})</button>`)
           }
           if ((g.status === 2 || g.status === 3) && m && Number(m.active_stake) > 0 && !m.stake_released) {
-            buttons.push(`<button class="btn btn-xs btn-orange" data-action="claimstake" data-group-id="${g.group_id}">📌 Claim Stake (${formatAsset(m.active_stake, g.token_symbol)})</button>`)
+            buttons.push(`<button class="btn btn-xs btn-orange" data-action="claimstake" data-group-id="${g.group_id}">Claim Stake (${formatAsset(m.active_stake, g.token_symbol)})</button>`)
           }
           const orgFeesTotal = Number(g.organizer_fee_earned || 0) + Number(g.organizer_custom_fee_earned || 0)
           if (g.organizer === actor && g.status === 2 && !g.organizer_fee_claimed && orgFeesTotal > 0) {
-            buttons.push(`<button class="btn btn-xs btn-purple" data-action="claimorgfees" data-group-id="${g.group_id}">🏆 Claim Organizer Fees (${formatAsset(orgFeesTotal, g.token_symbol)})</button>`)
+            buttons.push(`<button class="btn btn-xs btn-purple" data-action="claimorgfees" data-group-id="${g.group_id}">Claim Organizer Fees (${formatAsset(orgFeesTotal, g.token_symbol)})</button>`)
           }
           // finalizeord is a rescue action for the organizer/admin only,
           // and only usable once the reveal deadline has actually passed.
@@ -1463,13 +1779,43 @@
           // and not yet revealed by this member or the group.
           const revealForm = (isCommitType && m && m.has_staked && m.order_committed && !m.order_revealed && !g.order_revealed) ? `
             <div class="ic-inline-form">
-              <input type="text" placeholder="Paste your saved secret" id="reveal-secret-${g.group_id}" style="width:220px;" />
-              <button class="btn btn-xs btn-purple" data-action="revealorder" data-group-id="${g.group_id}">🔓 Reveal My Order Secret</button>
+              <input type="text" placeholder="Paste your saved secret" id="reveal-secret-${g.group_id}" class="ic-wide-input" />
+              <button class="btn btn-xs btn-purple" data-action="revealorder" data-group-id="${g.group_id}">Reveal My Order Secret</button>
             </div>` : ""
 
           const totalCycles = Number(g.total_cycles) || 0
           const curCycle = Number(g.current_cycle) || 0
           const pct = totalCycles > 0 ? Math.min(100, Math.round((curCycle / totalCycles) * 100)) : 0
+
+          // Forward-looking: the combined fee rate that will be deducted
+          // from the *payout* whenever a cycle completes (not charged to
+          // whoever is staking/contributing — it comes out of the pot
+          // before the payee receives it).
+          let feeNote = ""
+          if (lastConfig && (g.status === 0 || g.status === 1)) {
+            const platformPct = Number(lastConfig.group_payout_fee_percent || 0)
+            const organizerPct = lastConfig.organizer_incentives_enabled ? Number(lastConfig.organizer_fee_percent || 0) : 0
+            const customPct = Number(g.custom_fee_percent || 0)
+            const totalPct = platformPct + organizerPct + customPct
+            if (totalPct > 0) {
+              const parts = []
+              if (platformPct > 0) parts.push(`${platformPct}% platform`)
+              if (organizerPct > 0) parts.push(`${organizerPct}% organizer`)
+              if (customPct > 0) parts.push(`${customPct}% group`)
+              feeNote = `<div class="ic-detail ic-meta">Cycle payout fee: ${totalPct}% total (${parts.join(" + ")}) — deducted from the pot before the payee is credited</div>`
+            }
+          }
+
+          // Backward-looking: if this member has a payout sitting ready to
+          // claim, show exactly what was already taken out of it.
+          let payoutFeeNote = ""
+          if (m && m.payout_claimable && !m.payout_received && Number(m.payout_fee_paid) > 0) {
+            const feePaid = BigInt(m.payout_fee_paid)
+            const net = BigInt(m.payout_amount)
+            const gross = net + feePaid
+            const pctPaid = gross > 0n ? Number((feePaid * 10000n) / gross) / 100 : 0
+            payoutFeeNote = `<div class="ic-detail ic-meta">Payout fee already deducted: ${formatAsset(feePaid, g.token_symbol)} (${pctPaid.toFixed(1)}% of ${formatAsset(gross, g.token_symbol)})</div>`
+          }
 
           return `
             <div class="item-card">
@@ -1488,13 +1834,16 @@
                   Organizer: ${g.organizer} · Vault: ${formatAsset(g.vault_balance, g.token_symbol)}
                   ${g.organizer === actor ? ' · <span class="admin-badge">You organize this</span>' : ''}
                 </div>
+                ${feeNote}
+                ${payoutFeeNote}
                 ${renderPayoutOrder(g, actor)}
                 ${revealForm}
                 ${m ? `<div class="ic-detail ic-meta">Your status: staked=${m.has_staked}, contributed=${m.has_contributed}, cycles missed=${m.cycles_missed}</div>` : ''}
                 ${buttons.length ? `<div class="ic-actions">${buttons.join("")}</div>` : ''}
               </div>
             </div>`
-        }).join("")
+        })
+        paginate(list, groupCards, groupsPageState)
       } catch (err) {
         list.innerHTML = `<div class="empty-msg">Error loading groups: ${formatTxError(err)}</div>`
       }
@@ -1573,19 +1922,20 @@
         }
 
         const nowSec = Math.floor(Date.now() / 1000)
-        list.innerHTML = plans.map(p => {
+        savingsPageState.page = 1
+        const savingsCards = plans.map(p => {
           const matured = p.goal_reached || nowSec >= p.maturity_time
           const accrued = Number(p.accrued_balance || 0)
           let claimBtn = ""
           if (accrued > 0) {
             claimBtn = matured
-              ? `<button class="btn btn-xs btn-blue" data-action="claim" data-plan-id="${p.plan_id}">💸 Claim ${formatAsset(p.accrued_balance, p.token_symbol)}</button>`
-              : `<button class="btn btn-xs btn-red" data-action="panic" data-plan-id="${p.plan_id}">⚠️ Panic Withdraw (penalty applies)</button>`
+              ? `<button class="btn btn-xs btn-blue" data-action="claim" data-plan-id="${p.plan_id}">Claim ${formatAsset(p.accrued_balance, p.token_symbol)}</button>`
+              : `<button class="btn btn-xs btn-red" data-action="panic" data-plan-id="${p.plan_id}">Panic Withdraw (penalty applies)</button>`
           }
           const depositForm = p.status === 0 ? `
             <div class="ic-inline-form">
               <input type="number" step="0.0001" placeholder="Amount" id="dep-amt-${p.plan_id}" />
-              <button class="btn btn-xs btn-primary" data-action="deposit" data-plan-id="${p.plan_id}">📥 Deposit</button>
+              <button class="btn btn-xs btn-primary" data-action="deposit" data-plan-id="${p.plan_id}">Deposit</button>
             </div>` : ""
 
           return `
@@ -1596,13 +1946,14 @@
               </div>
               <div class="ic-detail">Goal: ${formatAsset(p.goal_amount, p.token_symbol)} · Deposited: ${formatAsset(p.total_deposited, p.token_symbol)}</div>
               <div class="ic-detail ic-meta">
-                ${p.goal_reached ? "🎯 Goal reached!" : `${p.goal_amount > 0 ? ((p.total_deposited / p.goal_amount) * 100).toFixed(0) : 0}% of goal`}
+                ${p.goal_reached ? "Goal reached!" : `${p.goal_amount > 0 ? ((p.total_deposited / p.goal_amount) * 100).toFixed(0) : 0}% of goal`}
                 · Matures: ${new Date(p.maturity_time * 1000).toLocaleDateString()}
               </div>
               ${claimBtn ? `<div class="ic-actions">${claimBtn}</div>` : ''}
               ${depositForm}
             </div>`
-        }).join("")
+        })
+        paginate(list, savingsCards, savingsPageState)
       } catch (err) {
         list.innerHTML = `<div class="empty-msg">Error loading savings: ${formatTxError(err)}</div>`
       }
@@ -1625,13 +1976,53 @@
           const p = plans[0]
           if (!p) throw new Error("Plan not found")
           const { precision } = parseSymbol(p.token_symbol)
-          const txId = await sendDeposit({ symbolStr: p.token_symbol, rawAmount: toRawAmount(amountStr, precision), memo: `savings:${planId}` })
+          const rawAmount = toRawAmount(amountStr, precision)
+
+          const feePercent = Number(lastConfig?.personal_fee_percent ?? 0)
+          const chargesFee = lastConfig && (Number(lastConfig.personal_fee_type) === 0 || Number(p.deposit_count) === 0)
+          if (chargesFee && feePercent > 0) {
+            const fee = computeFeeExact(rawAmount, feePercent)
+            const net = rawAmount - fee
+            const reason = Number(lastConfig.personal_fee_type) === 0
+              ? "This protocol charges a personal savings fee on every deposit."
+              : "This protocol charges a personal savings fee on a plan's first deposit only — this is plan's first."
+            const ok = await confirmFeeDialog({
+              title: "Deposit fee applies",
+              reason,
+              rows: [
+                { label: "Deposit amount", value: formatAsset(rawAmount, p.token_symbol) },
+                { label: `Fee (${feePercent}%)`, value: `-${formatAsset(fee, p.token_symbol)}`, highlight: true },
+                { label: "Credited to plan", value: formatAsset(net, p.token_symbol), net: true },
+              ],
+              confirmLabel: "Deposit anyway",
+            })
+            if (!ok) { btn.disabled = false; btn.textContent = original; return }
+          }
+
+          const txId = await sendDeposit({ symbolStr: p.token_symbol, rawAmount, memo: `savings:${planId}` })
           showStatus(`Deposited! Tx: ${txId.slice(0,12)}...`, "success")
         } else if (action === "claim") {
           const txId = await transact({ account: CONTRACT_NAME, name: "claimsavings", authorization: [session.permissionLevel], data: { saver: session.actor, plan_id: planId, panic_withdraw: false } })
           showStatus(`Savings claimed! Tx: ${txId.slice(0,12)}...`, "success")
         } else if (action === "panic") {
-          if (!confirm("Panic withdrawing before maturity applies a penalty (see contract config for the current percentage). Continue?")) { btn.disabled = false; btn.textContent = original; return }
+          const plan = mySavingsCache.find(p => Number(p.plan_id) === planId)
+          if (!plan) throw new Error("Plan not found")
+          const penaltyPercent = Number(lastConfig?.panic_penalty_percent ?? 0)
+          const balance = BigInt(plan.accrued_balance)
+          const penalty = computeFeeExact(balance, penaltyPercent)
+          const net = balance - penalty
+          const ok = await confirmFeeDialog({
+            title: "Early withdrawal penalty",
+            reason: `Plan #${planId} hasn't matured yet. Withdrawing now (instead of waiting) applies your protocol's early-withdrawal penalty to the full balance.`,
+            rows: [
+              { label: "Current balance", value: formatAsset(plan.accrued_balance, plan.token_symbol) },
+              { label: `Penalty (${penaltyPercent}%)`, value: `-${formatAsset(penalty, plan.token_symbol)}`, highlight: true },
+              { label: "You will receive", value: formatAsset(net, plan.token_symbol), net: true },
+            ],
+            confirmLabel: "Withdraw with penalty",
+            danger: true,
+          })
+          if (!ok) { btn.disabled = false; btn.textContent = original; return }
           const txId = await transact({ account: CONTRACT_NAME, name: "claimsavings", authorization: [session.permissionLevel], data: { saver: session.actor, plan_id: planId, panic_withdraw: true } })
           showStatus(`Panic withdrawal complete. Tx: ${txId.slice(0,12)}...`, "success")
         }
@@ -1707,7 +2098,7 @@
         showStatus(`Bond failed: ${formatTxError(err)}`, "error")
       } finally {
         btn.disabled = false
-        btn.innerHTML = "🔒 Bond Reputation Stake"
+        btn.innerHTML = "Bond Reputation Stake"
       }
     })
 
@@ -1723,7 +2114,7 @@
         showStatus(`Release failed: ${formatTxError(err)}`, "error")
       } finally {
         btn.disabled = false
-        btn.innerHTML = "🔓 Release Matured Stake(s)"
+        btn.innerHTML = "Release Matured Stake(s)"
       }
     })
 
@@ -1740,7 +2131,7 @@
         const cfg = cfgRows[0]
 
         if (entry && entry.is_active) {
-          el.textContent = `✨ Early reputation active! Score: ${entry.assigned_score} (expires: ${new Date(entry.expires_at * 1000).toLocaleDateString()})`
+          el.textContent = `Early reputation active! Score: ${entry.assigned_score} (expires: ${new Date(entry.expires_at * 1000).toLocaleDateString()})`
           el.style.color = "var(--teal)"
         } else if (cfg && cfg.early_reputation_enabled && cfg.early_reputation_free) {
           el.textContent = "No active early reputation — you're eligible to claim it for free."
@@ -1769,7 +2160,7 @@
         showStatus(`Claim failed: ${formatTxError(err)}`, "error")
       } finally {
         btn.disabled = false
-        btn.innerHTML = "🎯 Claim Free Early Reputation"
+        btn.innerHTML = "Claim Free Early Reputation"
       }
     })
 
@@ -1833,7 +2224,7 @@
         showStatus(`Create group failed: ${formatTxError(err)}`, "error")
       } finally {
         btn.disabled = false
-        btn.innerHTML = "🚀 Create Group"
+        btn.innerHTML = "Create Group"
       }
     })
 
@@ -1869,7 +2260,7 @@
         showStatus(`Create savings failed: ${formatTxError(err)}`, "error")
       } finally {
         btn.disabled = false
-        btn.innerHTML = "💾 Create Savings Plan"
+        btn.innerHTML = "Create Savings Plan"
       }
     })
 
@@ -1881,6 +2272,7 @@
       btn.innerHTML = '<span class="spinner"></span> Working...'
       try {
         const txId = await workFn()
+        if (!txId) return // user cancelled at a confirmation step — no toast needed
         showStatus(`Done! Tx: ${txId.slice(0,12)}...`, "success")
         fetchBalance()
       } catch (err) {
@@ -1936,19 +2328,62 @@
       const p = plans[0]
       if (!p) throw new Error("Plan not found")
       const { precision } = parseSymbol(p.token_symbol)
-      return sendDeposit({ symbolStr: p.token_symbol, rawAmount: toRawAmount(amountStr, precision), memo: `savings:${planId}` })
+      const rawAmount = toRawAmount(amountStr, precision)
+
+      const feePercent = Number(lastConfig?.personal_fee_percent ?? 0)
+      const chargesFee = lastConfig && (Number(lastConfig.personal_fee_type) === 0 || Number(p.deposit_count) === 0)
+      if (chargesFee && feePercent > 0) {
+        const fee = computeFeeExact(rawAmount, feePercent)
+        const net = rawAmount - fee
+        const reason = Number(lastConfig.personal_fee_type) === 0
+          ? "This protocol charges a personal savings fee on every deposit."
+          : "This protocol charges a personal savings fee on a plan's first deposit only — this is plan's first."
+        const ok = await confirmFeeDialog({
+          title: "Deposit fee applies",
+          reason,
+          rows: [
+            { label: "Deposit amount", value: formatAsset(rawAmount, p.token_symbol) },
+            { label: `Fee (${feePercent}%)`, value: `-${formatAsset(fee, p.token_symbol)}`, highlight: true },
+            { label: "Credited to plan", value: formatAsset(net, p.token_symbol), net: true },
+          ],
+          confirmLabel: "Deposit anyway",
+        })
+        if (!ok) return null
+      }
+      return sendDeposit({ symbolStr: p.token_symbol, rawAmount, memo: `savings:${planId}` })
     }))
 
     document.getElementById("man-claimsave-btn").addEventListener("click", () => runManual("man-claimsave-btn", async () => {
       const planId = parseInt(document.getElementById("man-claimsave-plan").value)
       const panic = document.getElementById("man-claimsave-panic").value === "true"
       if (isNaN(planId)) throw new Error("Enter a plan ID")
+      if (panic) {
+        const plans = await getTableRows({ table: "savings", lower_bound: planId, upper_bound: planId, limit: 1 })
+        const p = plans[0]
+        if (!p) throw new Error("Plan not found")
+        const penaltyPercent = Number(lastConfig?.panic_penalty_percent ?? 0)
+        const balance = BigInt(p.accrued_balance)
+        const penalty = computeFeeExact(balance, penaltyPercent)
+        const net = balance - penalty
+        const ok = await confirmFeeDialog({
+          title: "Early withdrawal penalty",
+          reason: `Plan #${planId} hasn't matured yet. Withdrawing now applies your protocol's early-withdrawal penalty to the full balance.`,
+          rows: [
+            { label: "Current balance", value: formatAsset(p.accrued_balance, p.token_symbol) },
+            { label: `Penalty (${penaltyPercent}%)`, value: `-${formatAsset(penalty, p.token_symbol)}`, highlight: true },
+            { label: "You will receive", value: formatAsset(net, p.token_symbol), net: true },
+          ],
+          confirmLabel: "Withdraw with penalty",
+          danger: true,
+        })
+        if (!ok) return null
+      }
       return transact({ account: CONTRACT_NAME, name: "claimsavings", authorization: [session.permissionLevel], data: { saver: session.actor, plan_id: planId, panic_withdraw: panic } })
     }))
 
     // ── ADMIN ACTIONS ────────────────────────────────────────────────────────
     function requireAdmin() {
-      if (!isContractAdmin) { showStatus("❌ Admin actions require logging in as testingnewco's admin account.", "error"); return false }
+      if (!isContractAdmin) { showStatus("Admin actions require logging in as testingnewco's admin account.", "error"); return false }
       return true
     }
     async function runAdmin(btnId, label, workFn) {
@@ -2237,6 +2672,22 @@
     }
 
     init()
+
+    // ── Theme toggle (dark / light) ─────────────────────────────────────────
+    const THEME_COLORS = { dark: "#0a0e16", light: "#ffffff" }
+    function applyThemeColorMeta(theme) {
+      const meta = document.getElementById("meta-theme-color")
+      if (meta) meta.setAttribute("content", THEME_COLORS[theme] || THEME_COLORS.dark)
+    }
+    applyThemeColorMeta(document.documentElement.getAttribute("data-theme") || "dark")
+
+    document.getElementById("theme-toggle-btn").addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark"
+      const next = current === "light" ? "dark" : "light"
+      document.documentElement.setAttribute("data-theme", next)
+      applyThemeColorMeta(next)
+      try { localStorage.setItem("testingnewco-theme", next) } catch (e) {}
+    })
 
     // ── PWA: register service worker (installable + fast reloads) ─────────────
     // Purely additive — wrapped so any failure (unsupported browser, file
