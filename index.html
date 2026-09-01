@@ -1060,6 +1060,7 @@
         <div class="row"><span class="label">Fee Wallet</span><span class="value" id="cfg-feewallet">—</span></div>
         <div class="row"><span class="label">System Fee %</span><span class="value" id="cfg-sysfee">—</span></div>
         <div class="row"><span class="label">Personal Fee %</span><span class="value" id="cfg-persfee">—</span></div>
+        <div class="row"><span class="label">Panic Penalty %</span><span class="value" id="cfg-panicpenalty">—</span></div>
         <div class="row"><span class="label">Organizer Fee %</span><span class="value" id="cfg-orgfee">—</span></div>
         <div class="row"><span class="label">Min Organizer Rep Score</span><span class="value" id="cfg-minorgscore">—</span></div>
         <div class="row"><span class="label">Min Reputation Bond</span><span class="value" id="cfg-minrepstake">—</span></div>
@@ -1189,6 +1190,17 @@
             </div>
           </div>
           <button class="btn btn-purple btn-full" id="admin-pers-fee-btn">Set Personal Fee</button>
+
+          <hr class="divider" />
+
+          <h3>Panic Withdrawal Penalty</h3>
+          <p class="field-hint" style="margin-bottom:8px;">
+            The penalty deducted when a saver withdraws from a personal savings plan before it matures (shown to the saver before they confirm a panic withdrawal).
+          </p>
+          <div class="input-row">
+            <div class="form-group"><label>Penalty Percent (max 20)</label><input id="admin-panic-penalty" type="number" value="3" min="0" max="20" /></div>
+          </div>
+          <button class="btn btn-purple btn-full" id="admin-panic-penalty-btn">Set Panic Penalty</button>
 
           <hr class="divider" />
 
@@ -1499,81 +1511,6 @@
     function groupThousands(intDigits) {
       return intDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
     }
-
-    // ── AUTO-FORMAT AMOUNT INPUTS TO THE SELECTED TOKEN'S PRECISION ────────────
-    // Reformats an amount field's raw text to exactly match a token's decimal
-    // precision (e.g. "0.1" + precision 4 -> "0.1000", "1" -> "1.0000") so
-    // what the user sees always matches what will actually be sent on-chain.
-    // Routes through toRawAmount/fromRawAmount (BigInt-based) — never floats.
-    // Silent when the input already fits the precision; only speaks up when
-    // the typed value had to be trimmed or couldn't be represented at all.
-    function formatAmountFieldToPrecision(inputEl, precision, tokenCode) {
-      if (!inputEl || !inputEl.value || isNaN(precision)) return
-      const typed = inputEl.value.trim()
-      const fracDigits = (typed.split(".")[1] || "").length
-      const raw = toRawAmount(typed, precision)
-      const isEffectivelyZero = /^0*\.?0*$/.test(typed)
-
-      if (raw === 0n && !isEffectivelyZero) {
-        // Non-zero input truncated away entirely by a low-precision token —
-        // leave the raw text as-is so the user can see it didn't take, and
-        // tell them why.
-        showStatus(`${tokenCode || "This token"} supports ${precision} decimal place${precision === 1 ? "" : "s"} — that amount is too small to represent.`, "error")
-        return
-      }
-      if (fracDigits > precision) {
-        showStatus(`${tokenCode || "This token"} only supports ${precision} decimal place${precision === 1 ? "" : "s"} — trimmed to match.`, "info")
-      }
-      inputEl.value = fromRawAmount(raw, precision)
-    }
-
-    // Wires an <input> amount field to a paired <select> token field: the
-    // amount reformats to the token's precision whenever the amount field
-    // loses focus, and again if the user switches tokens afterward.
-    function wireAmountPrecision(amountId, tokenId) {
-      const amountEl = document.getElementById(amountId)
-      const tokenEl = document.getElementById(tokenId)
-      if (!amountEl || !tokenEl) return
-      const reformat = () => {
-        if (!tokenEl.value) return
-        const { precision, code } = parseSymbol(tokenEl.value)
-        formatAmountFieldToPrecision(amountEl, precision, code)
-      }
-      amountEl.addEventListener("blur", reformat)
-      tokenEl.addEventListener("change", reformat)
-    }
-    wireAmountPrecision("cg-amount", "cg-token")
-    wireAmountPrecision("send-amount", "send-token")
-    wireAmountPrecision("rep-amount", "rep-token")
-
-    // man-save-amount has no paired token <select> — its precision depends
-    // on whichever plan id is typed in, so look the plan up on blur.
-    document.getElementById("man-save-amount")?.addEventListener("blur", async () => {
-      const amountEl = document.getElementById("man-save-amount")
-      const planId = Number(document.getElementById("man-save-plan")?.value)
-      if (!amountEl.value || isNaN(planId)) return
-      try {
-        const plans = await getTableRows({ table: "savings", lower_bound: planId, upper_bound: planId, limit: 1 })
-        const p = plans[0]
-        if (!p) return
-        const { precision, code } = parseSymbol(p.token_symbol)
-        formatAmountFieldToPrecision(amountEl, precision, code)
-      } catch { /* leave field as typed if the lookup fails */ }
-    })
-
-    // Per-plan deposit inputs (id="dep-amt-<planId>") are rendered dynamically
-    // inside #savings-list, so this uses delegation on the container instead
-    // of binding each input individually. Precision comes from the already-
-    // loaded mySavingsCache — no extra chain call needed.
-    document.getElementById("savings-list")?.addEventListener("focusout", (ev) => {
-      const input = ev.target.closest('input[id^="dep-amt-"]')
-      if (!input) return
-      const planId = Number(input.id.slice("dep-amt-".length))
-      const plan = mySavingsCache.find(p => Number(p.plan_id) === planId)
-      if (!plan) return
-      const { precision, code } = parseSymbol(plan.token_symbol)
-      formatAmountFieldToPrecision(input, precision, code)
-    })
     function formatAsset(rawAmount, symbolStr) {
       const { precision, code } = parseSymbol(symbolStr)
       const exact = fromRawAmount(rawAmount, precision)
@@ -1628,7 +1565,7 @@
     function populateTokenSelects() {
       const active = tokensCache.filter(t => t.active)
       const opts = active.length
-        ? active.map(t => `<option value="${t.token_symbol}">${parseSymbol(t.token_symbol).code}${t.is_verified ? " ✓" : ""}</option>`).join("")
+        ? active.map(t => `<option value="${t.token_symbol}">${parseSymbol(t.token_symbol).code} (${t.token_symbol})${t.is_verified ? " ✓" : ""}</option>`).join("")
         : `<option value="">No tokens registered yet</option>`
       ;["cg-token", "save-token", "rep-token", "man-stake-token", "balance-token-select"].forEach(id => {
         const el = document.getElementById(id)
@@ -1904,6 +1841,7 @@
         document.getElementById("cfg-feewallet").textContent = "—"
         document.getElementById("cfg-sysfee").textContent = "—"
         document.getElementById("cfg-persfee").textContent = "—"
+        document.getElementById("cfg-panicpenalty").textContent = "—"
         document.getElementById("cfg-orgfee").textContent = "—"
         document.getElementById("cfg-minorgscore").textContent = "—"
         document.getElementById("cfg-minrepstake").textContent = "—"
@@ -1918,6 +1856,7 @@
       document.getElementById("cfg-feewallet").textContent = c.fee_wallet
       document.getElementById("cfg-sysfee").textContent = `${c.group_payout_fee_percent}% (${c.group_fee_type == 0 ? "every payout" : "once per group"})`
       document.getElementById("cfg-persfee").textContent = `${c.personal_fee_percent}% (${c.personal_fee_type == 0 ? "every deposit" : "first deposit only"})`
+      document.getElementById("cfg-panicpenalty").textContent = `${c.panic_penalty_percent}%`
       document.getElementById("cfg-orgfee").textContent = `${c.organizer_fee_percent}% (max custom: ${c.max_custom_fee_percent}%)`
       document.getElementById("cfg-minorgscore").textContent = `${c.min_organizer_score} / 100`
       document.getElementById("cfg-minrepstake").textContent = formatCount(c.initial_reputation_stake) + " raw units"
@@ -3212,6 +3151,12 @@
       const type = parseInt(document.getElementById("admin-pers-fee-type").value)
       if (isNaN(fee) || fee < 0 || fee > 20) throw new Error("Enter fee between 0-20")
       return transact({ account: CONTRACT_NAME, name: "setpersfee", authorization: [session.permissionLevel], data: { fee_percent: fee, fee_type: type } })
+    }))
+
+    document.getElementById("admin-panic-penalty-btn").addEventListener("click", () => runAdmin("admin-panic-penalty-btn", "Panic penalty set", async () => {
+      const penalty = parseInt(document.getElementById("admin-panic-penalty").value)
+      if (isNaN(penalty) || penalty < 0 || penalty > 20) throw new Error("Enter penalty between 0-20")
+      return transact({ account: CONTRACT_NAME, name: "setpanicpen", authorization: [session.permissionLevel], data: { penalty_percent: penalty } })
     }))
 
     document.getElementById("admin-org-fee-btn").addEventListener("click", () => runAdmin("admin-org-fee-btn", "Organizer fee set", async () => {
