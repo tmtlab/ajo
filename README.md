@@ -6,6 +6,8 @@ A ROSCA is the on-chain version of a savings circle: a group of people contribut
 
 Contract account: `roscatesting` (Jungle4 testnet)
 
+**Live testing UI:** https://tmtlab.github.io/ajo
+
 ---
 
 ## Features
@@ -20,7 +22,7 @@ Contract account: `roscatesting` (Jungle4 testnet)
   - Random — order randomized once the group activates
   - Random Commit-Reveal — members commit to a secret hash, then reveal it; the combined revealed values determine the order, so no single party (organizer included) can predetermine or manipulate it
 - **Stake** — members post a stake when joining, which is released back gradually as contributions are paid on time, and can be claimed once fully unlocked
-- **Personal savings plans** — lock funds toward a goal amount and duration, independent of any group, with optional early ("panic") withdrawal before maturity
+- **Personal savings plans** — lock funds toward a goal amount and duration, independent of any group, with optional early ("panic") withdrawal before maturity (a penalty applies, set by the admin — see Admin controls below)
 - **Reputation** — build an on-chain reputation score by completing savings plans and groups; higher reputation unlocks the ability to organize public (open-seat) groups
 - **Early reputation program** — an admin-configurable way to bootstrap reputation for new users before they've completed a full cycle, either for free or by bonding a stake
 
@@ -37,6 +39,7 @@ Contract account: `roscatesting` (Jungle4 testnet)
 
 - Register and remove supported tokens (with a whitelist for approved token contracts and a blacklist for banned accounts)
 - Set platform fees separately for group payouts, personal savings deposits, and organizer cuts, each with a fee-per-transaction or fee-once mode
+- Set the panic withdrawal penalty — the percentage deducted when a saver withdraws from a personal savings plan before it matures
 - Set minimum organizer reputation score and public-group thresholds
 - Set withdrawal limits (period, amount, cooldown) to control savings withdrawal pace
 - Emergency freeze and pause switches
@@ -63,6 +66,10 @@ index.html         - web UI (Wharf/Anchor wallet integration)
 - Anchor set up with testnets enabled, and Jungle4 selected as a network
 
 ### Using the web UI
+
+Live version, ready to use: **https://tmtlab.github.io/ajo**
+
+Or run it yourself:
 
 1. Open `index.html` (hosted, or run locally with any static file server)
 2. Make sure the network switcher is set to **Jungle4 (Testnet)**
