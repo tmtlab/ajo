@@ -100,5 +100,5 @@ Contributions, savings deposits, and stakes all go through a standard token `tra
 
 ## Notes
 
-- This is deployed and tested on **Jungle4**, a public Antelope/EOS testnet. Don't send anything of real value to it.
+- This is deployed and tested on **Jungle4**, a public Antelope/Vaulta testnet. Don't send anything of real value to it.
 - Only tokens registered by an admin via `addtoken` can be used to create groups or savings plans — check the token dropdown in the UI for what's currently supported.
