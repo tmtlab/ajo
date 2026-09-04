@@ -707,6 +707,10 @@
       <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Home</span>
     </button>
+    <button class="tab-btn" data-tab="history">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3.2 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>History</span>
+    </button>
     <button class="tab-btn" data-tab="groups">
       <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" stroke-linecap="round"/><path d="M3.5 20c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17" cy="9" r="2.6" stroke-linecap="round"/><path d="M15.3 14.8c2.6.2 4.7 2.3 4.7 5.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Groups</span>
@@ -765,7 +769,9 @@
         </div>
         <div id="group-list"><div class="empty-msg">Connect a wallet to load your groups.</div></div>
         <hr class="divider" />
-        <button class="btn btn-blue btn-full" id="show-create-group">Create New Group</button>
+        <div id="create-group-gate" class="field-hint" style="display:none; margin-bottom:8px;"></div>
+        <button class="btn btn-blue btn-full" id="show-create-private-group" style="display:none;">Create Private Group</button>
+        <button class="btn btn-purple btn-full" id="show-create-public-group" style="display:none; margin-top:8px;">Create Public Group</button>
       </div>
 
       <div id="groups-discover-view" style="display:none;">
@@ -786,18 +792,19 @@
         <div id="discover-list"><div class="empty-msg">Connect a wallet to browse open groups.</div></div>
       </div>
 
-      <div id="create-group-form" style="display:none; margin-top:14px;">
-        <h3>Create Group</h3>
+      <div id="create-group-form" style="display:none; margin-top:14px;" data-group-type="private">
+        <h3 id="cg-form-title">Create Private Group</h3>
+        <div id="cg-type-banner" class="field-hint" style="margin-bottom:10px;"></div>
         <div class="form-group">
           <label>Token</label>
           <select id="cg-token"></select>
           <div class="field-hint">Only tokens the admin has registered via <code>addtoken</code> appear here.</div>
         </div>
         <div class="input-row">
-          <div class="form-group">
+          <div class="form-group" id="cg-maxmembers-group">
             <label>Group size (target)</label>
             <input id="cg-maxmembers" type="number" min="2" placeholder="10" />
-            <div class="field-hint">Total seats. Leave the members field below with fewer names than this to open the rest of the seats — the public can then request to join and you accept or decline each one (or add people directly yourself). Requires earned reputation (early reputation alone can only create fully pre-named private groups).</div>
+            <div class="field-hint" id="cg-maxmembers-hint"></div>
           </div>
           <div class="form-group">
             <label>Pre-named members (comma-separated, optional)</label>
@@ -833,6 +840,14 @@
             <label>Custom Fee % (organizer's cut, capped by admin)</label>
             <input id="cg-fee" type="number" step="1" value="0" max="5" />
           </div>
+        </div>
+        <div class="form-group">
+          <label>Upfront Stake</label>
+          <select id="cg-upfront-stake">
+            <option value="false" selected>Off — stake one cycle's contribution, then contribute each cycle as usual</option>
+            <option value="true">On — stake the full total (contribution × cycles) upfront, no per-cycle staking risk</option>
+          </select>
+          <div class="field-hint">Members still pay each cycle's contribution separately either way — this only changes the upfront collateral required to join, and how much of a cushion the group has if someone later misses a cycle.</div>
         </div>
         <button class="btn btn-primary btn-full" id="create-group-btn">Create Group</button>
         <button class="btn btn-sm" id="cancel-create-group" style="margin-top:6px;">Cancel</button>
@@ -912,6 +927,19 @@
       <button class="btn btn-sm btn-blue" id="act-release-stake" style="margin-top:10px;">Release Matured Stake(s)</button>
     </div>
 
+    <!-- HISTORY -->
+    <div class="card tab-panel" id="tab-history">
+      <h2>History</h2>
+      <div class="memo-note">
+        This pulls straight from the contract's on-chain <code>txnlog</code> table, scoped to your account — every action you've
+        taken through this app (or directly on-chain) that touches the contract shows up here, newest first. Each entry links to
+        its transaction on the block explorer so you can independently verify it happened.
+      </div>
+      <div class="field-hint" id="history-network-hint" style="margin-top:8px;">—</div>
+      <div id="history-list"><div class="empty-msg">Connect a wallet to load your transaction history.</div></div>
+      <button class="btn btn-sm btn-blue" id="refresh-history-btn" style="margin-top:10px;">↻ Refresh</button>
+    </div>
+
     <!-- MANUAL / ADVANCED -->
     <div class="card tab-panel" id="tab-actions">
       <h2>Advanced</h2>
@@ -926,7 +954,7 @@
             <div class="form-group"><label>Group ID</label><input id="man-stake-group" type="number" placeholder="0" /></div>
             <div class="form-group"><label>Token</label><select id="man-stake-token"></select></div>
           </div>
-          <div class="field-hint" style="margin-bottom:8px;">Amount is read from the group's <code>contribution_amount</code> automatically — it must match exactly.</div>
+          <div class="field-hint" style="margin-bottom:8px;">Amount is read from the group automatically — one cycle's contribution, or the full total obligation upfront if the organizer enabled that for this group — it must match exactly.</div>
           <button class="btn btn-primary btn-full" id="man-stake-btn">Stake (fetch amount &amp; send)</button>
         </div>
       </details>
@@ -1062,10 +1090,15 @@
         <div class="row"><span class="label">Personal Fee %</span><span class="value" id="cfg-persfee">—</span></div>
         <div class="row"><span class="label">Panic Penalty %</span><span class="value" id="cfg-panicpenalty">—</span></div>
         <div class="row"><span class="label">Organizer Fee %</span><span class="value" id="cfg-orgfee">—</span></div>
+        <div class="row"><span class="label">Organizer Incentives</span><span class="value" id="cfg-incentives">—</span></div>
         <div class="row"><span class="label">Min Organizer Rep Score</span><span class="value" id="cfg-minorgscore">—</span></div>
         <div class="row"><span class="label">Min Reputation Bond</span><span class="value" id="cfg-minrepstake">—</span></div>
         <div class="row"><span class="label">Public Group Reqs</span><span class="value" id="cfg-pubreqs">—</span></div>
         <div class="row"><span class="label">Early Reputation</span><span class="value" id="cfg-earlyrep">—</span></div>
+        <div class="row"><span class="label">Group Duration Range</span><span class="value" id="cfg-duration">—</span></div>
+        <div class="row"><span class="label">Min Group Size</span><span class="value" id="cfg-mingroupsize">—</span></div>
+        <div class="row"><span class="label">Max Group Value</span><span class="value" id="cfg-maxgroupvalue">—</span></div>
+        <div class="row"><span class="label">Withdrawal Limits</span><span class="value" id="cfg-wdlimit">—</span></div>
         <button class="btn btn-sm btn-blue" id="admin-refresh-config" style="margin-top:8px;">↻ Refresh Config</button>
       </div>
 
@@ -1205,6 +1238,13 @@
           <hr class="divider" />
 
           <h3>Organizer Fee</h3>
+          <p class="field-hint" style="margin-bottom:8px;">
+            This is a <strong>revenue share of the system fee</strong>, not an extra charge on top of it — members always pay
+            exactly the system fee percentage (above) regardless of this setting. E.g. a 1% system fee with this set to 10% means
+            the organizer gets 10% of that 1% (0.1% of the payout) and the platform keeps the remaining 0.9% — the member's total
+            never changes. This is separate from a group's own custom fee (set per-group at creation), which <em>is</em> an
+            additional charge on top of the system fee.
+          </p>
           <div class="input-row"><div class="form-group"><label>Fee Percent (max 50)</label><input id="admin-org-fee" type="number" value="20" min="0" max="50" /></div></div>
           <button class="btn btn-purple btn-full" id="admin-org-fee-btn">Set Organizer Fee</button>
 
@@ -1270,7 +1310,11 @@
           </div>
           <div class="input-row">
             <div class="form-group"><label>Free to claim?</label><select id="admin-erep-free"><option value="true">Yes</option><option value="false">No</option></select></div>
-            <div class="form-group"><label>Program ends in (days from now)</label><input id="admin-erep-deadline" type="number" value="90" min="1" /></div>
+            <div class="form-group">
+              <label>Program ends in (days from now)</label>
+              <input id="admin-erep-deadline" type="number" value="90" min="1" />
+              <div class="field-hint" id="admin-erep-deadline-hint">—</div>
+            </div>
           </div>
           <div class="field-hint" style="margin-bottom:8px;">"Stake amount" from the original action isn't used when free — leave defaults unless you're setting up a paid program.</div>
           <button class="btn btn-purple btn-full" id="admin-erep-params-btn">Set Early Reputation Parameters</button>
@@ -1291,8 +1335,10 @@
           <h3>Public Group Requirements</h3>
           <p class="field-hint" style="margin-bottom:8px;">
             Early reputation can only organize <strong>private</strong> groups (every member pre-named at creation). Opening a group
-            to the public marketplace (leaving seats for <code>requestjoin</code>/<code>acceptjoin</code>) requires earned reputation — meeting either
-            threshold below qualifies.
+            to the public marketplace (leaving seats for <code>requestjoin</code>/<code>acceptjoin</code>/<code>addmember</code>) requires earned
+            reputation — meeting either threshold below qualifies. A trading-volume requirement was deliberately left out here: it
+            would rely on <code>total_volume</code>, which sums raw amounts across every token an account has used with no
+            per-token precision normalization — not a reliable signal once more than one token is registered.
           </p>
           <div class="input-row">
             <div class="form-group"><label>Min completed savings plans</label><input id="admin-pub-savings" type="number" value="3" min="0" /></div>
@@ -1306,8 +1352,9 @@
         <summary>Withdrawal Limits</summary>
         <div class="acc-body">
           <p class="field-hint" style="margin-bottom:8px;">
-            Note: as deployed, this limit isn't actually enforced anywhere in the contract's withdrawal paths yet — these calls will
-            succeed and store the setting, but it has no effect on <code>claimsavings</code> until that enforcement is added.
+            Enforced on <code>claimsavings</code> for matured withdrawals only — <code>check_withdrawal_limit</code> caps how much
+            a saver can withdraw within the configured period, and panic (pre-maturity) withdrawals aren't subject to it since
+            they already pay the panic penalty instead.
           </p>
           <div class="input-row">
             <div class="form-group">
@@ -1406,7 +1453,7 @@
           "https://15.204.22.80",
           "https://104.37.219.148",
         ],
-        explorer: "https://jungle4.eosq.eosnation.io/tx/",
+        explorer: "https://jungle4.unicove.com/en/jungle4/transaction/",
         enabled: true,
       },
       vaulta: {
@@ -1417,7 +1464,7 @@
         id: "aca376f206b8fc25a6ed44dbdc66547c",
         label: "Vaulta Mainnet",
         endpoints: ["https://eos.greymass.com"],
-        explorer: "https://bloks.io/transaction/",
+        explorer: "https://unicove.com/en/vaulta/transaction/",
         enabled: false,
       },
     }
@@ -1430,11 +1477,14 @@
     let myGroupsCache = []
     let myMembershipsCache = []
     let mySavingsCache = []
+    let myRepCache = null
     const PAGE_SIZE = 6
     const groupsPageState = { page: 1 }
     const savingsPageState = { page: 1 }
     const discoverPageState = { page: 1 }
     let discoverGroupsCache = []
+    const historyPageState = { page: 1 }
+    let myHistoryCache = []
 
     const webRenderer = new WebRenderer()
 
@@ -1586,6 +1636,19 @@
       const { precision, code } = parseSymbol(plan.token_symbol)
       formatAmountFieldToPrecision(input, precision, code)
     })
+    // Mirrors the contract's required_stake_amount(): either one cycle's
+    // contribution (the default) or the group's full total obligation
+    // upfront (contribution_amount * total_cycles), per whichever the
+    // organizer chose at creation. g.upfront_stake_enabled is a
+    // binary_extension field on chain, so groups created before this
+    // feature existed simply won't have it — undefined reads as false,
+    // same as the contract's own has_value() fallback.
+    function requiredStakeAmount(g) {
+      return g.upfront_stake_enabled === true
+        ? BigInt(g.contribution_amount) * BigInt(g.total_cycles)
+        : BigInt(g.contribution_amount)
+    }
+
     function formatAsset(rawAmount, symbolStr) {
       const { precision, code } = parseSymbol(symbolStr)
       const exact = fromRawAmount(rawAmount, precision)
@@ -1600,6 +1663,29 @@
       const neg = Number(n) < 0
       const digits = String(n < 0 ? -n : n).replace(/[^0-9]/g, "") || "0"
       return (neg ? "-" : "") + groupThousands(digits)
+    }
+
+    // reputation.total_volume is a single raw uint64 that the contract
+    // adds to across EVERY token an account has ever transacted in — see
+    // handle_contribute/handle_savings_deposit/process_cycle_payout, which
+    // all do `total_volume += amount` with no per-token precision applied.
+    // It is therefore not truly denominated in any one token — which is
+    // exactly why it's shown here purely as an informational stat and
+    // isn't used to gate anything (public-group eligibility deliberately
+    // doesn't check it; see canCreatePublicGroup()). This just renders it
+    // at a reference token's decimal precision (the first active
+    // registered token, falling back to 4) purely for readability — an
+    // approximation for display only. If more than one token with a
+    // different precision is registered, this number won't exactly reflect
+    // "true" combined value.
+    function formatVolume(raw) {
+      const refToken = tokensCache.find(t => t.active) || tokensCache[0]
+      const precision = refToken ? parseSymbol(refToken.token_symbol).precision : 4
+      const exact = fromRawAmount(BigInt(raw), precision)
+      const neg = exact.startsWith("-")
+      const body = neg ? exact.slice(1) : exact
+      const [intPart, fracPart] = body.split(".")
+      return (neg ? "-" : "") + groupThousands(intPart) + (fracPart ? "." + fracPart : "")
     }
 
     // Renders one page of a pre-built array of card HTML strings into
@@ -1629,8 +1715,17 @@
     }
 
     // ── TOKENS ──────────────────────────────────────────────────────────────
-    async function loadTokens() {
-      tokensCache = await getTableRows({ table: "tokens", limit: 100 })
+    let tokensCacheFetchedAt = 0
+    const TOKENS_CACHE_TTL_MS = 30000 // tokens change rarely (admin-only, infrequent) — a
+    // short reuse window avoids re-fetching the whole table on every tab switch while still
+    // keeping data reasonably fresh; addtoken/removetoken force a bypass so admins see their
+    // own change immediately instead of waiting out the window.
+    async function loadTokens(force = false) {
+      const isFresh = !force && tokensCache.length > 0 && (Date.now() - tokensCacheFetchedAt) < TOKENS_CACHE_TTL_MS
+      if (!isFresh) {
+        tokensCache = await getTableRows({ table: "tokens", limit: 100 })
+        tokensCacheFetchedAt = Date.now()
+      }
       populateTokenSelects()
       return tokensCache
     }
@@ -1905,6 +2000,7 @@
       document.getElementById("admin-your-role").style.color = isContractAdmin ? "var(--violet)" : "var(--text-dim)"
 
       renderConfigBox()
+      updateCreateGroupButtons()
     }
 
     function renderConfigBox() {
@@ -1918,10 +2014,15 @@
         document.getElementById("cfg-persfee").textContent = "—"
         document.getElementById("cfg-panicpenalty").textContent = "—"
         document.getElementById("cfg-orgfee").textContent = "—"
+        document.getElementById("cfg-incentives").textContent = "—"
         document.getElementById("cfg-minorgscore").textContent = "—"
         document.getElementById("cfg-minrepstake").textContent = "—"
         document.getElementById("cfg-pubreqs").textContent = "—"
         document.getElementById("cfg-earlyrep").textContent = "—"
+        document.getElementById("cfg-duration").textContent = "—"
+        document.getElementById("cfg-mingroupsize").textContent = "—"
+        document.getElementById("cfg-maxgroupvalue").textContent = "—"
+        document.getElementById("cfg-wdlimit").textContent = "—"
         return
       }
       document.getElementById("cfg-paused").textContent =
@@ -1932,13 +2033,72 @@
       document.getElementById("cfg-sysfee").textContent = `${c.group_payout_fee_percent}% (${c.group_fee_type == 0 ? "every payout" : "once per group"})`
       document.getElementById("cfg-persfee").textContent = `${c.personal_fee_percent}% (${c.personal_fee_type == 0 ? "every deposit" : "first deposit only"})`
       document.getElementById("cfg-panicpenalty").textContent = `${c.panic_penalty_percent}%`
-      document.getElementById("cfg-orgfee").textContent = `${c.organizer_fee_percent}% (max custom: ${c.max_custom_fee_percent}%)`
+      document.getElementById("cfg-orgfee").textContent = `${c.organizer_fee_percent}% of system fee (max custom: ${c.max_custom_fee_percent}%)`
+      document.getElementById("cfg-incentives").textContent = c.organizer_incentives_enabled ? "Enabled" : "Disabled — creategroup rejects everything"
       document.getElementById("cfg-minorgscore").textContent = `${c.min_organizer_score} / 100`
       document.getElementById("cfg-minrepstake").textContent = formatCount(c.initial_reputation_stake) + " raw units"
       document.getElementById("cfg-pubreqs").textContent =
         `${c.min_public_savings_completed}+ savings plans OR ${c.min_public_groups_organized}+ groups organized`
+      const daysLeft = Math.max(0, Math.round((Number(c.early_reputation_deadline) - Math.floor(Date.now() / 1000)) / 86400))
+      const deadlineDate = new Date(Number(c.early_reputation_deadline) * 1000).toLocaleDateString()
       document.getElementById("cfg-earlyrep").textContent =
-        `${c.early_reputation_enabled ? "enabled" : "disabled"} · free: ${c.early_reputation_free} · score: ${c.early_reputation_score}`
+        `${c.early_reputation_enabled ? "enabled" : "disabled"} · free: ${c.early_reputation_free} · score: ${c.early_reputation_score} · valid ${c.early_reputation_days}d · ends ${deadlineDate} (~${daysLeft}d left)`
+      document.getElementById("cfg-duration").textContent =
+        `${Math.round(c.min_duration / 86400)}–${Math.round(c.max_duration / 86400)} days`
+      document.getElementById("cfg-mingroupsize").textContent = `${c.min_group_size}+ members`
+      document.getElementById("cfg-maxgroupvalue").textContent = formatCount(c.max_group_value) + " raw units (contribution × group size)"
+      document.getElementById("cfg-wdlimit").textContent = c.withdrawal_limit_enabled
+        ? `enabled · ${c.withdrawal_limit_period_days}d period · limit ${formatCount(c.withdrawal_limit_amount)} raw · ${c.withdrawal_limit_cooldown_hours}h cooldown`
+        : "disabled"
+
+      populateAdminInputs(c)
+    }
+
+    // Pre-fills every admin "current value" input with what's actually on
+    // chain right now, so the field an admin is about to edit already
+    // shows current state instead of a generic placeholder. Runs every
+    // time config is (re)loaded — login, opening the Admin tab, the
+    // refresh button, and after every successful admin action (runAdmin
+    // calls refreshAdminStatus(), which calls this). Skips whichever
+    // field the admin currently has focused, so it never overwrites
+    // something they're mid-typing.
+    function populateAdminInputs(c) {
+      const setVal = (id, value) => {
+        const el = document.getElementById(id)
+        if (el && document.activeElement !== el) el.value = value
+      }
+      setVal("admin-fee-wallet", c.fee_wallet)
+      setVal("admin-sys-fee", c.group_payout_fee_percent)
+      setVal("admin-sys-fee-type", String(c.group_fee_type))
+      setVal("admin-pers-fee", c.personal_fee_percent)
+      setVal("admin-pers-fee-type", String(c.personal_fee_type))
+      setVal("admin-panic-penalty", c.panic_penalty_percent)
+      setVal("admin-org-fee", c.organizer_fee_percent)
+      setVal("admin-max-fee", c.max_custom_fee_percent)
+      setVal("admin-min-org-score", c.min_organizer_score)
+      setVal("admin-min-rep-stake", c.initial_reputation_stake)
+      setVal("admin-incentives-enable", String(c.organizer_incentives_enabled))
+      setVal("admin-early-enable", String(c.early_reputation_enabled))
+      setVal("admin-erep-days", c.early_reputation_days)
+      setVal("admin-erep-score", c.early_reputation_score)
+      setVal("admin-erep-free", String(c.early_reputation_free))
+      setVal("admin-pub-savings", c.min_public_savings_completed)
+      setVal("admin-pub-organized", c.min_public_groups_organized)
+      setVal("admin-wd-enable", String(c.withdrawal_limit_enabled))
+      setVal("admin-wd-period", c.withdrawal_limit_period_days)
+      setVal("admin-wd-limit", c.withdrawal_limit_amount)
+      setVal("admin-wd-cooldown", c.withdrawal_limit_cooldown_hours)
+
+      // "Program ends in (days from now)" is a relative input — an
+      // absolute deadline doesn't have one right value to put in it, so
+      // show the actual current deadline as a hint next to the field
+      // instead of guessing what the admin means to set it to.
+      const erepDeadlineHint = document.getElementById("admin-erep-deadline-hint")
+      if (erepDeadlineHint) {
+        const daysLeft = Math.max(0, Math.round((Number(c.early_reputation_deadline) - Math.floor(Date.now() / 1000)) / 86400))
+        const deadlineDate = new Date(Number(c.early_reputation_deadline) * 1000).toLocaleDateString()
+        erepDeadlineHint.textContent = `Currently ends ${deadlineDate} (~${daysLeft} day(s) from now). Submitting resets it to the value entered here, counted from now.`
+      }
     }
 
     function switchTab(name) {
@@ -1956,6 +2116,7 @@
       }
       if (name === "savings") loadSavings()
       if (name === "reputation") loadReputation()
+      if (name === "history") loadHistory()
       if (name === "admin") { refreshAdminStatus(); loadAdminLists() }
     }
 
@@ -2006,19 +2167,17 @@
     async function loadDashboard() {
       try {
         const actor = String(session.actor)
-        const repRows = await getTableRows({ table: "reputations", lower_bound: actor, upper_bound: actor, limit: 1 })
+        // Three independent point-lookups — run together instead of one
+        // after another, since none of them depend on each other's result.
+        const [repRows, memberships, savings] = await Promise.all([
+          getTableRows({ table: "reputations", lower_bound: actor, upper_bound: actor, limit: 1 }),
+          getTableRows({ table: "members", index_position: "3", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100 }),
+          getTableRows({ table: "savings", index_position: "2", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100 }),
+        ])
         const rep = repRows[0]
         document.getElementById("dash-rep").textContent = rep ? rep.overall_score : "0"
-        document.getElementById("dash-volume").textContent = rep ? formatCount(rep.total_volume) : "0"
-
-        const memberships = await getTableRows({
-          table: "members", index_position: "3", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100,
-        })
+        document.getElementById("dash-volume").textContent = rep ? formatVolume(rep.total_volume) : "0"
         document.getElementById("dash-groups").textContent = memberships.length
-
-        const savings = await getTableRows({
-          table: "savings", index_position: "2", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100,
-        })
         document.getElementById("dash-savings").textContent = savings.length
       } catch (err) {
         console.warn("Dashboard load failed:", err.message)
@@ -2141,17 +2300,21 @@
 
         // Pending join requests, fetched once per organized-open-group
         // (not per render) — only groups this user organizes, still
-        // forming, with open seats can possibly have any.
+        // forming, with open seats can possibly have any. Each group's
+        // lookup is independent, so run them concurrently instead of
+        // one-by-one — same per-group failure isolation (a single group's
+        // fetch failing just means that card won't show pending requests
+        // this refresh), just not serialized behind each other.
         const requestsByGroup = new Map()
         const organizedOpenGroups = myGroups.filter(g =>
           g.organizer === actor && Number(g.status) === 0 && Number(g.member_count) < Number(g.total_cycles)
         )
-        for (const g of organizedOpenGroups) {
+        await Promise.all(organizedOpenGroups.map(async g => {
           try {
             const reqs = await getTableRows({ table: "joinreqs", index_position: "2", key_type: "i64", lower_bound: g.group_id, upper_bound: g.group_id, limit: 50 })
             requestsByGroup.set(Number(g.group_id), reqs)
           } catch { /* if this fails, the group card just won't show pending requests this refresh */ }
-        }
+        }))
 
         groupsPageState.page = 1
         const groupCards = myGroups.map(g => {
@@ -2164,7 +2327,7 @@
             if (isCommitType && !m.order_committed) {
               buttons.push(`<button class="btn btn-xs btn-purple" data-action="commitorder" data-group-id="${g.group_id}">Commit to Random Order</button>`)
             } else {
-              buttons.push(`<button class="btn btn-xs btn-primary" data-action="stake" data-group-id="${g.group_id}">Stake ${formatAsset(g.contribution_amount, g.token_symbol)}</button>`)
+              buttons.push(`<button class="btn btn-xs btn-primary" data-action="stake" data-group-id="${g.group_id}">Stake ${formatAsset(requiredStakeAmount(g), g.token_symbol)}</button>`)
             }
           }
           if (g.status === 1 && m && m.has_staked && !m.has_contributed) {
@@ -2330,7 +2493,7 @@
           if (!g) throw new Error("Group not found")
           const txId = await sendDeposit({
             symbolStr: g.token_symbol,
-            rawAmount: BigInt(g.contribution_amount),
+            rawAmount: action === "stake" ? requiredStakeAmount(g) : BigInt(g.contribution_amount),
             memo: `${action}:${groupId}`,
           })
           showStatus(`${action === "stake" ? "Staked" : "Contributed"}! Tx: ${txId.slice(0,12)}...`, "success")
@@ -2437,25 +2600,27 @@
           return
         }
 
-        // Organizer reputation, fetched once per unique organizer rather
-        // than once per group — dedup keeps this fast even with many
-        // open groups run by the same handful of organizers.
+        // Organizer reputation (one lookup per unique organizer, not per
+        // group) and this user's own pending requests (one query via the
+        // byapplicant index, not one per open group) don't depend on each
+        // other — run them together instead of back-to-back.
         const uniqueOrganizers = [...new Set(openGroups.map(g => g.organizer))]
         const orgRepMap = new Map()
-        for (const org of uniqueOrganizers) {
-          try {
-            const rows = await getTableRows({ table: "reputations", lower_bound: org, upper_bound: org, limit: 1 })
-            if (rows[0]) orgRepMap.set(org, rows[0])
-          } catch { /* missing reputation just falls back to "no record yet" below */ }
-        }
-
-        // This user's own pending requests, in one query via the
-        // byapplicant index — not one query per open group.
         let myPendingGroupIds = new Set()
-        try {
-          const myRequests = await getTableRows({ table: "joinreqs", index_position: "3", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100 })
-          myPendingGroupIds = new Set(myRequests.map(r => Number(r.group_id)))
-        } catch { /* if this fails, buttons just won't show the pending state this refresh */ }
+        await Promise.all([
+          ...uniqueOrganizers.map(async org => {
+            try {
+              const rows = await getTableRows({ table: "reputations", lower_bound: org, upper_bound: org, limit: 1 })
+              if (rows[0]) orgRepMap.set(org, rows[0])
+            } catch { /* missing reputation just falls back to "no record yet" below */ }
+          }),
+          (async () => {
+            try {
+              const myRequests = await getTableRows({ table: "joinreqs", index_position: "3", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100 })
+              myPendingGroupIds = new Set(myRequests.map(r => Number(r.group_id)))
+            } catch { /* if this fails, buttons just won't show the pending state this refresh */ }
+          })(),
+        ])
 
         discoverPageState.page = 1
         const cards = openGroups.map(g => {
@@ -2474,6 +2639,11 @@
                 </div>
                 <div class="ic-detail">
                   ${formatAsset(g.contribution_amount, g.token_symbol)}/cycle · ${g.member_count}/${g.total_cycles} members · every ${durationDays} day${durationDays === 1 ? "" : "s"}
+                </div>
+                <div class="ic-detail">
+                  ${g.upfront_stake_enabled === true
+                    ? `<span class="tag yellow">Full stake upfront: ${formatAsset(requiredStakeAmount(g), g.token_symbol)}</span>`
+                    : `<span class="tag gray">Stake per cycle: ${formatAsset(requiredStakeAmount(g), g.token_symbol)}</span>`}
                 </div>
                 <div class="ic-detail ic-meta">
                   Organizer: ${g.organizer} · ${repNote}${minRepNote}
@@ -2729,8 +2899,17 @@
         const actor = String(session.actor)
         await loadTokens()
 
-        const repRows = await getTableRows({ table: "reputations", lower_bound: actor, upper_bound: actor, limit: 1 })
+        // Three independent lookups — none depend on each other's result,
+        // so run them together instead of one after another.
+        const [repRows, cfgRows, locked] = await Promise.all([
+          getTableRows({ table: "reputations", lower_bound: actor, upper_bound: actor, limit: 1 }),
+          getTableRows({ table: "config", limit: 1 }),
+          getTableRows({ table: "lockedstake", index_position: "2", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100 }),
+        ])
+
         const rep = repRows[0]
+        myRepCache = rep || null
+        updateCreateGroupButtons()
         document.getElementById("rep-score").textContent = rep ? rep.overall_score : "No reputation yet"
         document.getElementById("rep-savings").textContent = rep ? rep.savings_score : "—"
         document.getElementById("rep-reliability").textContent = rep ? rep.reliability_score : "—"
@@ -2739,7 +2918,6 @@
         document.getElementById("rep-defaults").textContent = rep ? rep.defaults_caused : "—"
         renderBadges(rep)
 
-        const cfgRows = await getTableRows({ table: "config", limit: 1 })
         const cfg = cfgRows[0]
         if (cfg) {
           const tok = tokensCache[0]
@@ -2750,9 +2928,6 @@
           if (!amtInput.value) amtInput.value = fromRawAmount(BigInt(cfg.initial_reputation_stake), precision)
         }
 
-        const locked = await getTableRows({
-          table: "lockedstake", index_position: "2", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100,
-        })
         const lockedList = document.getElementById("locked-stake-list")
         if (!locked.length) {
           lockedList.innerHTML = `<div class="empty-msg">No locked reputation stakes.</div>`
@@ -2856,16 +3031,148 @@
 
     document.getElementById("refresh-rep-btn").addEventListener("click", loadReputation)
 
+    // ── HISTORY ──────────────────────────────────────────────────────────────
+    // Reads the contract's txnlog table (byuser index) — a durable,
+    // on-chain record of every action this account has taken through
+    // roscatesting, independent of this browser/session. Each row links to
+    // its transaction on the current network's block explorer via a real
+    // trx id captured on-chain at log time (see get_trx_id() in the
+    // contract) — rows written before that upgrade won't have one, since
+    // the id was never captured for them, and show a plain note instead.
+    async function loadHistory() {
+      const list = document.getElementById("history-list")
+      const netHint = document.getElementById("history-network-hint")
+      netHint.textContent = `Explorer links point to ${CHAINS[currentNetwork].label}.`
+      list.innerHTML = `<div class="empty-msg">Loading transaction history…</div>`
+      try {
+        const actor = String(session.actor)
+        await loadTokens()
+        const rows = await getTableRows({
+          table: "txnlog", index_position: "2", key_type: "i64", lower_bound: actor, upper_bound: actor, limit: 100,
+        })
+        myHistoryCache = rows.slice().reverse() // newest first (ids are assigned in ascending/insertion order)
+
+        if (!myHistoryCache.length) {
+          list.innerHTML = `<div class="empty-msg">No transaction history yet.</div>`
+          return
+        }
+
+        historyPageState.page = 1
+        const cards = myHistoryCache.map(r => {
+          const hasAmount = Number(r.amount) > 0
+          const amountText = hasAmount ? formatAsset(r.amount, r.token_symbol) : null
+          const when = new Date(Number(r.timestamp) * 1000).toLocaleString()
+          const explorerLink = r.trx_id
+            ? `<a href="${getExplorer()}${r.trx_id}" target="_blank" rel="noopener">View on Explorer ↗</a>`
+            : `<span style="color:var(--text-dim);">No transaction id recorded (entry predates transaction history)</span>`
+          return `
+            <div class="item-card">
+              <div class="ic-top">
+                <span class="tag gray">${r.action_name}</span>
+                ${amountText ? `<span class="ic-id">${amountText}</span>` : ""}
+              </div>
+              ${r.details ? `<div class="ic-detail">${r.details}</div>` : ""}
+              <div class="ic-detail ic-meta">${when}</div>
+              <div class="ic-detail" style="margin-top:4px;font-size:0.78rem;">${explorerLink}</div>
+            </div>`
+        })
+        paginate(list, cards, historyPageState)
+      } catch (err) {
+        list.innerHTML = `<div class="empty-msg">Error loading transaction history: ${formatTxError(err)}</div>`
+      }
+    }
+
+    document.getElementById("refresh-history-btn").addEventListener("click", loadHistory)
+
     // ── CREATE GROUP ─────────────────────────────────────────────────────────
-    document.getElementById("show-create-group").addEventListener("click", () => {
+    // Mirrors the contract's public-group gate in creategroup(): early
+    // reputation can never organize a public group, and full reputation
+    // additionally needs an earned track record — completed savings plans
+    // or successfully organized groups — matching the check() calls
+    // server-side so the button a user sees never promises something the
+    // chain will then reject. Deliberately not gated on total_volume: it's
+    // a raw sum across every token an account has used with no per-token
+    // precision normalization, so it isn't a reliable signal once more
+    // than one token is registered — the contract dropped it for the same
+    // reason.
+    function canCreatePublicGroup() {
+      if (!myRepCache || !lastConfig) return false
+      if (myRepCache.is_early_reputation) return false
+      return Number(myRepCache.completed_savings_plans) >= Number(lastConfig.min_public_savings_completed) ||
+        Number(myRepCache.groups_organized_completed) >= Number(lastConfig.min_public_groups_organized)
+    }
+
+    function canCreateAnyGroup() {
+      if (!myRepCache || !lastConfig) return false
+      return Number(myRepCache.overall_score) >= Number(lastConfig.min_organizer_score)
+    }
+
+    function updateCreateGroupButtons() {
+      const gate = document.getElementById("create-group-gate")
+      const privateBtn = document.getElementById("show-create-private-group")
+      const publicBtn = document.getElementById("show-create-public-group")
+      if (!gate || !privateBtn || !publicBtn) return
+
+      if (!lastConfig) {
+        gate.style.display = "none"
+        privateBtn.style.display = "none"
+        publicBtn.style.display = "none"
+        return
+      }
+
+      if (!canCreateAnyGroup()) {
+        gate.style.display = "block"
+        gate.textContent = myRepCache
+          ? `Reputation score too low to organize a group (need ${lastConfig.min_organizer_score}+, have ${myRepCache.overall_score}). Bond a reputation stake or claim early reputation first.`
+          : "You need a reputation record before organizing a group — bond a reputation stake or claim early reputation first (see the Reputation tab)."
+        privateBtn.style.display = "none"
+        publicBtn.style.display = "none"
+        return
+      }
+
+      gate.style.display = "none"
+      privateBtn.style.display = "block"
+      publicBtn.style.display = canCreatePublicGroup() ? "block" : "none"
+    }
+
+    function openCreateGroupForm(type) {
       const f = document.getElementById("create-group-form")
-      f.style.display = f.style.display === "none" ? "block" : "none"
-    })
+      const wasOpenAsSameType = f.style.display !== "none" && f.dataset.groupType === type
+      if (wasOpenAsSameType) {
+        f.style.display = "none"
+        return
+      }
+      f.dataset.groupType = type
+      f.style.display = "block"
+
+      const title = document.getElementById("cg-form-title")
+      const banner = document.getElementById("cg-type-banner")
+      const maxMembersGroup = document.getElementById("cg-maxmembers-group")
+      const maxMembersInput = document.getElementById("cg-maxmembers")
+      const maxMembersHint = document.getElementById("cg-maxmembers-hint")
+
+      if (type === "public") {
+        title.textContent = "Create Public Group"
+        banner.textContent = "Public group: leave at least one seat open below (group size greater than the members you name) so the marketplace can list it. Open seats can be filled however you like — accept public join requests, add people directly yourself, or mix both — the group is discoverable as long as any seat stays open."
+        maxMembersGroup.style.display = "block"
+        maxMembersInput.placeholder = "10"
+        maxMembersHint.textContent = "Total seats. Must be greater than the number of pre-named members below — the open seats are what makes this a public group, however you end up filling them."
+      } else {
+        title.textContent = "Create Private Group"
+        banner.textContent = "Private group: everyone must be named below at creation — there are no open seats, so it doesn't require the earned track record public groups need."
+        maxMembersGroup.style.display = "none"
+        maxMembersHint.textContent = ""
+      }
+    }
+
+    document.getElementById("show-create-private-group").addEventListener("click", () => openCreateGroupForm("private"))
+    document.getElementById("show-create-public-group").addEventListener("click", () => openCreateGroupForm("public"))
     document.getElementById("cancel-create-group").addEventListener("click", () => {
       document.getElementById("create-group-form").style.display = "none"
     })
 
     document.getElementById("create-group-btn").addEventListener("click", async () => {
+      const groupType = document.getElementById("create-group-form").dataset.groupType || "private"
       const symbolStr = document.getElementById("cg-token").value
       const membersStr = document.getElementById("cg-members").value.trim()
       const amount = document.getElementById("cg-amount").value
@@ -2879,15 +3186,29 @@
       if (!amount || Number(amount) <= 0) return showStatus("Enter a valid contribution amount.", "error")
       if (isNaN(durationDays) || durationDays < 1) return showStatus("Enter a valid duration.", "error")
 
-      // Members field is now optional — leaving it blank (or naming fewer
-      // people than the target size) is exactly how you open a group up to
-      // the marketplace instead of pre-naming everyone.
       const members = membersStr ? membersStr.split(",").map(m => m.trim()).filter(m => m) : [String(session.actor)]
       if (!members.includes(String(session.actor))) return showStatus("You must include yourself in the member list.", "error")
 
-      const maxMembers = maxMembersInput ? parseInt(maxMembersInput) : members.length
-      if (isNaN(maxMembers) || maxMembers < 2) return showStatus("Group size must be at least 2.", "error")
-      if (maxMembers < members.length) return showStatus("Group size can't be smaller than the number of members you named.", "error")
+      // Group size is explicit per the chosen type now, rather than
+      // inferred from whatever the fields happen to contain: a private
+      // group always seats exactly the people named (no open seats, so it
+      // never hits the public-group-only eligibility checks on-chain); a
+      // public group must leave at least one seat open, since that open
+      // seat is what makes it public in the first place.
+      let maxMembers
+      if (groupType === "private") {
+        maxMembers = members.length
+      } else {
+        maxMembers = maxMembersInput ? parseInt(maxMembersInput) : NaN
+        if (isNaN(maxMembers)) return showStatus("Enter a group size for a public group.", "error")
+        if (maxMembers <= members.length) {
+          return showStatus("Public groups need at least one open seat — set group size greater than the number of members you named.", "error")
+        }
+        if (!canCreatePublicGroup()) {
+          return showStatus("You don't currently meet the requirements to organize a public group — try Create Private Group instead.", "error")
+        }
+      }
+      if (maxMembers < 2) return showStatus("Group size must be at least 2.", "error")
 
       const btn = document.getElementById("create-group-btn")
       btn.disabled = true
@@ -2911,6 +3232,7 @@
             withdrawal_frequency: 0,
             min_withdrawal_amount: 0,
             custom_fee_percent: fee,
+            upfront_stake_enabled: document.getElementById("cg-upfront-stake").value === "true",
           },
         })
         const openSeats = maxMembers - members.length
@@ -2989,7 +3311,7 @@
       const groups = await getTableRows({ table: "groups", lower_bound: groupId, upper_bound: groupId, limit: 1 })
       const g = groups[0]
       if (!g) throw new Error("Group not found")
-      return sendDeposit({ symbolStr: g.token_symbol, rawAmount: BigInt(g.contribution_amount), memo: `stake:${groupId}` })
+      return sendDeposit({ symbolStr: g.token_symbol, rawAmount: requiredStakeAmount(g), memo: `stake:${groupId}` })
     }))
 
     document.getElementById("man-contrib-btn").addEventListener("click", () => runManual("man-contrib-btn", async () => {
@@ -3170,6 +3492,7 @@
       document.getElementById("admin-token-symbol").value = ""
       document.getElementById("admin-token-contract").value = ""
       document.getElementById("admin-token-min").value = ""
+      await loadTokens(true) // bypass the cache — admin should see their own new token right away
       return txId
     }))
 
@@ -3177,7 +3500,9 @@
       const precision = parseInt(document.getElementById("admin-remove-precision").value)
       const code = document.getElementById("admin-remove-token").value.trim().toUpperCase()
       if (!code) throw new Error("Enter a token symbol code")
-      return transact({ account: CONTRACT_NAME, name: "removetoken", authorization: [session.permissionLevel], data: { token_symbol: `${precision},${code}` } })
+      const txId = await transact({ account: CONTRACT_NAME, name: "removetoken", authorization: [session.permissionLevel], data: { token_symbol: `${precision},${code}` } })
+      await loadTokens(true) // bypass the cache — reflect the removal immediately
+      return txId
     }))
 
     document.getElementById("admin-whitelist-btn").addEventListener("click", () => runAdmin("admin-whitelist-btn", "Whitelisted", async () => {
@@ -3397,8 +3722,16 @@
         session = s
         updateUI()
         showStatus(`Connected as ${session.actor}`, "success")
-        await loadTokens()
-        await refreshAdminStatus()
+        // Independent RPC calls (tokens table vs config singleton) — run
+        // together instead of back-to-back to roughly halve this wait.
+        // refreshAdminStatus() renders the config box internally, which
+        // includes a token-precision-dependent figure (min organizer
+        // volume) — if the config request happens to resolve before the
+        // tokens request now that they're concurrent, that one figure
+        // would render with the fallback precision. Re-render once more
+        // after both are guaranteed done to settle on the correct value.
+        await Promise.all([loadTokens(), refreshAdminStatus()])
+        renderConfigBox()
         fetchBalance()
         switchTab("dashboard")
       } catch (err) {
@@ -3441,8 +3774,8 @@
         if (session) {
           showStatus(`Restored session: ${session.actor}`, "success")
           updateUI()
-          await loadTokens()
-          await refreshAdminStatus()
+          await Promise.all([loadTokens(), refreshAdminStatus()])
+          renderConfigBox() // settle the one token-precision-dependent figure — see login() for why
           fetchBalance()
           switchTab("dashboard")
           return
