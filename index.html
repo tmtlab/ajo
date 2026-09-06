@@ -47,7 +47,7 @@
       --border-hover: #2e3d63;
       --text: #f3f6fc;
       --text-dim: #8c98bd;
-      --text-faint: #545f82;
+      --text-faint: #737fa5;
 
       /* primary brand accent — electric blue (was "brass") */
       --brass: #4f7fff;
@@ -70,6 +70,13 @@
       --blue-glow: rgba(34, 211, 238, 0.16);
       --violet-border: rgba(157, 140, 255, 0.32);
       --blue-border: rgba(34, 211, 238, 0.32);
+      /* second gradient stop for the colored buttons below — kept as
+         theme variables (not literal hex) so light mode doesn't inherit
+         a dark-mode-tuned stop color at one end of the gradient. */
+      --blue-2: #33aee0;
+      --amber-2: #d99a3a;
+      --violet-2: #7e6ce8;
+      --coral-2: #e0554f;
 
       --font-display: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
       --font-body: 'Inter', system-ui, -apple-system, sans-serif;
@@ -103,23 +110,27 @@
       --border-hover: #c9cedb;
       --text: #14161e;
       --text-dim: #5a6070;
-      --text-faint: #9aa1b0;
+      --text-faint: #6d778b;
 
       --brass: #2f5ce0;
       --brass-dim: #2447bd;
       --brass-glow: rgba(47, 92, 224, 0.11);
-      --teal: #0f8f68;
-      --teal-glow: rgba(15, 143, 104, 0.12);
+      --teal: #0e8661;
+      --teal-glow: rgba(14, 134, 97, 0.12);
       --coral: #d33a2c;
       --coral-glow: rgba(211, 58, 44, 0.11);
       --amber: #a8650c;
       --amber-glow: rgba(168, 101, 12, 0.12);
       --violet: #6844d1;
       --violet-glow: rgba(104, 68, 209, 0.11);
-      --blue: #0891b2;
-      --blue-glow: rgba(8, 145, 178, 0.11);
+      --blue: #07819e;
+      --blue-glow: rgba(7, 129, 158, 0.11);
+      --blue-2: #0a5f78;
+      --amber-2: #8a5209;
+      --violet-2: #58379c;
+      --coral-2: #ad2e22;
       --violet-border: rgba(104, 68, 209, 0.28);
-      --blue-border: rgba(8, 145, 178, 0.28);
+      --blue-border: rgba(7, 129, 158, 0.28);
 
       --shadow-card: 0 1px 2px rgba(20,24,38,0.05), 0 10px 28px -12px rgba(20,24,38,0.12);
       --shadow-lift: 0 4px 10px rgba(20,24,38,0.08), 0 16px 36px -12px rgba(47,92,224,0.18);
@@ -180,6 +191,8 @@
       font-family: var(--font-display); font-size: 1.18rem; font-weight: 700;
       color: var(--text); letter-spacing: -0.02em;
     }
+    /* Hidden on mobile (no room next to the wordmark + contract badge);
+       surfaced on desktop below, where the header has space to spare. */
     .header-left .sub { display: none; }
     .header-left .contract-badge {
       font-size: 0.64rem; color: var(--violet); background: var(--violet-glow);
@@ -431,11 +444,21 @@
     .btn:active:not(:disabled) { transform: translateY(0) scale(0.97); filter: brightness(0.97); }
     .btn:disabled { opacity: 0.35; cursor: not-allowed; }
     .btn-primary  { background: linear-gradient(135deg, var(--brass), var(--blue)); color: #06101f; box-shadow: 0 4px 16px -6px var(--brass-glow); }
-    .btn-blue     { background: linear-gradient(135deg, var(--blue), #33aee0); color: #051620; box-shadow: 0 4px 16px -6px var(--blue-glow); }
-    .btn-orange   { background: linear-gradient(135deg, var(--amber), #d99a3a); color: #241a05; box-shadow: 0 4px 16px -6px var(--amber-glow); }
-    .btn-purple   { background: linear-gradient(135deg, var(--violet), #7c6ae8); color: #14102e; box-shadow: 0 4px 16px -6px var(--violet-glow); }
-    .btn-red      { background: linear-gradient(135deg, var(--coral), #e0554f); color: #2b0805; box-shadow: 0 4px 16px -6px var(--coral-glow); }
+    .btn-blue     { background: linear-gradient(135deg, var(--blue), var(--blue-2)); color: #051620; box-shadow: 0 4px 16px -6px var(--blue-glow); }
+    .btn-orange   { background: linear-gradient(135deg, var(--amber), var(--amber-2)); color: #241a05; box-shadow: 0 4px 16px -6px var(--amber-glow); }
+    .btn-purple   { background: linear-gradient(135deg, var(--violet), var(--violet-2)); color: #14102e; box-shadow: 0 4px 16px -6px var(--violet-glow); }
+    .btn-red      { background: linear-gradient(135deg, var(--coral), var(--coral-2)); color: #2b0805; box-shadow: 0 4px 16px -6px var(--coral-glow); }
     .btn-full     { width: 100%; }
+    /* Light theme's accent colors are deep/mid-toned enough that the
+       near-black text used above (tuned for dark theme's pale neon
+       accents) drops below readable contrast at one or both ends of the
+       gradient — white text is the correct pairing for these darker,
+       more saturated backgrounds instead. */
+    :root[data-theme="light"] .btn-primary,
+    :root[data-theme="light"] .btn-blue,
+    :root[data-theme="light"] .btn-orange,
+    :root[data-theme="light"] .btn-purple,
+    :root[data-theme="light"] .btn-red { color: #ffffff; }
     .btn-xs       { padding: 6px 12px; font-size: 0.73rem; border-radius: 9px; }
 
     /* ── Rows / lists ── */
@@ -476,6 +499,12 @@
       max-width: 100%; overflow: hidden;
     }
     .item-card:hover { border-color: var(--border-hover); }
+    /* At-risk states: a cycle due soon or already overdue gets a left
+       accent + tinted border so it reads at a glance while scanning a
+       list, instead of only being visible in the fine-print deadline
+       text below the fold of the card. */
+    .item-card.risk-due { border-left: 3px solid var(--amber); border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber-glow) inset; }
+    .item-card.risk-overdue { border-left: 3px solid var(--coral); border-color: var(--coral); box-shadow: 0 0 0 1px var(--coral-glow) inset; }
     @keyframes item-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     .item-card .ic-body { flex: 1 1 auto; min-width: 0; }
     .item-card .ic-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 4px; }
@@ -638,6 +667,25 @@
       #group-list .item-card, #savings-list .item-card { margin-bottom: 0; }
 
       .card { padding: 26px 28px; }
+
+      /* Advanced + Admin panels are long stacks of self-contained
+         accordions — on a 960px canvas that's a lot of unused side
+         margin. Lay the accordions out two-up; anything that isn't a
+         standalone accordion (the intro copy, the admin config readout)
+         still spans the full width above them. */
+      #tab-actions, #tab-admin {
+        display: grid; grid-template-columns: repeat(2, 1fr);
+        gap: 12px; align-content: start;
+      }
+      #tab-actions > p, #tab-admin > p, #tab-admin > .config-box {
+        grid-column: 1 / -1;
+      }
+      #tab-actions details.acc, #tab-admin details.acc { margin-bottom: 0; }
+
+      .header-left .sub {
+        display: block; width: 100%; font-size: 0.74rem; color: var(--text-dim);
+        margin-top: 1px; order: 99;
+      }
     }
   </style>
 </head>
@@ -821,6 +869,7 @@
           <div class="form-group">
             <label>Cycle Duration (days)</label>
             <input id="cg-duration" type="number" value="30" />
+            <div class="field-hint" id="cg-duration-hint"></div>
           </div>
           <div class="form-group">
             <label>Payout Order</label>
@@ -839,6 +888,7 @@
           <div class="form-group">
             <label>Custom Fee % (organizer's cut, capped by admin)</label>
             <input id="cg-fee" type="number" step="1" value="0" max="5" />
+            <div class="field-hint" id="cg-fee-hint"></div>
           </div>
         </div>
         <div class="form-group">
@@ -875,6 +925,7 @@
         <div class="form-group">
           <label>Goal Amount</label>
           <input id="save-goal" type="number" step="0.0001" placeholder="100" />
+          <div class="field-hint" id="save-goal-hint"></div>
         </div>
         <div class="form-group">
           <label>Duration (days)</label>
@@ -1099,6 +1150,10 @@
         <div class="row"><span class="label">Min Group Size</span><span class="value" id="cfg-mingroupsize">—</span></div>
         <div class="row"><span class="label">Max Group Value</span><span class="value" id="cfg-maxgroupvalue">—</span></div>
         <div class="row"><span class="label">Withdrawal Limits</span><span class="value" id="cfg-wdlimit">—</span></div>
+        <div class="row"><span class="label">Min Organizer Volume</span><span class="value" id="cfg-minorgvolume">—</span></div>
+        <div class="row"><span class="label">Min Member Score</span><span class="value" id="cfg-minmemberscore">—</span></div>
+        <div class="row"><span class="label">Group Timeout (cycles)</span><span class="value" id="cfg-timeoutcycles">—</span></div>
+        <div class="row"><span class="label">Config Change Delay</span><span class="value" id="cfg-changedelay">—</span></div>
         <button class="btn btn-sm btn-blue" id="admin-refresh-config" style="margin-top:8px;">↻ Refresh Config</button>
       </div>
 
@@ -1637,14 +1692,17 @@
       formatAmountFieldToPrecision(input, precision, code)
     })
     // Mirrors the contract's required_stake_amount(): either one cycle's
-    // contribution (the default) or the group's full total obligation
-    // upfront (contribution_amount * total_cycles), per whichever the
-    // organizer chose at creation. g.upfront_stake_enabled is a
-    // binary_extension field on chain, so groups created before this
-    // feature existed simply won't have it — undefined reads as false,
-    // same as the contract's own has_value() fallback.
+    // contribution or the group's full total obligation upfront
+    // (contribution_amount * total_cycles), per whichever the organizer
+    // chose at creation. g.upfront_stake_enabled is a binary_extension
+    // field on chain, so groups created before this feature existed
+    // simply won't have it in their row — but the contract's original,
+    // pre-feature behavior was full upfront staking, not per-cycle, so
+    // "missing" must fall back to the full-stake branch, not "off".
+    // Only an explicit false (a group that deliberately opted into the
+    // newer per-cycle mode) should skip the multiplication.
     function requiredStakeAmount(g) {
-      return g.upfront_stake_enabled === true
+      return g.upfront_stake_enabled !== false
         ? BigInt(g.contribution_amount) * BigInt(g.total_cycles)
         : BigInt(g.contribution_amount)
     }
@@ -1741,6 +1799,22 @@
         const el = document.getElementById(id)
         if (el) el.innerHTML = opts
       })
+      updateSaveGoalHint()
+    }
+    // Each registered token can carry its own admin-set minimum goal
+    // amount (addtoken's min_goal_amount) — mirror it here instead of
+    // leaving the goal field unbounded and only failing on-chain.
+    function updateSaveGoalHint() {
+      const hint = document.getElementById("save-goal-hint")
+      if (!hint) return
+      const symbolStr = document.getElementById("save-token")?.value
+      const tok = symbolStr ? findToken(symbolStr) : null
+      if (tok && Number(tok.min_goal_amount) > 0) {
+        const { precision, code } = parseSymbol(symbolStr)
+        hint.textContent = `Admin's minimum goal for this token: ${fromRawAmount(BigInt(tok.min_goal_amount), precision)} ${code}`
+      } else {
+        hint.textContent = ""
+      }
     }
 
     // ── HELPERS ──────────────────────────────────────────────────────────────
@@ -1988,7 +2062,14 @@
       try {
         const rows = await getTableRows({ table: "config", limit: 1 })
         lastConfig = rows[0]
-      } catch { lastConfig = undefined }
+      } catch (err) {
+        // Distinguish "the request failed" from "the config table is
+        // genuinely empty" — both used to collapse into the same silent
+        // lastConfig = undefined, which then renders as "Not initialized"
+        // even when the real problem was a flaky RPC endpoint.
+        lastConfig = undefined
+        showStatus(`Couldn't load contract config (${formatTxError(err)}) — admin status may show as "not initialized" until this succeeds again.`, "warning")
+      }
 
       const actor = String(session.actor)
       isContractAdmin = lastConfig ? (actor === lastConfig.admin_account) : (actor === CONTRACT_NAME)
@@ -2023,6 +2104,10 @@
         document.getElementById("cfg-mingroupsize").textContent = "—"
         document.getElementById("cfg-maxgroupvalue").textContent = "—"
         document.getElementById("cfg-wdlimit").textContent = "—"
+        document.getElementById("cfg-minorgvolume").textContent = "—"
+        document.getElementById("cfg-minmemberscore").textContent = "—"
+        document.getElementById("cfg-timeoutcycles").textContent = "—"
+        document.getElementById("cfg-changedelay").textContent = "—"
         return
       }
       document.getElementById("cfg-paused").textContent =
@@ -2050,6 +2135,13 @@
       document.getElementById("cfg-wdlimit").textContent = c.withdrawal_limit_enabled
         ? `enabled · ${c.withdrawal_limit_period_days}d period · limit ${formatCount(c.withdrawal_limit_amount)} raw · ${c.withdrawal_limit_cooldown_hours}h cooldown`
         : "disabled"
+      // These four exist on chain but nothing in this UI reads or
+      // enforces them client-side yet — shown here as a plain readout
+      // until it's confirmed what each one gates.
+      document.getElementById("cfg-minorgvolume").textContent = formatCount(c.min_organizer_volume) + " raw units"
+      document.getElementById("cfg-minmemberscore").textContent = `${c.min_member_score} / 100`
+      document.getElementById("cfg-timeoutcycles").textContent = `${c.group_timeout_cycles} cycles`
+      document.getElementById("cfg-changedelay").textContent = `${Math.round(c.config_change_delay / 3600)}h`
 
       populateAdminInputs(c)
     }
@@ -2359,12 +2451,22 @@
           // markdefault() has already been called on them.
           let deadlineNote = ""
           let markDefaultForm = ""
+          let riskClass = ""
           if (g.status === 1) {
             const deadline = Number(g.last_payout_time || 0) + Number(g.cycle_duration || 0)
             const deadlinePassed = deadline > 0 && nowSec >= deadline
             const deadlineStr = deadline > 0 ? new Date(deadline * 1000).toLocaleString() : "—"
+            // "Due soon" window: whichever is smaller of 24h or 15% of the
+            // cycle length, so short test cycles still get a sensible
+            // warning window instead of one longer than the cycle itself.
+            const dueSoonWindow = Math.min(86400, Number(g.cycle_duration || 0) * 0.15)
+            const dueSoon = !deadlinePassed && deadline > 0 && (deadline - nowSec) <= dueSoonWindow
             if (deadlinePassed) {
+              riskClass = "risk-overdue"
               deadlineNote = `<div class="ic-detail ic-meta" style="color:var(--coral);">Cycle ${g.current_cycle} contribution deadline passed (${deadlineStr}) — members who haven't paid can have their stake used to cover it.</div>`
+            } else if (dueSoon) {
+              riskClass = "risk-due"
+              deadlineNote = `<div class="ic-detail ic-meta" style="color:var(--amber);">Cycle ${g.current_cycle} contribution due soon — by ${deadlineStr}</div>`
             } else {
               deadlineNote = `<div class="ic-detail ic-meta">Cycle ${g.current_cycle} contribution due by ${deadlineStr}</div>`
             }
@@ -2444,7 +2546,7 @@
           }
 
           return `
-            <div class="item-card">
+            <div class="item-card ${riskClass}">
               <div class="cycle-ring" style="--pct:${pct};" title="Cycle ${curCycle}/${totalCycles}">
                 <span>${curCycle}/${totalCycles || '—'}</span>
               </div>
@@ -2628,7 +2730,18 @@
           const durationDays = Math.round(Number(g.cycle_duration) / 86400)
           const rep = orgRepMap.get(g.organizer)
           const repNote = rep ? `organizer reputation: ${rep.overall_score}/100` : `organizer has no reputation record yet`
-          const minRepNote = Number(g.min_goal_rate) > 0 ? ` · requires ${g.min_goal_rate}+ reputation to join` : ""
+          // Effective join requirement is the higher of the group's own
+          // min_goal_rate and the contract-wide min_member_score floor —
+          // show the real combined number, and call out if the user's
+          // own score currently falls short of it.
+          const groupMinScore = Number(g.min_goal_rate) || 0
+          const globalMinScore = lastConfig ? Number(lastConfig.min_member_score) || 0 : 0
+          const effectiveMinScore = Math.max(groupMinScore, globalMinScore)
+          const myScore = myRepCache ? Number(myRepCache.overall_score) : null
+          const belowMinScore = effectiveMinScore > 0 && myScore !== null && myScore < effectiveMinScore
+          const minRepNote = effectiveMinScore > 0
+            ? ` · requires ${effectiveMinScore}+ reputation to join${belowMinScore ? ` <span style="color:var(--coral);">(you have ${myScore})</span>` : ""}`
+            : ""
           const alreadyRequested = myPendingGroupIds.has(Number(g.group_id))
           return `
             <div class="item-card">
@@ -2641,7 +2754,7 @@
                   ${formatAsset(g.contribution_amount, g.token_symbol)}/cycle · ${g.member_count}/${g.total_cycles} members · every ${durationDays} day${durationDays === 1 ? "" : "s"}
                 </div>
                 <div class="ic-detail">
-                  ${g.upfront_stake_enabled === true
+                  ${g.upfront_stake_enabled !== false
                     ? `<span class="tag yellow">Full stake upfront: ${formatAsset(requiredStakeAmount(g), g.token_symbol)}</span>`
                     : `<span class="tag gray">Stake per cycle: ${formatAsset(requiredStakeAmount(g), g.token_symbol)}</span>`}
                 </div>
@@ -2651,6 +2764,8 @@
                 <div class="ic-actions">
                   ${alreadyRequested
                     ? `<button class="btn btn-xs" disabled style="background:var(--surface-2);color:var(--text-dim);">Request Sent — awaiting organizer</button>`
+                    : belowMinScore
+                    ? `<button class="btn btn-xs" disabled title="Your reputation score is below this group's requirement" style="background:var(--surface-2);color:var(--text-dim);">Score too low to request (need ${effectiveMinScore}+)</button>`
                     : `<button class="btn btn-xs btn-primary" data-action="requestjoin" data-group-id="${g.group_id}">Request to Join</button>`}
                 </div>
               </div>
@@ -3150,13 +3265,49 @@
       const maxMembersGroup = document.getElementById("cg-maxmembers-group")
       const maxMembersInput = document.getElementById("cg-maxmembers")
       const maxMembersHint = document.getElementById("cg-maxmembers-hint")
+      const feeInput = document.getElementById("cg-fee")
+      const feeHint = document.getElementById("cg-fee-hint")
+      const durationInput = document.getElementById("cg-duration")
+      const durationHint = document.getElementById("cg-duration-hint")
+
+      // Allowed cycle-duration range is admin-configured — mirror it
+      // instead of leaving the field unbounded and only failing on-chain.
+      if (lastConfig) {
+        const minDays = Math.round(Number(lastConfig.min_duration) / 86400)
+        const maxDays = Math.round(Number(lastConfig.max_duration) / 86400)
+        durationInput.min = String(minDays)
+        durationInput.max = String(maxDays)
+        durationHint.textContent = `Admin's allowed range: ${minDays}–${maxDays} days`
+      } else {
+        durationInput.removeAttribute("min")
+        durationInput.removeAttribute("max")
+        durationHint.textContent = ""
+      }
+
+      // Custom fee cap applies to both group types — mirror the admin's
+      // actual max_custom_fee_percent instead of a hardcoded ceiling, so
+      // the field (and its cap) stay correct if the admin changes it.
+      const maxCustomFee = lastConfig ? Number(lastConfig.max_custom_fee_percent) : null
+      if (maxCustomFee !== null) {
+        feeInput.max = String(maxCustomFee)
+        feeHint.textContent = `Admin's current cap: ${maxCustomFee}%`
+      } else {
+        feeInput.removeAttribute("max")
+        feeHint.textContent = ""
+      }
 
       if (type === "public") {
         title.textContent = "Create Public Group"
         banner.textContent = "Public group: leave at least one seat open below (group size greater than the members you name) so the marketplace can list it. Open seats can be filled however you like — accept public join requests, add people directly yourself, or mix both — the group is discoverable as long as any seat stays open."
         maxMembersGroup.style.display = "block"
-        maxMembersInput.placeholder = "10"
-        maxMembersHint.textContent = "Total seats. Must be greater than the number of pre-named members below — the open seats are what makes this a public group, however you end up filling them."
+        // Placeholder mirrors the admin's actual configured floor
+        // (min_group_size) instead of a hardcoded guess, so the hint
+        // stays correct if the admin ever changes it.
+        const minGroupSize = lastConfig ? Number(lastConfig.min_group_size) : null
+        maxMembersInput.placeholder = minGroupSize ? String(minGroupSize) : "e.g. 10"
+        maxMembersHint.textContent = minGroupSize
+          ? `Total seats. Must be greater than the number of pre-named members below, and at least ${minGroupSize} (the admin's configured minimum group size) — the open seats are what makes this a public group, however you end up filling them.`
+          : "Total seats. Must be greater than the number of pre-named members below — the open seats are what makes this a public group, however you end up filling them."
       } else {
         title.textContent = "Create Private Group"
         banner.textContent = "Private group: everyone must be named below at creation — there are no open seats, so it doesn't require the earned track record public groups need."
@@ -3185,6 +3336,13 @@
       if (!symbolStr) return showStatus("No token selected — ask the admin to register one first.", "error")
       if (!amount || Number(amount) <= 0) return showStatus("Enter a valid contribution amount.", "error")
       if (isNaN(durationDays) || durationDays < 1) return showStatus("Enter a valid duration.", "error")
+      if (lastConfig) {
+        const minDays = Math.round(Number(lastConfig.min_duration) / 86400)
+        const maxDays = Math.round(Number(lastConfig.max_duration) / 86400)
+        if (durationDays < minDays || durationDays > maxDays) {
+          return showStatus(`Cycle duration must be between ${minDays} and ${maxDays} days (the admin's configured range).`, "error")
+        }
+      }
 
       const members = membersStr ? membersStr.split(",").map(m => m.trim()).filter(m => m) : [String(session.actor)]
       if (!members.includes(String(session.actor))) return showStatus("You must include yourself in the member list.", "error")
@@ -3209,6 +3367,22 @@
         }
       }
       if (maxMembers < 2) return showStatus("Group size must be at least 2.", "error")
+      // Mirror the admin's actual configured floor rather than the
+      // literal "2" above — catches a too-small group before spending a
+      // transaction on one the contract will reject anyway.
+      if (lastConfig && maxMembers < Number(lastConfig.min_group_size)) {
+        return showStatus(`Group size must be at least ${lastConfig.min_group_size} (the admin's configured minimum).`, "error")
+      }
+      if (lastConfig && fee > Number(lastConfig.max_custom_fee_percent)) {
+        return showStatus(`Custom fee can't exceed ${lastConfig.max_custom_fee_percent}% (the admin's configured cap).`, "error")
+      }
+      if (lastConfig && Number(lastConfig.max_group_value) > 0) {
+        const { precision } = parseSymbol(symbolStr)
+        const groupValue = toRawAmount(amount, precision) * BigInt(maxMembers)
+        if (groupValue > BigInt(lastConfig.max_group_value)) {
+          return showStatus(`Contribution × group size exceeds the admin's configured max group value (${formatCount(lastConfig.max_group_value)} raw units).`, "error")
+        }
+      }
 
       const btn = document.getElementById("create-group-btn")
       btn.disabled = true
@@ -3228,6 +3402,8 @@
             cycle_duration: durationDays * 86400,
             payout_order_type: order,
             min_goal_rate: goalRate,
+            // per-group withdrawal params disabled — throttling is governed by
+            // admin-set global withdrawal limits instead, see setwdlimit/setwdparams
             allow_excess_withdrawal: false,
             withdrawal_frequency: 0,
             min_withdrawal_amount: 0,
@@ -3258,6 +3434,13 @@
       if (!symbolStr) return showStatus("No token selected — ask the admin to register one first.", "error")
       if (!goal || Number(goal) <= 0) return showStatus("Enter a valid goal amount.", "error")
       if (isNaN(durationDays) || durationDays < 1) return showStatus("Enter a valid duration.", "error")
+      const savingsToken = findToken(symbolStr)
+      if (savingsToken && Number(savingsToken.min_goal_amount) > 0) {
+        const { precision, code } = parseSymbol(symbolStr)
+        if (toRawAmount(goal, precision) < BigInt(savingsToken.min_goal_amount)) {
+          return showStatus(`Goal amount must be at least ${fromRawAmount(BigInt(savingsToken.min_goal_amount), precision)} ${code} (the admin's configured minimum for this token).`, "error")
+        }
+      }
 
       const btn = document.getElementById("create-savings-btn")
       btn.disabled = true
@@ -3761,6 +3944,7 @@
       fetchBalance(); loadDashboard(); loadGroups(); loadSavings(); loadReputation()
     })
     document.getElementById("balance-token-select").addEventListener("change", fetchBalance)
+    document.getElementById("save-token").addEventListener("change", updateSaveGoalHint)
     document.getElementById("send-btn").addEventListener("click", () => openSendModal())
     document.getElementById("receive-btn").addEventListener("click", () => openReceiveModal())
 
