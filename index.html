@@ -19,7 +19,7 @@
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0a0e16" id="meta-theme-color" />
+  <meta name="theme-color" content="#070a12" id="meta-theme-color" />
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -39,15 +39,15 @@
     :root {
       /* ── Palette: clean cool wallet (electric blue + cyan on deep navy) ── */
       --bg-0: #070a12;
-      --bg-1: #0b0f1a;
-      --surface: #101624;
-      --surface-2: #151d30;
-      --surface-hover: #1b253c;
-      --border: #212c47;
-      --border-hover: #2e3d63;
+      --bg-1: #0d1322;
+      --surface: #171f36;
+      --surface-2: #202a4a;
+      --surface-hover: #29355c;
+      --border: #374773;
+      --border-hover: #4a5c8f;
       --text: #f3f6fc;
       --text-dim: #8c98bd;
-      --text-faint: #737fa5;
+      --text-faint: #7b86aa;
 
       /* primary brand accent — electric blue (was "brass") */
       --brass: #4f7fff;
@@ -91,8 +91,8 @@
       --ease: cubic-bezier(0.22, 1, 0.36, 1);
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --glass: rgba(16, 22, 36, 0.72);
-      --glass-strong: rgba(11, 15, 26, 0.82);
+      --glass: rgba(23, 31, 54, 0.72);
+      --glass-strong: rgba(13, 19, 34, 0.82);
       --grad-1: rgba(79,127,255,0.10);
       --grad-2: rgba(34,211,238,0.06);
       --hero-grad-1: rgba(79,127,255,0.20);
@@ -101,13 +101,13 @@
 
     /* ── Light theme: warm stone/ash, not clinical white ── */
     :root[data-theme="light"] {
-      --bg-0: #ffffff;
-      --bg-1: #ffffff;
+      --bg-0: #eef0f4;
+      --bg-1: #f2f4f8;
       --surface: #ffffff;
-      --surface-2: #f2f4f8;
-      --surface-hover: #e7eaf1;
-      --border: #e1e4ec;
-      --border-hover: #c9cedb;
+      --surface-2: #eceef3;
+      --surface-hover: #e3e6ee;
+      --border: #d7dce6;
+      --border-hover: #c3cadb;
       --text: #14161e;
       --text-dim: #5a6070;
       --text-faint: #6d778b;
@@ -209,7 +209,17 @@
       border: none; background: transparent; color: var(--text-dim); border-radius: 8px;
       transition: all 0.2s var(--ease);
     }
-    .net-btn.active { background: var(--brass); color: #05070d; box-shadow: 0 2px 10px -2px var(--brass-glow); }
+    .net-btn.active { background: var(--brass); color: #05070d; box-shadow: 0 2px 10px -2px var(--brass-glow); position: relative; padding-left: 20px; }
+    .net-btn.active::before {
+      content: ""; position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+      width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+      box-shadow: 0 0 0 0 rgba(5,7,13,0.5); animation: status-pulse 2s var(--ease) infinite;
+    }
+    @keyframes status-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(5,7,13,0.45); }
+      70% { box-shadow: 0 0 0 5px rgba(5,7,13,0); }
+      100% { box-shadow: 0 0 0 0 rgba(5,7,13,0); }
+    }
     .net-btn:not(.active):not(:disabled):hover { background: var(--surface-hover); color: var(--text); }
     .net-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
@@ -225,6 +235,9 @@
     .theme-toggle-btn .icon-moon { display: none; }
     :root[data-theme="light"] .theme-toggle-btn .icon-sun { display: none; }
     :root[data-theme="light"] .theme-toggle-btn .icon-moon { display: block; }
+    :root[data-theme="light"] select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a6070' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    }
 
     /* ── Fee confirmation modal ── */
     .modal-overlay {
@@ -372,7 +385,7 @@
       margin-left: 8px; letter-spacing: 0.02em; vertical-align: middle;
       white-space: nowrap;
     }
-    .acct-balance-row select { width: auto; padding: 5px 10px; font-size: 0.72rem; max-width: 100%; }
+    .acct-balance-row select { width: auto; padding: 5px 28px 5px 10px; font-size: 0.72rem; max-width: 100%; background-position: right 8px center; background-size: 13px; }
     .acct-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
     .btn-sm {
       padding: 8px 16px; border-radius: 11px; border: 1px solid var(--border);
@@ -428,6 +441,12 @@
     input::placeholder, textarea::placeholder { color: var(--text-faint); }
     input[readonly] { color: var(--text-dim); background: var(--bg-0); }
     textarea { resize: vertical; min-height: 50px; }
+    select {
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238c98bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; background-size: 16px;
+      padding-right: 32px; cursor: pointer;
+    }
     .field-hint { font-size: 0.71rem; color: var(--text-faint); margin-top: 4px; line-height: 1.5; }
 
     .input-row { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -587,10 +606,21 @@
     /* ── Stat grid (dashboard) ── */
     .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 4px; }
     .stat-tile {
-      background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px;
-      padding: 14px 16px; transition: border-color 0.2s var(--ease);
+      position: relative; overflow: hidden;
+      background: var(--bg-1); border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px 16px; transition: border-color 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
     }
-    .stat-tile:hover { border-color: var(--border-hover); }
+    .stat-tile:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow-card); }
+    .stat-icon {
+      width: 30px; height: 30px; border-radius: 9px; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface-2); color: var(--text-faint);
+    }
+    .stat-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.9; }
+    .stat-tile.accent .stat-icon.groups { background: var(--brass-glow); color: var(--brass); }
+    .stat-tile.accent .stat-icon.savings { background: var(--teal-glow); color: var(--teal); }
+    .stat-icon.rep { background: var(--amber-glow); color: var(--amber); }
+    .stat-icon.volume { background: var(--blue-glow); color: var(--blue); }
     .stat-tile .stat-label { font-size: 0.68rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
     .stat-tile .stat-value { font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
     .stat-tile.accent .stat-value { color: var(--brass); }
@@ -624,6 +654,26 @@
     }
     .memo-note code { color: var(--brass); font-family: var(--font-mono); }
     .card .memo-note code, code { font-family: var(--font-mono); }
+
+    /* ── Info popover (long explanatory text, collapsed behind a "?") ── */
+    .info-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+    .info-row-label { font-size: 0.78rem; font-weight: 600; color: var(--text-dim); }
+    .info-btn {
+      flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--surface-2); border: 1px solid var(--border); color: var(--text-faint);
+      font-size: 0.68rem; font-weight: 700; font-family: var(--font-display);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: all 0.18s var(--ease);
+    }
+    .info-btn:hover, .info-btn.open { color: var(--brass); border-color: var(--brass); background: var(--brass-glow); }
+    .info-popover {
+      display: none; margin: -2px 0 10px; padding: 10px 12px;
+      font-size: 0.78rem; line-height: 1.55; color: var(--text-dim);
+      background: var(--bg-1); border: 1px solid var(--border); border-radius: 12px;
+      animation: modal-in 0.18s var(--ease);
+    }
+    .info-popover.open { display: block; }
+    .info-popover code { color: var(--brass); }
 
     /* ── Responsive ── */
     @media (max-width: 500px) {
@@ -789,10 +839,22 @@
       <h2>Dashboard</h2>
       <div id="dashboard-content">
         <div class="stat-grid">
-          <div class="stat-tile accent"><div class="stat-label">Your Groups</div><div class="stat-value" id="dash-groups">—</div></div>
-          <div class="stat-tile accent"><div class="stat-label">Savings Plans</div><div class="stat-value" id="dash-savings">—</div></div>
-          <div class="stat-tile"><div class="stat-label">Reputation Score</div><div class="stat-value" id="dash-rep">—</div></div>
-          <div class="stat-tile"><div class="stat-label">Volume Tracked</div><div class="stat-value" id="dash-volume">—</div></div>
+          <div class="stat-tile accent">
+            <div class="stat-icon groups"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17" cy="9" r="2.6"/><path d="M15.3 14.8c2.6.2 4.7 2.3 4.7 5.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="stat-label">Your Groups</div><div class="stat-value" id="dash-groups">—</div>
+          </div>
+          <div class="stat-tile accent">
+            <div class="stat-icon savings"><svg viewBox="0 0 24 24"><path d="M4 12.5c0-3.6 3-6.5 7-6.5 3.5 0 6.4 2.2 7 5.2l2 .4-1.2 2.1-1.1-.1c-.4 1.2-1.2 2.2-2.2 2.9V19a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-.6c-.5.1-1 .1-1.5.1-3.9 0-7-2.6-7-6z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15.5" cy="10.5" r=".6" fill="currentColor" stroke="none"/></svg></div>
+            <div class="stat-label">Savings Plans</div><div class="stat-value" id="dash-savings">—</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-icon rep"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.5 5.2 5.6.8-4 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4-4 5.6-.8z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="stat-label">Reputation Score</div><div class="stat-value" id="dash-rep">—</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-icon volume"><svg viewBox="0 0 24 24"><path d="M4 18 9 11l4 3.5L20 6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 6h5v5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="stat-label">Volume Tracked</div><div class="stat-value" id="dash-volume">—</div>
+          </div>
         </div>
         <hr class="divider" />
         <div style="font-size:0.8rem;color:var(--text-dim);text-align:center;">
@@ -810,10 +872,17 @@
       </div>
 
       <div id="groups-mine-view">
-        <div class="memo-note">
+        <div class="info-row">
+          <span class="info-row-label">How staking &amp; contributing work</span>
+          <button class="info-btn" type="button" aria-label="More info">?</button>
+        </div>
+        <div class="info-popover">
           Staking and contributing both work by sending a token <code>transfer</code> to <code>roscatesting</code> with a memo
           (<code>stake:&lt;id&gt;</code> / <code>contribute:&lt;id&gt;</code>) — this contract has no separate "stake" or "contribute" action.
           The buttons below build that transfer for you with the exact amount the contract expects.
+        </div>
+        <div class="form-group" style="margin-bottom:10px;">
+          <input id="group-search" type="text" placeholder="Search your groups by ID, organizer, or token…" />
         </div>
         <div id="group-list"><div class="empty-msg">Connect a wallet to load your groups.</div></div>
         <hr class="divider" />
@@ -911,7 +980,11 @@
     <!-- SAVINGS -->
     <div class="card tab-panel" id="tab-savings">
       <h2>Savings Plans</h2>
-      <div class="memo-note">
+      <div class="info-row">
+        <span class="info-row-label">How deposits &amp; withdrawals work</span>
+        <button class="info-btn" type="button" aria-label="More info">?</button>
+      </div>
+      <div class="info-popover">
         Deposits and withdrawals also go through token transfers — <code>savings:&lt;plan id&gt;</code> to deposit.
         <code>claimsavings</code> is a real action (no memo needed) since it pays funds back out to you.
       </div>
@@ -975,13 +1048,17 @@
       <hr class="divider" />
       <h3>Locked Stakes</h3>
       <div id="locked-stake-list"><div class="empty-msg">—</div></div>
-      <button class="btn btn-sm btn-blue" id="act-release-stake" style="margin-top:10px;">Release Matured Stake(s)</button>
+      <button class="btn btn-sm btn-blue" id="act-release-stake" style="margin-top:10px;" disabled title="Loading…">Release Matured Stake(s)</button>
     </div>
 
     <!-- HISTORY -->
     <div class="card tab-panel" id="tab-history">
       <h2>History</h2>
-      <div class="memo-note">
+      <div class="info-row">
+        <span class="info-row-label">Where this data comes from</span>
+        <button class="info-btn" type="button" aria-label="More info">?</button>
+      </div>
+      <div class="info-popover">
         This pulls straight from the contract's on-chain <code>txnlog</code> table, scoped to your account — every action you've
         taken through this app (or directly on-chain) that touches the contract shows up here, newest first. Each entry links to
         its transaction on the block explorer so you can independently verify it happened.
@@ -1251,10 +1328,13 @@
       <details class="acc">
         <summary>Fees &amp; Incentives</summary>
         <div class="acc-body">
-          <h3>System (Platform) Fee</h3>
-          <p class="field-hint" style="margin-bottom:8px;">
+          <div class="info-row" style="margin-top:0;">
+            <h3 style="margin-bottom:0;">System (Platform) Fee</h3>
+            <button class="info-btn" type="button" aria-label="More info">?</button>
+          </div>
+          <div class="info-popover">
             The platform's own cut of every group cycle payout — separate from the organizer's fee and each group's own custom fee.
-          </p>
+          </div>
           <div class="input-row">
             <div class="form-group"><label>Fee Percent (max 20)</label><input id="admin-sys-fee" type="number" value="1" min="0" max="20" /></div>
             <div class="form-group">
@@ -1266,10 +1346,13 @@
 
           <hr class="divider" />
 
-          <h3>Personal Savings Fee</h3>
-          <p class="field-hint" style="margin-bottom:8px;">
+          <div class="info-row" style="margin-top:0;">
+            <h3 style="margin-bottom:0;">Personal Savings Fee</h3>
+            <button class="info-btn" type="button" aria-label="More info">?</button>
+          </div>
+          <div class="info-popover">
             The fee charged on personal savings deposits (shown to the depositor before they confirm).
-          </p>
+          </div>
           <div class="input-row">
             <div class="form-group"><label>Fee Percent (max 20)</label><input id="admin-pers-fee" type="number" value="1" min="0" max="20" /></div>
             <div class="form-group">
@@ -1281,10 +1364,13 @@
 
           <hr class="divider" />
 
-          <h3>Panic Withdrawal Penalty</h3>
-          <p class="field-hint" style="margin-bottom:8px;">
+          <div class="info-row" style="margin-top:0;">
+            <h3 style="margin-bottom:0;">Panic Withdrawal Penalty</h3>
+            <button class="info-btn" type="button" aria-label="More info">?</button>
+          </div>
+          <div class="info-popover">
             The penalty deducted when a saver withdraws from a personal savings plan before it matures (shown to the saver before they confirm a panic withdrawal).
-          </p>
+          </div>
           <div class="input-row">
             <div class="form-group"><label>Penalty Percent (max 20)</label><input id="admin-panic-penalty" type="number" value="3" min="0" max="20" /></div>
           </div>
@@ -1292,14 +1378,17 @@
 
           <hr class="divider" />
 
-          <h3>Organizer Fee</h3>
-          <p class="field-hint" style="margin-bottom:8px;">
+          <div class="info-row" style="margin-top:0;">
+            <h3 style="margin-bottom:0;">Organizer Fee</h3>
+            <button class="info-btn" type="button" aria-label="More info">?</button>
+          </div>
+          <div class="info-popover">
             This is a <strong>revenue share of the system fee</strong>, not an extra charge on top of it — members always pay
             exactly the system fee percentage (above) regardless of this setting. E.g. a 1% system fee with this set to 10% means
             the organizer gets 10% of that 1% (0.1% of the payout) and the platform keeps the remaining 0.9% — the member's total
             never changes. This is separate from a group's own custom fee (set per-group at creation), which <em>is</em> an
             additional charge on top of the system fee.
-          </p>
+          </div>
           <div class="input-row"><div class="form-group"><label>Fee Percent (max 50)</label><input id="admin-org-fee" type="number" value="20" min="0" max="50" /></div></div>
           <button class="btn btn-purple btn-full" id="admin-org-fee-btn">Set Organizer Fee</button>
 
@@ -1311,30 +1400,39 @@
 
           <hr class="divider" />
 
-          <h3>Minimum Organizer Reputation</h3>
-          <p class="field-hint" style="margin-bottom:8px;">
+          <div class="info-row" style="margin-top:0;">
+            <h3 style="margin-bottom:0;">Minimum Organizer Reputation</h3>
+            <button class="info-btn" type="button" aria-label="More info">?</button>
+          </div>
+          <div class="info-popover">
             <code>creategroup</code> requires the organizer's reputation score to be at or above this. Brand-new accounts have no
             reputation record yet, so they'll need Early Reputation (below) before they can organize a group at all.
-          </p>
+          </div>
           <div class="input-row"><div class="form-group"><label>Min Score (0–100)</label><input id="admin-min-org-score" type="number" value="60" min="0" max="100" /></div></div>
           <button class="btn btn-purple btn-full" id="admin-min-org-score-btn">Set Minimum Organizer Score</button>
 
           <hr class="divider" />
 
-          <h3>Minimum Reputation Bond</h3>
-          <p class="field-hint" style="margin-bottom:8px;">
+          <div class="info-row" style="margin-top:0;">
+            <h3 style="margin-bottom:0;">Minimum Reputation Bond</h3>
+            <button class="info-btn" type="button" aria-label="More info">?</button>
+          </div>
+          <div class="info-popover">
             The minimum amount a "reputation" memo transfer must carry to initialize full (non-early) reputation.
-          </p>
+          </div>
           <div class="input-row"><div class="form-group"><label>Min Stake (raw units)</label><input id="admin-min-rep-stake" type="number" placeholder="100000000" /></div></div>
           <button class="btn btn-purple btn-full" id="admin-min-rep-stake-btn">Set Minimum Reputation Bond</button>
 
           <hr class="divider" />
 
-          <h3>Organizer Incentives</h3>
-          <p class="field-hint" style="margin-bottom:8px;">
+          <div class="info-row" style="margin-top:0;">
+            <h3 style="margin-bottom:0;">Organizer Incentives</h3>
+            <button class="info-btn" type="button" aria-label="More info">?</button>
+          </div>
+          <div class="info-popover">
             When disabled, <code>creategroup</code> rejects every new group (existing groups are unaffected) — this is the master
             switch <code>creategroup</code> checks before anything else.
-          </p>
+          </div>
           <div class="input-row">
             <div class="form-group">
               <label>Enable/Disable</label>
@@ -1387,14 +1485,17 @@
 
           <hr class="divider" />
 
-          <h3>Public Group Requirements</h3>
-          <p class="field-hint" style="margin-bottom:8px;">
+          <div class="info-row" style="margin-top:0;">
+            <h3 style="margin-bottom:0;">Public Group Requirements</h3>
+            <button class="info-btn" type="button" aria-label="More info">?</button>
+          </div>
+          <div class="info-popover">
             Early reputation can only organize <strong>private</strong> groups (every member pre-named at creation). Opening a group
             to the public marketplace (leaving seats for <code>requestjoin</code>/<code>acceptjoin</code>/<code>addmember</code>) requires earned
             reputation — meeting either threshold below qualifies. A trading-volume requirement was deliberately left out here: it
             would rely on <code>total_volume</code>, which sums raw amounts across every token an account has used with no
             per-token precision normalization — not a reliable signal once more than one token is registered.
-          </p>
+          </div>
           <div class="input-row">
             <div class="form-group"><label>Min completed savings plans</label><input id="admin-pub-savings" type="number" value="3" min="0" /></div>
             <div class="form-group"><label>Min groups organized</label><input id="admin-pub-organized" type="number" value="1" min="0" /></div>
@@ -1406,11 +1507,15 @@
       <details class="acc">
         <summary>Withdrawal Limits</summary>
         <div class="acc-body">
-          <p class="field-hint" style="margin-bottom:8px;">
+          <div class="info-row" style="margin-top:0;">
+            <span class="info-row-label">How this is enforced</span>
+            <button class="info-btn" type="button" aria-label="More info">?</button>
+          </div>
+          <div class="info-popover">
             Enforced on <code>claimsavings</code> for matured withdrawals only — <code>check_withdrawal_limit</code> caps how much
             a saver can withdraw within the configured period, and panic (pre-maturity) withdrawals aren't subject to it since
             they already pay the panic penalty instead.
-          </p>
+          </div>
           <div class="input-row">
             <div class="form-group">
               <label>Enable/Disable</label>
@@ -1531,6 +1636,7 @@
     let tokensCache = []
     let myGroupsCache = []
     let myMembershipsCache = []
+    let groupEntriesCache = []
     let mySavingsCache = []
     let myRepCache = null
     const PAGE_SIZE = 6
@@ -2383,9 +2489,14 @@
         myMembershipsCache = memberships
         const membershipByGroup = new Map(memberships.map(m => [Number(m.group_id), m]))
         const myGroups = allGroups.filter(g => Array.isArray(g.member_list) && g.member_list.includes(actor))
+        // Newest first: created_time is the real chain timestamp, but
+        // group_id is a reliable fallback (it's assigned sequentially)
+        // for any row missing it.
+        myGroups.sort((a, b) => (Number(b.created_time) || Number(b.group_id)) - (Number(a.created_time) || Number(a.group_id)))
         myGroupsCache = myGroups
 
         if (!myGroups.length) {
+          groupEntriesCache = []
           list.innerHTML = `<div class="empty-msg">You are not in any groups yet.</div>`
           return
         }
@@ -2574,10 +2685,33 @@
               </div>
             </div>`
         })
-        paginate(list, groupCards, groupsPageState)
+        groupEntriesCache = myGroups.map((g, i) => ({ g, html: groupCards[i] }))
+        renderGroupList()
       } catch (err) {
         list.innerHTML = `<div class="empty-msg">Error loading groups: ${formatTxError(err)}</div>`
       }
+    }
+
+    // Client-side search over the already-fetched groups: matches on
+    // group ID, organizer account, or token symbol/code. Re-filters
+    // groupEntriesCache (built fresh each loadGroups()) rather than
+    // re-fetching, and always resets back to page 1 since the result
+    // set just changed size.
+    function renderGroupList() {
+      const list = document.getElementById("group-list")
+      if (!list) return
+      const q = (document.getElementById("group-search")?.value || "").trim().toLowerCase()
+      const filtered = !q ? groupEntriesCache : groupEntriesCache.filter(({ g }) => {
+        return String(g.group_id).includes(q) ||
+          String(g.organizer).toLowerCase().includes(q) ||
+          String(g.token_symbol).toLowerCase().includes(q)
+      })
+      groupsPageState.page = 1
+      if (!filtered.length) {
+        list.innerHTML = `<div class="empty-msg">No groups match "${q}".</div>`
+        return
+      }
+      paginate(list, filtered.map(e => e.html), groupsPageState, 4)
     }
 
     document.getElementById("group-list").addEventListener("click", async (ev) => {
@@ -3044,10 +3178,14 @@
         }
 
         const lockedList = document.getElementById("locked-stake-list")
+        const releaseBtn = document.getElementById("act-release-stake")
         if (!locked.length) {
           lockedList.innerHTML = `<div class="empty-msg">No locked reputation stakes.</div>`
+          releaseBtn.disabled = true
+          releaseBtn.title = "No locked reputation stake to release"
         } else {
           const nowSec = Math.floor(Date.now() / 1000)
+          const hasMatured = locked.some(l => nowSec >= l.release_time)
           lockedList.innerHTML = locked.map(l => `
             <div class="row">
               <span class="label">${formatAsset(l.amount, l.token_symbol)}</span>
@@ -3055,6 +3193,11 @@
                 ${nowSec >= l.release_time ? "Matured — ready to release" : "Locked until " + new Date(l.release_time * 1000).toLocaleDateString()}
               </span>
             </div>`).join("")
+          // releasestake() releases every matured lock at once, but has
+          // nothing to do until at least one has actually matured — button
+          // should say so instead of just failing on-chain when clicked.
+          releaseBtn.disabled = !hasMatured
+          releaseBtn.title = hasMatured ? "" : "None of your locked stakes have matured yet"
         }
       } catch (err) {
         console.warn("Reputation load failed:", err.message)
@@ -3089,11 +3232,15 @@
       try {
         const txId = await transact({ account: CONTRACT_NAME, name: "releasestake", authorization: [session.permissionLevel], data: { user: session.actor } })
         showStatus(`Stake released! Tx: ${txId.slice(0,12)}...`, "success")
-        loadReputation(); fetchBalance()
+        await loadReputation(); fetchBalance()
       } catch (err) {
         showStatus(`Release failed: ${formatTxError(err)}`, "error")
-      } finally {
+        // Something matured (that's the only way this button becomes
+        // clickable), and the release attempt itself failed, so it's
+        // still safe to retry — re-enable rather than deferring to
+        // loadReputation, which we don't re-run on the error path.
         btn.disabled = false
+      } finally {
         btn.innerHTML = "Release Matured Stake(s)"
       }
     })
@@ -3191,7 +3338,7 @@
               <div class="ic-detail" style="margin-top:4px;font-size:0.78rem;">${explorerLink}</div>
             </div>`
         })
-        paginate(list, cards, historyPageState)
+        paginate(list, cards, historyPageState, 4)
       } catch (err) {
         list.innerHTML = `<div class="empty-msg">Error loading transaction history: ${formatTxError(err)}</div>`
       }
@@ -3945,10 +4092,33 @@
     })
     document.getElementById("balance-token-select").addEventListener("change", fetchBalance)
     document.getElementById("save-token").addEventListener("change", updateSaveGoalHint)
+    document.getElementById("group-search").addEventListener("input", renderGroupList)
     document.getElementById("send-btn").addEventListener("click", () => openSendModal())
     document.getElementById("receive-btn").addEventListener("click", () => openReceiveModal())
 
     document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)))
+
+    // Info popovers ("?" icons that expand the long explanatory text they
+    // used to show inline). One delegated listener covers every instance
+    // on the page — no per-icon wiring needed. Markup pattern: a
+    // `.info-btn` inside an `.info-row`, immediately followed by the
+    // `.info-popover` it toggles.
+    document.addEventListener("click", (ev) => {
+      const btn = ev.target.closest(".info-btn")
+      const openPopovers = document.querySelectorAll(".info-popover.open")
+      const openBtns = document.querySelectorAll(".info-btn.open")
+      if (!btn) {
+        openPopovers.forEach(p => p.classList.remove("open"))
+        openBtns.forEach(b => b.classList.remove("open"))
+        return
+      }
+      const popover = btn.closest(".info-row")?.nextElementSibling
+      if (!popover || !popover.classList.contains("info-popover")) return
+      const wasOpen = popover.classList.contains("open")
+      openPopovers.forEach(p => p.classList.remove("open"))
+      openBtns.forEach(b => b.classList.remove("open"))
+      if (!wasOpen) { popover.classList.add("open"); btn.classList.add("open") }
+    })
     document.querySelectorAll(".net-btn").forEach(btn => btn.addEventListener("click", () => switchNetwork(btn.dataset.network)))
 
     // ── INIT ─────────────────────────────────────────────────────────────────
@@ -3971,7 +4141,7 @@
     init()
 
     // ── Theme toggle (dark / light) ─────────────────────────────────────────
-    const THEME_COLORS = { dark: "#0a0e16", light: "#ffffff" }
+    const THEME_COLORS = { dark: "#070a12", light: "#eef0f4" }
     function applyThemeColorMeta(theme) {
       const meta = document.getElementById("meta-theme-color")
       if (meta) meta.setAttribute("content", THEME_COLORS[theme] || THEME_COLORS.dark)
